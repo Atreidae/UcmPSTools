@@ -30,7 +30,7 @@
 
 			.LINK
 			http://www.UcMadScientist.com
-			 https://github.com/Atreidae/PowerShell-Fuctions
+			https://github.com/Atreidae/PowerShell-Fuctions
 
 			.INPUTS
 			This function does not accept pipelined input
@@ -74,10 +74,15 @@
 	#If LogOnly is not set, output the log entry to the screen
 	If (!$LogOnly) 
 	{
-		#If the log entry is just informational (less than 2), output it to write-host
-		if ($severity -le 2) 
+		#If the log entry is just Verbose (1), output it to write-verbose
+		if ($severity -eq 1) 
 		{
-			"Info: $Message"| Write-Host -ForegroundColor Green
+			"$Message"| Write-verbose
+		}
+		#If the log entry is just informational (2), output it to write-host
+		if ($severity -eq 2) 
+		{
+			"INFO: $Message"| Write-Host -ForegroundColor Green
 		}
 		#If the log entry has a severity of 3 assume its a warning and write it to write-warning
 		if ($severity -eq 3) 

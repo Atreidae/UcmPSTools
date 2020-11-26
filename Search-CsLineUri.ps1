@@ -38,12 +38,25 @@
 		[Parameter(Mandatory, Position=1)] $UriCheck 
 	)
 
-	#Set Default Variables for HTML Reporting and Write Log
-
+	#region FunctionSetup, Set Default Variables for HTML Reporting and Write Log
 	$function = 'Search-CsLineUri'
-	[hashtable]$return = @{}
+	[hashtable]$Return = @{}
+	$return.Function = $function
 	$return.Status = "Unknown"
 	$return.Message = "Function did not return a status message"
+
+	# Log why we were called
+	Write-Log -Message "$($MyInvocation.InvocationName) called with $($MyInvocation.Line)" -Severity 1 -Component $function
+	Write-Log -Message "Parameters" -Severity 3 -Component $function -LogOnly
+	Write-Log -Message "$($PsBoundParameters.Keys)" -Severity 1 -Component $function -LogOnly
+	Write-Log -Message "Parameters Values" -Severity 1 -Component $function -LogOnly
+	Write-Log -Message "$($PsBoundParameters.Values)" -Severity 1 -Component $function -LogOnly
+	Write-Log -Message "Optional Arguments" -Severity 1 -Component $function -LogOnly
+	Write-Log -Message "$Args" -Severity 1 -Component $function -LogOnly
+	
+	#endregion FunctionSetup
+
+	#region FunctionWork
 
 	#Copy URI Check into Match
 	$match = "*$UriCheck*"
@@ -148,16 +161,29 @@
 
 	$OutputCollection #Put the output to the pipeline
 
-#Report on Findings
-if ($OutputCollection.count -eq 0)
-{Trho dfskmsdfsd
-}
+	#Report on Findings
+	if ($OutputCollection.count -eq 0)
+	{
+		Write-Log -Message "Number $UriCheck does not appear to be used in the Skype4B deployment" -Severity 2 -Component $function
+		$Return.Status = "OK"
+		$Return.Message  = "Number Not Used"
+		Return
+	}
+	Else
+	{
+		Write-Log -Message "Number $UriCheck is already in use!" -Severity 3 -Component $function
+		$Return.Status = "Error"
+		$Return.Message  = "Number in use: $OutputCollection"
+		Return
+	}
 
-
-#Return Variable for my HTML Reporting Fucntion
-$Return.Object = $OutputCollection #Return the results to the calling function
-$return.Function = $function
-$return.Status = $ReturnStatus
-$return.Message = $ReturnMessage
+	#region FunctionReturn
+ 
+	#Default Return Variable for my HTML Reporting Fucntion
+	Write-Log -Message "Reached end of $function without a Return Statement" -Severity 3 -Component $function
+	$return.Status = "Unknown"
+	$return.Message = "Function did not encounter return statement"
+	Return
+	#endregion FunctionReturn
 
 }
