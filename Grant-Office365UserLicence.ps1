@@ -41,7 +41,8 @@
 	Param
 	(
 		[Parameter(ValueFromPipelineByPropertyName=$true, Mandatory, Position=1)] $UPN, 
-		[Parameter(ValueFromPipelineByPropertyName=$true, Mandatory, Position=2)] $LicenceType
+		[Parameter(ValueFromPipelineByPropertyName=$true, Mandatory, Position=2)] $LicenceType,
+		[Parameter(ValueFromPipelineByPropertyName=$true, Mandatory, Position=3)] $Country
 	)
 
 
@@ -107,9 +108,9 @@
 	}
 
 	#Check to see if there are free licences. Trigger a warning on less than 5% available
-	$LicenceAvailablePercent = (($O365AcctSku.ConsumedUnits / $O365AcctSku.ActiveUnits) * 100)
+	$LicenceUsedPercent = (($O365AcctSku.ConsumedUnits / $O365AcctSku.ActiveUnits) * 100)
 	$AvailableLicenceCount = ($O365AcctSku.ActiveUnits - $O365AcctSku.ConsumedUnits)
-	If (($LicenceAvailablePercent -le 5) -or ($AvailableLicenceCount -le 2))
+	If (($LicenceUsedPercent -ge 95) -or ($AvailableLicenceCount -le 2))
 	{
 		Write-Log -Message "Only $AvailableLicenceCount $LicenceType Licences Left" -Severity 3 -Component $function
 		Write-Log -Message "Available licence count low..." -Severity 3 -Component $function
@@ -145,8 +146,13 @@
 		Write-Log -Message "User Exists, Grant Licence" -Severity 2 -Component $function
 		Try #Assign Licence
 		{
+			Write-Log -Message "Setting Location" -Severity 2 -Component $function
+			[void] (Set-MsolUser -UserPrincipalName $UPN -UsageLocation $Country)
+
 			[Void] (Set-MsolUserLicense -UserPrincipalName $UPN -AddLicenses $LicenceToAssign -ErrorAction stop)
 			Write-Log -Message "Licence Granted" -Severity 2 -Component $function
+			Write-Log -Message "Waiting for Office365 Replication" -Severity 2 -Component $function
+			Start-Sleep -seconds 10
 			if ($warningFlag) #We Encounted a warning during the run
 			{
 				$Return.Status = "Warning"

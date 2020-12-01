@@ -1,24 +1,23 @@
-﻿Function Test-MSOLConnection
+﻿Function Test-SFBOConnection
 {
 	<#
 			.SYNOPSIS
-			Checks to see if we are connected to an MSOL session
+			Checks to see if we are connected to an SFBO session
 
 			.DESCRIPTION
-			Tries to pull tenant info and will call New-MSOLConnection if unsucsessful
+			Tries to pull tenant info and will call New-SFBOConnection if unsucsessful
 
 			.EXAMPLE
-			Test-MSOLConnection
+			Test-SFBOConnection
 
 			.INPUTS
 			This function does not accept any input
 
 			.REQUIRED FUNCTIONS
 			Write-Log: 						https://github.com/Atreidae/PowerShell-Fuctions/blob/main/Write-Log.ps1
-			Connect-MSOLConnection:		https://github.com/Atreidae/PowerShell-Fuctions/blob/main/Connect-MSOLConnection.ps1
+			Connect-SFBOConnection:		https://github.com/Atreidae/PowerShell-Fuctions/blob/main/Connect-MSOLConnection.ps1
 			Write-HTMLReport: 			https://github.com/Atreidae/PowerShell-Fuctions/blob/main/Write-HTMLReport.ps1 (optional)
-			AzureAD 							(Install-Module AzureAD) 
-			Connect-MsolService
+			SkypeOnlineConnector
 
 			.LINK
 			http://www.UcMadScientist.com
@@ -42,7 +41,7 @@
 
 
 	#region FunctionSetup, Set Default Variables for HTML Reporting and Write Log
-	$function = 'Test-MSOLConnection'
+	$function = 'Test-SFBOConnection'
 	[hashtable]$Return = @{}
 	$return.Function = $function
 	$return.Status = "Unknown"
@@ -62,25 +61,24 @@ Write-Host '' #Insert a blank line to make reading output easier on loops
 
 	#region FunctionWork
 
-	Write-Log -Message "Checking for Existing O365 Connection" -Severity 1 -Component $function
-	Try #Check if we can pull company info
+
+	Write-Log -Message "Checking for Existing SFBO Connection" -Severity 1 -Component $function
+	$Session =(Get-PSSession | Where-Object {$_.Name -like "SfBPowerShellSession*"}) 
+if($Session.state -ne "opened")
 	{
-		$Companyinfo = (Get-MsolCompanyInformation)
-		Write-Log -Message "Connected to Tenant $($CompanyInfo.DisplayName)" -Severity 1 -Component $function
+		Get-PSSession | Where-Object {$_.Name -like "SfBPowerShellSession*"} |Remove-PSSession
+		Write-Log -Message "We dont appear to be connected to Office365!" -Severity 3 -Component $function
+		New-SFBOConnection
 		$Return.Status = "OK"
-		$Return.Message  = "Tenant: $($CompanyInfo.DisplayName)"
+		$Return.Message  = "Reconnected"
 		Return $Return
 	}
-	Catch
-	{
-		#Todo, call my connection script here
-		Write-Log -Message "We dont appear to be connected to Office365! Connect to O365 and try again" -Severity 3 -Component $function
-		Write-Log -Message "Error running Get-MsolCompanyInformation" -Severity 2 -Component $function
-		Write-Log -Message $error[0] -Severity 2 -Component $function
-		$Return.Status = "Aborted"
-		$Return.Message  = "No Office365 Connection"
+Else
+{
+		$Return.Status = "OK"
+		$Return.Message  = "Existing Connection"
 		Return $Return
-	}
+}
 	#endregion FunctionWork
 
 	#region FunctionReturn

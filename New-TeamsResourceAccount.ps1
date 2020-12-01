@@ -1,4 +1,4 @@
-﻿Function New-Office365User
+﻿Function New-TeamsResourceAccount
 {
 	<#
 			.SYNOPSIS
@@ -36,13 +36,10 @@
 	Param
 	(
 		[Parameter(ValueFromPipelineByPropertyName=$true, Mandatory, Position=1)] $UPN, 
-		[Parameter(ValueFromPipelineByPropertyName=$true, Mandatory, Position=2)] $Password,
-		[Parameter(ValueFromPipelineByPropertyName=$true, Mandatory, Position=3)] $FirstName,
-		[Parameter(ValueFromPipelineByPropertyName=$true, Mandatory, Position=4)] $LastName,
-		[Parameter(ValueFromPipelineByPropertyName=$true, Mandatory, Position=5)] $Country,
-		[Parameter(ValueFromPipelineByPropertyName=$true, Mandatory, Position=6)] $DisplayName
-	)
+		[Parameter(ValueFromPipelineByPropertyName=$true, Mandatory, Position=2)] $DisplayName,
+		[Parameter(ValueFromPipelineByPropertyName=$true, Mandatory, Position=3)][ValidateSet('AutoAttendant', 'CallQueue')] $ResourceType
 
+	)
 
 	#todo, Remove Debugging 
 	$Script:LogFileLocation = $PSCommandPath -replace '.ps1','.log'
@@ -50,7 +47,7 @@
 
 
 	#region FunctionSetup, Set Default Variables for HTML Reporting and Write Log
-	$function = 'New-Office365User'
+	$function = 'New-TeamsResourceAccount'
 	[hashtable]$Return = @{}
 	$return.Function = $function
 	$return.Status = "Unknown"
@@ -70,38 +67,47 @@
 
 	#region FunctionWork
 
-	#Check to see if we are connected to MSOL
-
-	$Test = (Test-MSOLConnection)
-	If ($Test.Status -ne "OK")
+	#Set the Application ID for the 
+	Switch ($ResourceType)
 	{
-		Write-Log -Message "Something went wrong creating user $UPN" -Severity 3 -Component $function
-		Write-Log -Message "Test-MSOLConnection could not locate an MSOL connection" -Severity 2 -Component $function
-		$Return.Status = "Error"
-		$Return.Message = "No MSOL Connection"
-		Return $Return
+		'AutoAttendant' {$ApplicationID ='ce933385-9390-45d1-9512-c8d228074e07'}
+		'CallQueue' {$ApplicationID ='11cd3e2e-fccb-42ad-ad00-878b93575e07'}
 	}
 
-	Write-Log -Message "Checking for Existing User $UPN ..." -Severity 2 -Component $function
-	Try #Check user exits
+
+	<#Check to see if we are connected to SFBO
+
+			$Test = (Test-SFBOConnection)
+			If ($Test.Status -ne "OK")
+			{
+			Write-Log -Message "Something went wrong creating user $UPN" -Severity 3 -Component $function
+			Write-Log -Message "Test-MSOLConnection could not locate an MSOL connection" -Severity 2 -Component $function
+			$Return.Status = "Error"
+			$Return.Message = "No MSOL Connection"
+			Return $Return
+			}
+	#>
+	Write-Log -Message "Checking for Existing Resource Account $UPN ..." -Severity 2 -Component $function
+	#Check user exits
+	
+	$AppInstance = $null
+	$AppInstance = (Get-CsOnlineApplicationInstance | Where-Object {$_.UserPrincipalName -eq $UPN})
+	if ($AppInstance.UserPrincipalName -eq $UPN)
 	{
-		[void] (Get-MsolUser -UserPrincipalName $UPN -ErrorAction Stop)
-		Write-Log -Message "User Exists, Skipping" -Severity 3 -Component $function
+		Write-Log -Message "Resource Account already exists, Skipping" -Severity 3 -Component $function
 		$Return.Status = "Warning"
-		$Return.Message = "User Already Exists"
+		$Return.Message = "Skipped: Account Already Exists"
 		Return $Return
 	}
-	Catch
+	Else
 	{ #User Doesnt Exist, make them
 		Write-Log -Message "Not Found. Creating user $UPN" -Severity 2 -Component $function
 		Try 
 		{
-			[Void] (New-MsolUser -UserPrincipalName $UPN -DisplayName $DisplayName -FirstName $Firstname -LastName $LastName -UsageLocation $Country -Password $Password -ErrorAction Stop)
-			Write-Log -Message "User Created Sucessfully" -Severity 2 -Component $function
-			Write-Log -Message "Waiting for Office365 Replication" -Severity 2 -Component $function
-			Start-Sleep -seconds 10
+			[Void] (New-CsOnlineApplicationInstance -UserPrincipalName $UPN -DisplayName $DisplayName -ApplicationId $ApplicationID -ErrorAction Stop)
+			Write-Log -Message "Resource Account Created Sucessfully" -Severity 2 -Component $function
 			$Return.Status = "OK"
-			$Return.Message = "User Created"
+			$Return.Message = "Resource Account Created"
 			Return $Return
 		}
 		Catch
@@ -113,17 +119,18 @@
 			Return $Return
 		}
 	}
-#endregion FunctionWork
+	
+	#endregion FunctionWork
 
-#Set-MsolUserLicense -UserPrincipalName <userPrincipalName> -AddLicenses <tenantName:DEVELOPERPACK> -LicenseOptions $MyServicePlans
+	#Set-MsolUserLicense -UserPrincipalName <userPrincipalName> -AddLicenses <tenantName:DEVELOPERPACK> -LicenseOptions $MyServicePlans
 
 
-#region FunctionReturn
+	#region FunctionReturn
  
-#Default Return Variable for my HTML Reporting Fucntion
-Write-Log -Message "Reached end of $function without a Return Statement" -Severity 3 -Component $function
-$return.Status = "Unknown"
-$return.Message = "Function did not encounter return statement"
-Return $Return
-#endregion FunctionReturn
+	#Default Return Variable for my HTML Reporting Fucntion
+	Write-Log -Message "Reached end of $function without a Return Statement" -Severity 3 -Component $function
+	$return.Status = "Unknown"
+	$return.Message = "Function did not encounter return statement"
+	Return $Return
+	#endregion FunctionReturn
 }
