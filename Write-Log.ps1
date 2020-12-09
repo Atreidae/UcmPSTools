@@ -64,7 +64,7 @@
 		if(((Get-ChildItem -Path $Path).length/1MB) -gt $MaxLogFileSizeMB) # Check the size of the log file and archive if over the limit.
 		{
 			$ArchLogfile = $Path.replace('.log', "_$(Get-Date -Format dd-MM-yyy_hh-mm-ss).lo_")
-			Rename-Item -Path ren -NewName $Path -Path $ArchLogfile
+			Rename-Item -Path $Path -NewName $ArchLogfile
 		}
 	}
 

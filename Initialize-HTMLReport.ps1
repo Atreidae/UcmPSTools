@@ -62,15 +62,15 @@
 	#region FunctionWork
 
 	#Declare our report
-	$Script:ProgressReport = @()
-	$Script:ThisReport = @()
+	$Global:ProgressReport = @()
+	$Global:ThisReport = @()
 
 
-	$Filename=("$Title - $StartDate.html")
+	$Global:ReportFilename=".\$Title - $StartDate.html"
 	#Import the attributes
-	$Script:ProgressReport | add-member -MemberType NoteProperty -Name "Title"-Value "$title" -Force
-	$Script:ProgressReport | add-member -MemberType NoteProperty -Name "StartDate"-Value "$StartDate" -Force
-	$Script:ProgressReport | add-member -MemberType NoteProperty -Name "Filename"-Value "$Filename" -Force
+	$Global:ProgressReport | add-member -MemberType NoteProperty -Name "Title"-Value "$title" -Force
+	$Global:ProgressReport | add-member -MemberType NoteProperty -Name "StartDate"-Value "$StartDate" -Force
+	#$Global:ProgressReport | add-member -MemberType NoteProperty -Name "Filename"-Value "$Filename" -Force
 
 }
 
@@ -137,8 +137,9 @@ Function Export-HTMLReport
 	#region FunctionWork
 
 	#Import the end time
-	$Script:ProgressReport | add-member -MemberType NoteProperty -Name "EndDate"-Value "$EndDate" -Force
+	$Global:ProgressReport | add-member -MemberType NoteProperty -Name "EndDate"-Value "$EndDate" -Force
 
+#$Report = ($PSCommandPath -replace '.ps1',"$ReportDate.html")
 
 	#Define the HTML Style
 	$Style = @"
@@ -153,7 +154,7 @@ TD{border-width: 1px;padding: 3px;border-style: solid;border-color: black;text-a
 
 	Try #Export the report
 	{
-		$Script:ProgressReport | ConvertTo-Html -head $Style -body "<h1> $($Script:ProgressReport.Title) </h1> The following report was started at $($Script:ProgressReport.StartDate) and finishes at $($Script:ProgressReport.EndDate)" | ForEach-Object {
+		$Global:ProgressReport | ConvertTo-Html -head $Style -body "<h1> $($Global:ProgressReport.Title) </h1> The following report was started at $($Global:ProgressReport.StartDate) and finishes at $($Global:ProgressReport.EndDate)" | ForEach-Object {
 			#Add formatting for the different states
 			if($_ -like "*<td>OK*")
 			{$_ -replace "<td>OK", "<td bgcolor=#33FF66>OK"} 
@@ -166,10 +167,10 @@ TD{border-width: 1px;padding: 3px;border-style: solid;border-color: black;text-a
 			{$_ -replace "<td>Error", "<td bgcolor=#CD6155>Error"}
 			Else {$_}
 			#Write this out
-		} | Out-File $Script:ProgressReport.Filename
+		} | Out-File $Global:ReportFilename
 
 		#Open Browser
-		invoke-Item $Script:ProgressReport.Filename
+		invoke-Item $Global:ReportFilename
 
 		$Return.Status = "OK"
 		$Return.Message = "HTML Report "
@@ -246,7 +247,7 @@ Function New-HTMLReportStep
 
 	#region FunctionWork
 
-	$Script:ThisReport | add-member -MemberType NoteProperty -Name "$StepName"-Value "$StepResult" -Force
+	$Global:ThisReport | add-member -MemberType NoteProperty -Name "$StepName"-Value "$StepResult" -Force
 
 	# endregion FunctionWork
 
@@ -315,13 +316,13 @@ Function New-HTMLReportItem
 
 
 	#Merge the current Item
-	$Script:ProgressReport+= $Script:ThisReport
+	$Global:ProgressReport+= $Global:ThisReport
 
 	#region FunctionWork
 
-	$Script:ThisReport = @()
-	$Script:ThisReport =  New-Object -TypeName PSobject  
-	$Script:ThisReport | add-member -MemberType NoteProperty -Name "$LineTitle" -Value $LineMessage
+	$Global:ThisReport = @()
+	$Global:ThisReport =  New-Object -TypeName PSobject  
+	$Global:ThisReport | add-member -MemberType NoteProperty -Name "$LineTitle" -Value $LineMessage
 	
 }
 
