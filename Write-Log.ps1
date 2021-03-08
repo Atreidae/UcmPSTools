@@ -39,10 +39,13 @@
 			This function does not create pipelined output
 
 			.NOTES
-			Version:		1.0
-			Date:			25/11/2020
+			Version:		1.1
+			Date:			21/12/2020
 
 			.VERSION HISTORY
+			1.1: Bug Fix
+				Resolved an issue where large logfiles would attempt to rename themselves to the same name causing errors when logs grew above 10MB
+
 			1.0: Initial Public Release
 	#>
 	[CmdletBinding()]

@@ -105,7 +105,7 @@ $global:StoredPsCred = New-Object -TypeName System.Management.Automation.PSCrede
         $pscred = $global:StoredPsCred
         #Skype connection try block
         Write-Log -Message 'Connecting to Skype4B Online' -Severity 2 -Component $function
-        if ($Global:Config.override -eq $Null){ $S4BOSession = (New-CsOnlineSession -Credential $pscred)}
+        if ($Global:Config.override -eq ""){ $S4BOSession = (New-CsOnlineSession -Credential $pscred)}
 				Else {$S4BOSession = (New-CsOnlineSession -Credential $pscred -OverrideAdminDomain $Global:Config.Override) }
         Import-Module (Import-PSSession -Session $S4BOSession -AllowClobber -DisableNameChecking) -Global -DisableNameChecking
 

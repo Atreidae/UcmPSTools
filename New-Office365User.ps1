@@ -99,7 +99,7 @@
 			[Void] (New-MsolUser -UserPrincipalName $UPN -DisplayName $DisplayName -FirstName $Firstname -LastName $LastName -UsageLocation $Country -Password $Password -ErrorAction Stop)
 			Write-Log -Message "User Created Sucessfully" -Severity 2 -Component $function
 			Write-Log -Message "Waiting for Office365 Replication" -Severity 2 -Component $function
-			Start-Sleep -seconds 10
+			Start-Sleep -seconds 20
 			$Return.Status = "OK"
 			$Return.Message = "User Created"
 			Return $Return
