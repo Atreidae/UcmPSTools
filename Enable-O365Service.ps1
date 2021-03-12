@@ -59,37 +59,69 @@
 	#endregion FunctionSetup
 
 	#region FunctionWork
+	$AppEnabled = $False
 	#Get the user Licence details
 	$LicenseDetails = (Get-MsolUser -UserPrincipalName $UPN).Licenses
 
 	#Run through all the services on each licence
 	ForEach ($License in $LicenseDetails) {
+		Write-Log -Message "Checking $($License.AccountSkuId) for $Servicename" -Severity 1 -Component $function
 		
 		#Find all the Disabled licences and add them to an array, except for the requsted service
 		$DisabledOptions = @()
-		$License.ServiceStatus | ForEach {
-			If ($_.ProvisioningStatus -eq "Disabled" -and $_.ServicePlan.ServiceName -Notlike "*$ServiceName*") #Exclude the requested Service
+		ForEach ($Service in $License.ServiceStatus)
+		{
+			Write-Log -Message "Checking $($Service.ServicePlan.ServiceName)" -Severity 1 -Component $function
+			If ($Service.ProvisioningStatus -eq "Disabled") 
 			{
-				$DisabledOptions += "$($_.ServicePlan.ServiceName)"
+				#The Service Is disabled, check to see if its the requested service
+				If ($Service.ServicePlan.ServiceName -eq $ServiceName)
+				{
+					Write-Log -Message "$Servicename Was disabled, Exlcuding from Disabled Options" -Severity 2 -Component $function
+					$AppEnabled = $true
+					Write-Log -Message "Licence enabled" -Severity 2 -Component $function
+				}
+				Else
+				{
+					Write-Log -Message "$($Service.ServicePlan.ServiceName) is disabled, adding to Disabled Options" -Severity 1 -Component $function
+					$DisabledOptions += "$($Service.ServicePlan.ServiceName)"
+				}
 			}
 		}
 		#Set the Licence options using the new list of disabled licences
 		Try {
-			$LicenseOptions = New-MsolLicenseOptions -AccountSkuId $License.AccountSkuId -DisabledPlans $DisabledOptions
+			Write-Log -Message "Setting Licence Options with the following Disabled Services" -Severity 1 -Component $function
+			Write-Log -Message "$DisabledOptions" -Severity 1 -Component $function
+			If ($DisabledOptions.count -eq 0)
+			{
+				$LicenseOptions = New-MsolLicenseOptions -AccountSkuId $License.AccountSkuId -DisabledPlans $DisabledOptions
+			}
+			Else
+			{ 
+				$LicenseOptions = New-MsolLicenseOptions -AccountSkuId $License.AccountSkuId -DisabledPlans $DisabledOptions
+			}
 			Set-MsolUserLicense -UserPrincipalName $UPN -LicenseOptions $LicenseOptions
-			Write-Log -Message "Licence enabled" -Severity 2 -Component $function
-			$Return.Status = "OK"
-			$Return.Message  = "Enabled"
-			Return $Return
+
 		}
 		Catch
 		{
 			Write-Log -Message "Something went wrong assinging the licence" -Severity 3 -Component $function 
-			$Return.Status = "Error"
-			$Return.Message  = "Unknown Error"
-			Return $Return
+				
 		}
 	} #Repeat for the next Licence
+
+
+	If ($AppEnabled){
+		$Return.Status = "OK"
+		$Return.Message  = "Enabled"
+		Return $Return
+	}
+	Else{
+		$Return.Status = "Error"
+		$Return.Message  = "Unknown Error"
+		Return $Return
+	}
+
 
 	#endregion FunctionWork
 	#region FunctionReturn

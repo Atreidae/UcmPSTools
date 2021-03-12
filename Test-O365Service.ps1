@@ -57,7 +57,7 @@
 	Write-Host '' #Insert a blank line to make reading output easier on loops
 	
 	#endregion FunctionSetup
-
+	$Enabled =$false
 	#region FunctionWork
 
 	#Get the users licences and enumerate through them looking for the relevant service
@@ -67,37 +67,54 @@
 			If ($_.ProvisioningStatus -eq "Disabled" -and $_.ServicePlan.ServiceName -eq "$serviceName")
 			{ 
 				Write-Log -Message "$ServiceName Disabled" -Severity 2 -Component $function
-				$Return.Status = "Warn"
-				$Return.Message  = "$ServiceName Disabled"
-				Return $Return
 			}
 			Elseif ($_.ProvisioningStatus -eq "Success" -and $_.ServicePlan.ServiceName -eq "$serviceName")
 			{ 
 				Write-Log -Message "$ServiceName Enabled" -Severity 2 -Component $function
-				$Return.Status = "OK"
-				$Return.Message  = "$ServiceName Enabled"
-				Return $Return
+				$Enabled = $true
 			}
 			ElseIf ($_.ServicePlan.ServiceName -like "*$serviceName*")
 			{
 				Write-Log -Message "$ServiceName is in unknown state" -Severity 2 -Component $function
-				$Return.Status = "ERROR"
-				$Return.Message  = "$ServiceName is in unknown state"
-				Return $Return
+				$Enabled = "Error"
 			}
-
 		}
 	}
 
-	#endregion FunctionWork
+	If ($enabled -eq "Error")
+	{ 
+		Write-Log -Message "$ServiceName is in unknown state" -Severity 2 -Component $function
+		$Return.Status = "ERROR"
+		$Return.Message  = "$ServiceName is in unknown state"
+		Return $Return
+	}
+	Elseif ($enabled -eq $true)
+	{ 
+		Write-Log -Message "$ServiceName Enabled" -Severity 2 -Component $function
+		$Return.Status = "OK"
+		$Return.Message  = "$ServiceName Enabled"
+		Return $Return
+	}
+	ElseIf ($_.ServicePlan.ServiceName -like "*$serviceName*")
+	{
+		Write-Log -Message "$ServiceName Disabled" -Severity 2 -Component $function
+		$Return.Status = "Warn"
+		$Return.Message  = "$ServiceName Disabled"
+		Return $Return
+	}
+}
 
-	#region FunctionReturn
+
+
+#endregion FunctionWork
+
+#region FunctionReturn
  
-	#Default Return Variable for my HTML Reporting Fucntion
-	Write-Log -Message "Reached end of $function without a Return Statement" -Severity 3 -Component $function
-	$return.Status = "Unknown"
-	$return.Message = "Function did not encounter return statement"
-	Return $Return
-	#endregion FunctionReturn
+#Default Return Variable for my HTML Reporting Fucntion
+Write-Log -Message "Reached end of $function without a Return Statement" -Severity 3 -Component $function
+$return.Status = "Unknown"
+$return.Message = "Function did not encounter return statement"
+Return $Return
+#endregion FunctionReturn
 
 }

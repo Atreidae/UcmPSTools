@@ -152,7 +152,6 @@
 			[Void] (Set-MsolUserLicense -UserPrincipalName $UPN -AddLicenses $LicenceToAssign -ErrorAction stop)
 			Write-Log -Message "Licence Granted" -Severity 2 -Component $function
 			Write-Log -Message "Waiting for Office365 Replication" -Severity 2 -Component $function
-			Start-Sleep -seconds 10
 			if ($warningFlag) #We Encounted a warning during the run
 			{
 				$Return.Status = "Warning"
