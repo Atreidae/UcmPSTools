@@ -1,2 +1,0 @@
-These functions are used as part of James Arbers administration of Skype for Business and Teams,
-They should not be removed.

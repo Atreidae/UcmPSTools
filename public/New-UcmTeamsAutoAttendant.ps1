@@ -1,11 +1,12 @@
-﻿Function New-TeamsAutoAttendant
+﻿Function New-UcmTeamsAutoAttendant
 {
 	<#
 			.SYNOPSIS
-			Creates a new autoattendant with default settings
+			Creates a new Microsoft Teams Auto Attendant and associatated Call Queue with default settings
 
 			.DESCRIPTION
-			Creates a new autoattendant with default settings
+			This function creates a new Auto Attendant and associated Call Queue with default settings
+			The Call Queue is created first, with
 
 			.EXAMPLE
 			New-Office365User -UPN calebs@contoso.onmicrosoft.com -Password "Passw0rd1!" -FirstName Caleb -LastName Sills -Country US -DisplayName "Caleb Sills"
