@@ -1,0 +1,9 @@
+<?xml version="1.0"?>
+<package>
+    <metadata>
+        <id>UcmPsTools</id>
+        <version>$VERSIONHERE$</version>
+        <authors>James Arber</authors>
+        <description>Handy PowerShell fucntions for UC administrators</description>
+    </metadata>
+</package>
