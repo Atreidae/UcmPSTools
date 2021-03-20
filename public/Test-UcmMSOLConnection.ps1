@@ -20,8 +20,8 @@
 			$Return.Message 
 			
 			Return.Status can return one of three values
-			"OK"      : Connected to Office365
-			"Error"   : Not connected to Office365
+			"OK"      : Connected to Exchange Online
+			"Error"   : Not connected to Exchange Online
 			"Unknown" : Cmdlet reached the end of the fucntion without returning anything, this shouldnt happen, if it does please log an issue on Github
 			
 			Return.Message returns descriptive text showing the connected tenant, mainly for logging or reporting

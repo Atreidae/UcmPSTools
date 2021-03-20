@@ -4,6 +4,6 @@
         <id>UcmPsTools</id>
         <version>$VERSIONHERE$</version>
         <authors>James Arber</authors>
-        <description>Handy PowerShell fucntions for UC administrators</description>
+        <description>Handy PowerShell functions for UC administrators</description>
     </metadata>
 </package>

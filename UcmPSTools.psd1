@@ -1,7 +1,7 @@
 @{
 	RootModule        = 'UcmPSTools.psm1'
 	ModuleVersion     = '<ModuleVersion>'
-	GUID              = '73a14fd2-886e-43a6-a203-e53b2152cd5b'
+	GUID              = '2c5dafca-888a-44ff-b04e-938e0912d69a'
 	Author            = 'James Arber'
 	CompanyName       = 'UC Mad Scientist'
 	PowerShellVersion = '6.0'
