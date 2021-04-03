@@ -178,12 +178,12 @@ TD{border-width: 1px;padding: 3px;border-style: solid;border-color: black;text-a
 	}
 	Catch
 	{
-		#endregion FunctionWork
+		
 		Write-Log -Message "Unexpected error when generating HTML report" -Severity 3 -Component $function
 		Write-Log -Message "$error[0]" -Severity 2 -Component $function
 	}
 }
-
+#endregion FunctionWork
 
 Function New-HTMLReportStep
 {

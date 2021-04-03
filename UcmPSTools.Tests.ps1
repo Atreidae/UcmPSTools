@@ -1,7 +1,7 @@
 #Thanks to Adam the Automater for these wicked pipeline tools
 #Check out https://adamtheautomator.com/powershell-devops/ for more info!
 
-Import-Module -Name PSScriptAnalyzer
+Install-Module -Name PSScriptAnalyzer -Force
 
 describe 'Module-level tests' {
 

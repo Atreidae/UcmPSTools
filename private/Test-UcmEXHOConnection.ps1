@@ -30,7 +30,7 @@
 
 			.NOTES
 			Version:		1.1
-			Date:			18/03/2021
+			Date:			21/03/2021
 
 			.VERSION HISTORY
 			1.1: Updated to "Ucm" naming convention
@@ -41,7 +41,7 @@
 			.REQUIRED FUNCTIONS/MODULES
 			UcmPSTools 								(Install-Module UcmPSTools)
 				Write-UcmLog: 						https://github.com/Atreidae/PowerShell-Fuctions/blob/main/public/Write-UcmLog.ps1
-				Connect-SFBOConnection:		https://github.com/Atreidae/PowerShell-Fuctions/blob/main/public/Connect-UcmEXHOConnection.ps1
+				New-EXHOConnection:				https://github.com/Atreidae/PowerShell-Fuctions/blob/main/public/New-UcmEXHOConnection.ps1
 				Write-HTMLReport: 				https://github.com/Atreidae/PowerShell-Fuctions/blob/main/public/Write-HTMLReport.ps1 (optional)
 			ExchangeOnlineShell 			(Install-Module ExchangeOnlineShell) #Note this is a community module, the official Exchange module can only be installed via ClickOnce
 
