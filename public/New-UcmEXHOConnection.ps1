@@ -1,24 +1,22 @@
-﻿Function New-UcmSFBOConnection
+﻿Function New-UcmEXHOConnection
 {
 	<#
 			.SYNOPSIS
-			Grabs stored creds and creates a new SFBO session
+			Grabs stored creds and creates a new Exchange Online session
 
-			.DESCRIPTION
-			This function is designed to auto reconnect to Skype for Business online during batch migrations and the like.
-			At present, it does not support modern auth. (The New-CsOnlineSession cmdlet doesnt support certificates yet)
+			This function is designed to auto reconnect to Exchange Online during batch migrations and the like.
+			At present, it does not support modern auth. (I havent intergrated it yet)
 			
-			When called, the function looks for a cred.xml file in the current folder and attempts to connect to Skype for Business online using Basic Auth
+			When called, the function looks for a cred.xml file in the current folder and attempts to connect to Exchange Online using Basic Auth
 			
 			If there is no cred.xml in the current folder it will prompt for credentials, encrypt them and store them in a cred.xml file.
 			The encrypted credentials can only be read by the windows user that created them so other users on the same system cant steal your credentials.
 
 			.EXAMPLE
-			PS> New-UcmSFBOConnection
+			PS> New-UcmEXHOConnection
 
 			.INPUTS
 			This function does not accept any input
-
 			.OUTPUT
 			This Cmdet returns a PSCustomObject with multiple Keys to indicate status
 			$Return.Status 
@@ -33,7 +31,7 @@
 
 			.NOTES
 			Version:		1.1
-			Date:			03/04/2021
+			Date:			15/04/2021
 
 			.VERSION HISTORY
 			1.1: Updated to "Ucm" naming convention
@@ -43,23 +41,20 @@
 
 			.REQUIRED FUNCTIONS/MODULES
 			Modules
-			ExchangeOnlineShell					(Install-Module ExchangeOnlineShell) #Note this is a community module, the official Exchange module can only be installed via ClickOnce
-			UcmPSTools							(Install-Module UcmPsTools) Includes Cmdlets below.
-
+			MicrosoftTeams	 					(Install-Module MicrosoftTeams)
+			UcmPSTools 							(Install-Module UcmPSTools) Includes Cmdlets below
+			
 			Cmdlets
-			Write-UcmLog: 						https://github.com/Atreidae/UcmPsTools/blob/main/public/Write-UcmLog.ps1
-			Write-HTMLReport: 					https://github.com/Atreidae/UcmPsTools/blob/main/public/Write-HTMLReport.ps1 (optional)
+			Write-UcmLog:						https://github.com/Atreidae/UcmPSTools/blob/main/public/Write-UcmLog.ps1
 
 
-			.REQUIRED PERMISIONS
-			'Exchange Read Only Administrator' or better
+			.REQUIRED PERMISSIONS
+			Any privledge level that can connect to Exchange Online PowerShell
+			Typicaly 'Exchange Read Only Admin' or better
 
 			.LINK
 			http://www.UcMadScientist.com
 			https://github.com/Atreidae/UcmPsTools
-
-			.ACKNOWLEDGEMENTS
-			Greig Sheridan: Stop connect cmdlets deleting password variable https://github.com/Atreidae/BounShell/issues/7
 	#>
 
 	Param #No parameters
@@ -67,8 +62,9 @@
 
 	)
 
+
 	#region FunctionSetup, Set Default Variables for HTML Reporting and Write Log
-	$function = 'New-UcmSFBOConnection'
+	$function = 'New-UcmEXHOConnection'
 	[hashtable]$Return = @{}
 	$return.Function = $function
 	$return.Status = "Unknown"
@@ -96,11 +92,9 @@
 		{
 			Write-UcmLog -component $function -Message 'Could not locate creds file' -severity 2
 
-			#Create a new creds variable
+			#Create a new creds file
 			$null = (Remove-Variable -Name Config -Scope Global -ErrorAction SilentlyContinue)
 			$global:Config = @{}
-
-			#Prompt user for creds
 			$Global:Config.SignInAddress = (Read-Host -Prompt "Username")
 			$Global:Config.Password = (Read-Host -Prompt "Password")
 			$Global:Config.Override = (Read-Host -Prompt "OverrideDomain (Blank for none)")
@@ -112,7 +106,7 @@
 			#write a secure creds file
 			$Global:Config | Export-Clixml -Path ".\cred.xml"
 		}
-		Else #Cred XML Exists, load it
+		Else
 		{
 			Write-UcmLog -component $function -Message 'Importing Credentials File' -severity 2
 			$global:Config = @{}
@@ -126,36 +120,20 @@
 	$global:StoredPsCred = New-Object -TypeName System.Management.Automation.PSCredential -ArgumentList ($global:Config.SignInAddress, $global:Config.Credential)
 	($global:StoredPsCred).Password.MakeReadOnly() #Stop modules deleteing the variable.
 
-	#Connect to SFBO
+
 	$pscred = $global:StoredPsCred
-	Write-UcmLog -Message 'Connecting to Skype4B Online' -Severity 2 -Component $function
-	Try
-	{
-		#Handle Domain Override
-		If ($Global:Config.override -eq "")
-		{
-			$S4BOSession = (New-CsOnlineSession -Credential $pscred)
-		}
-		Else 
-		{
-			$S4BOSession = (New-CsOnlineSession -Credential $pscred -OverrideAdminDomain $Global:Config.Override) 
-		}
-		
-		#Import the connected session
-		Import-Module (Import-PSSession -Session $S4BOSession -AllowClobber -DisableNameChecking) -Global -DisableNameChecking
-		
-		#We haven't errored so return sucsessful
-		$Return.Status = "OK"
-		$Return.Message  = "Connected"
-		Return $Return
-	}
-	Catch
-	{
-		#Something went wrong during the try block, return error
-		$Return.Status = "Error"
-		$Return.Message  = "Failed to connect to Skype for Business Online: $error[0]"
-		Return $Return
-	}
+	#Exchange connection try block
+	Write-UcmLog -Message 'Connecting to Exchange Online' -Severity 2 -Component $function
+	if ($Global:Config.override -eq $Null){ $EXCHOSession = (New-PSSession -ConfigurationName Microsoft.Exchange -ConnectionUri https://outlook.office365.com/powershell-liveid/ -Credential $pscred -Authentication Basic -AllowRedirection)}
+	Else {$EXCHOSession = (New-PSSession -ConfigurationName Microsoft.Exchange -ConnectionUri https://outlook.office365.com/powershell-liveid/ -Credential $pscred -Authentication Basic -AllowRedirection) } #todo fix override
+	Import-Module (Import-PSSession -Session $EXCHOSession -AllowClobber -DisableNameChecking) -Global -DisableNameChecking
+
+	$Return.Status = "OK"
+	$Return.Message  = "Connected"
+	Return $Return
+	
+
+
 	#endregion FunctionWork
 
 	#region FunctionReturn

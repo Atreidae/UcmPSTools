@@ -22,15 +22,15 @@
 			$Return.Message 
 			
 			Return.Status can return one of three values
-			"OK"      : Connected to Office365
-			"Error"   : Not connected to Office365
+			"OK"      : Connected to Exchange Online
+			"Error"   : Not connected to Exchange Online
 			"Unknown" : Cmdlet reached the end of the fucntion without returning anything, this shouldnt happen, if it does please log an issue on Github
 			
 			Return.Message returns descriptive text showing the connected tenant, mainly for logging or reporting
 
 			.NOTES
 			Version:		1.1
-			Date:			21/03/2021
+			Date:			12/04/2021
 
 			.VERSION HISTORY
 			1.1: Updated to "Ucm" naming convention
@@ -39,15 +39,21 @@
 			1.0: Initial Public Release
 
 			.REQUIRED FUNCTIONS/MODULES
-			UcmPSTools 								(Install-Module UcmPSTools)
-				Write-UcmLog: 						https://github.com/Atreidae/PowerShell-Fuctions/blob/main/public/Write-UcmLog.ps1
-				New-EXHOConnection:				https://github.com/Atreidae/PowerShell-Fuctions/blob/main/public/New-UcmEXHOConnection.ps1
-				Write-HTMLReport: 				https://github.com/Atreidae/PowerShell-Fuctions/blob/main/public/Write-HTMLReport.ps1 (optional)
-			ExchangeOnlineShell 			(Install-Module ExchangeOnlineShell) #Note this is a community module, the official Exchange module can only be installed via ClickOnce
+			Modules
+			ExchangeOnlineShell					(Install-Module ExchangeOnlineShell) #Note this is a community module, the official Exchange module can only be installed via ClickOnce
+			UcmPSTools							(Install-Module UcmPsTools) Includes Cmdlets below.
+
+			Cmdlets
+			Write-UcmLog: 						https://github.com/Atreidae/UcmPsTools/blob/main/public/Write-UcmLog.ps1
+			New-UcmEXHOConnection:					https://github.com/Atreidae/UcmPsTools/blob/main/public/New-UcmEXHOConnection.ps1
+			Write-HTMLReport: 					https://github.com/Atreidae/UcmPsTools/blob/main/public/Write-HTMLReport.ps1 (optional)
+
+			.REQUIRED PERMISIONS
+			'Exchange Read Only Administrator' or better
 
 			.LINK
 			http://www.UcMadScientist.com
-			https://github.com/Atreidae/PowerShell-Fuctions
+			https://github.com/Atreidae/UcmPsTools
 
 			.ACKNOWLEDGEMENTS
 

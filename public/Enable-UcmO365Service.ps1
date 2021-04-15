@@ -50,10 +50,14 @@
 			1.0: Initial Public Release
 
 			.REQUIRED FUNCTIONS/MODULES
-			UcmPSTools 								(Install-Module UcmPSTools)
-				Write-UcmLog:						https://github.com/Atreidae/UcmPSTools/blob/main/public/Write-UcmLog.ps1
-			AzureAD										(Install-Module AzureAD)
-			MSOnline									(Install-Module MSOnline)
+			Modules
+			AzureAD								(Install-Module AzureAD)
+			MSOnline							(Install-Module MSOnline)
+			UcmPSTools							(Install-Module UcmPsTools) Includes Cmdlets below.
+
+			Cmdlets
+			Write-UcmLog: 						https://github.com/Atreidae/UcmPsTools/blob/main/public/Write-UcmLog.ps1
+			Write-HTMLReport: 					https://github.com/Atreidae/UcmPsTools/blob/main/public/Write-HTMLReport.ps1 (optional)
 
 			.REQUIRED PERMISSIONS
 			'Office365 User Admin' or better
@@ -140,7 +144,7 @@
 				$LicenseOptions = New-MsolLicenseOptions -AccountSkuId $License.AccountSkuId
 			}
 			Else
-			{ 
+			{
 				$LicenseOptions = New-MsolLicenseOptions -AccountSkuId $License.AccountSkuId -DisabledPlans $DisabledOptions
 			}
 			

@@ -8,7 +8,7 @@
 			Tries to pull tenant info and will call New-SFBOConnection if unsucsessful
 
 			.EXAMPLE
-			Test-SFBOConnection
+			Test-UcmSFBOConnection
 
 			.INPUTS
 			This function does not accept any input
