@@ -13,6 +13,7 @@
 
  This initially started out as a scratch pad for my commonly used UC related functions. I took it as an oppertunity to centralize alot of the code I use in my day to day work.
  Instead of just building things bespoke for me, I decided to clean all the functions up, heavily document them and release them on the PowerShell Gallery
+ 
  Detailed posts for each function will come soon, but for now you can find inline PowerShell help and documentation to get you started.
 
 ## Reporting Output
@@ -48,8 +49,15 @@ Should the Creds.xml not be found, it will prompt the user to provide credential
 
 *Todo
 
-#### Test-EXHOConnection
+### Test-MSOLConnection 
+This function will test if the current PowerShell Session is connected to Office 365 Azure AD (Using Azure AD v1) and that the PSSession isnt broken
+If its not connected for any reason, it will return an error
 
+### Test-SFBOConnection 
+This function will test if the current PowerShell Session is connected to Skype for Business Online via either the Skype4B module or the MicrosoftTeams module and that the PSSession isnt broken
+If its not connected for any reason, it will then invoke New-SFBOConnection to reconnect
+
+### Test-EXHOConnection 
 This function will test if the current PowerShell Session is connected to Exchange Online and that the PSSession isnt broken
 If its not connected for any reason, it will then invoke New-EXHOConnection to reconnect
 
