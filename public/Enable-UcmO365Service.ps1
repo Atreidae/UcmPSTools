@@ -8,25 +8,21 @@
 			Cmdlet uses an existing Azure AD connection to filter through a users licences and enable the requested service.
 			Handy if an administrator has disabled Skype for Business Online for example.
 
-			Skype for Business Online
-			PS> Enable-UcmO365Service -UPN 'button.mash@contoso.com' -ServiceName 'MCOSTANDARD'
-
-			Teams
-			PS> Enable-UcmO365Service -UPN 'button.mash@contoso.com' -ServiceName 'TEAMS1'
-
-			Telstra Calling (Australian version of Microsoft Calling)
-			PS> Enable-UcmO365Service -UPN 'button.mash@contoso.com' -ServiceName 'MCOPSTNEAU'
-
 			.EXAMPLE
-			PS> Enable-UcmO365Service -User 'button.mash@Contoso.com' -ServiceName MCOSTANDARD
+			PS> Enable-UcmO365Service -User 'button.mash@Contoso.com' -ServiceName 'MCOSTANDARD'
 			Enables Skype for Business Online for the user Button Mash 
+
+			PS> Enable-UcmO365Service -UPN 'button.mash@contoso.com' -ServiceName 'TEAMS1'
+			Enables Microsoft Teams for the user Button Mash 
+
+			PS> Enable-UcmO365Service -UPN 'button.mash@contoso.com' -ServiceName 'MCOPSTNEAU'
+			Enables Telstra Calling (Australian version of Microsoft Calling) for the user Button Mash
 
 			.PARAMETER UPN
 			The users username in UPN format
 
 			.PARAMETER ServiceName
 			Office365 Service Plan you wish to enable
-
 
 			.INPUTS
 			This function accepts both parameter and pipline input
@@ -37,15 +33,15 @@
 			$Return.Message 
 			
 			Return.Status can return one of three values
-			"OK"      : The Service Plan was Enabled
+			"OK"      : The Service Plan was enabled
 			"Error"   : The Service Plan was wasnt enabled, it may not have been found or there was an error setting the users attributes. 
-			"Unknown" : Cmdlet reached the end of the fucntion without returning anything, this shouldnt happen, if it does please log an issue on Github
+			"Unknown" : Cmdlet reached the end of the function without returning anything, this shouldnt happen, if it does please log an issue on Github
 			
 			Return.Message returns descriptive text based on the outcome, mainly for logging or reporting
 
 			.NOTES
 			Version:		1.1
-			Date:			18/03/2021
+			Date:			03/04/2021
 
 			.VERSION HISTORY
 			1.1: Updated to "Ucm" naming convention
@@ -54,21 +50,25 @@
 			1.0: Initial Public Release
 
 			.REQUIRED FUNCTIONS/MODULES
-			Write-UcmLog: 						https://github.com/Atreidae/PowerShell-Fuctions/blob/main/Write-UcmLog.ps1
-			Write-HTMLReport: 				https://github.com/Atreidae/PowerShell-Fuctions/blob/main/Write-HTMLReport.ps1 (optional)
-			AzureAD 									(Install-Module AzureAD) 
-			MSOnline									(Install-Module MSOnline) 
+			Modules
+			AzureAD								(Install-Module AzureAD)
+			MSOnline							(Install-Module MSOnline)
+			UcmPSTools							(Install-Module UcmPsTools) Includes Cmdlets below.
+
+			Cmdlets
+			Write-UcmLog: 						https://github.com/Atreidae/UcmPsTools/blob/main/public/Write-UcmLog.ps1
+			Write-HTMLReport: 					https://github.com/Atreidae/UcmPsTools/blob/main/public/Write-HTMLReport.ps1 (optional)
 
 			.REQUIRED PERMISSIONS
 			'Office365 User Admin' or better
 
 			.LINK
-			http://www.UcMadScientist.com
-			https://github.com/Atreidae/PowerShell-Fuctions
+			https://www.UcMadScientist.com
+			https://github.com/Atreidae/UcmPSTools
 
 			.ACKNOWLEDGEMENTS
-			#Stack Overflow, disabling services: https://stackoverflow.com/questions/50492591/how-can-i-disable-and-enable-office-365-apps-for-all-users-at-once-using-powersh
-			#Alex Verboon, Powershell script to remove Office 365 Service Plans from a User: https://www.verboon.info/2015/12/powershell-script-to-remove-office-365-service-plans-from-a-user/
+			Stack Overflow, disabling services: https://stackoverflow.com/questions/50492591/how-can-i-disable-and-enable-office-365-apps-for-all-users-at-once-using-powersh
+			Alex Verboon, Powershell script to remove Office 365 Service Plans from a User: https://www.verboon.info/2015/12/powershell-script-to-remove-office-365-service-plans-from-a-user/
 
 	#>
 
@@ -133,7 +133,7 @@
 			}
 		}
 
-		#Set the Licence options using the new list of disabled licences
+		#Set the licence options using the new list of disabled licences
 		Try {
 			Write-UcmLog -Message 'Setting Licence Options with the following Disabled Services' -Severity 1 -Component $function
 			Write-UcmLog -Message "$DisabledOptions" -Severity 1 -Component $function
@@ -144,7 +144,7 @@
 				$LicenseOptions = New-MsolLicenseOptions -AccountSkuId $License.AccountSkuId
 			}
 			Else
-			{ 
+			{
 				$LicenseOptions = New-MsolLicenseOptions -AccountSkuId $License.AccountSkuId -DisabledPlans $DisabledOptions
 			}
 			
@@ -183,75 +183,3 @@
 	#endregion FunctionReturn
 
 }
-# SIG # Begin signature block
-# MIINFwYJKoZIhvcNAQcCoIINCDCCDQQCAQExCzAJBgUrDgMCGgUAMGkGCisGAQQB
-# gjcCAQSgWzBZMDQGCisGAQQBgjcCAR4wJgIDAQAABBAfzDtgWUsITrck0sYpfvNR
-# AgEAAgEAAgEAAgEAAgEAMCEwCQYFKw4DAhoFAAQUSLdjvjSLR7rZ4Y52NRqq9O1M
-# fSagggpZMIIFITCCBAmgAwIBAgIQD274plv3rQv2N1HXnqk5jzANBgkqhkiG9w0B
-# AQsFADByMQswCQYDVQQGEwJVUzEVMBMGA1UEChMMRGlnaUNlcnQgSW5jMRkwFwYD
-# VQQLExB3d3cuZGlnaWNlcnQuY29tMTEwLwYDVQQDEyhEaWdpQ2VydCBTSEEyIEFz
-# c3VyZWQgSUQgQ29kZSBTaWduaW5nIENBMB4XDTIwMDEwNTAwMDAwMFoXDTIyMDky
-# ODEyMDAwMFowXjELMAkGA1UEBhMCQVUxETAPBgNVBAgTCFZpY3RvcmlhMRAwDgYD
-# VQQHEwdCZXJ3aWNrMRQwEgYDVQQKEwtKYW1lcyBBcmJlcjEUMBIGA1UEAxMLSmFt
-# ZXMgQXJiZXIwggEiMA0GCSqGSIb3DQEBAQUAA4IBDwAwggEKAoIBAQCVq3KHhsUn
-# G0iP8Xv+EIRGhPEqceUcmXftvbWSXoEL+w8h79PVn9WZawPgyDlmAZvzlAWaPGSu
-# tW7z0/XqkewTjFI4em2BxIsLr3enoB/OuBM11ktZVaMYWOHaUexj8CioBeoFTGYg
-# H98cmoo6i3xQcBbFJauJcgAI8jDTTDHM1bvDE9ItyeTr63MGJx1rob4KXCr0Oi9R
-# MVtk/TDVCNjG3IdK8dnrpKUE7s2grAiPJ2tmNkrk3R2pSRl1qx3d01LWKcV2tv4s
-# fbWLCwdz2HVTdevl7PjhwUPhuLZVj/EctCiU+5UDDtAIIIvQ9uvbFngmF0QmE9Yb
-# W1bgiyfr5GmFAgMBAAGjggHFMIIBwTAfBgNVHSMEGDAWgBRaxLl7KgqjpepxA8Bg
-# +S32ZXUOWDAdBgNVHQ4EFgQUX+77NtBOxF+2arVa8Srnig2A/ocwDgYDVR0PAQH/
-# BAQDAgeAMBMGA1UdJQQMMAoGCCsGAQUFBwMDMHcGA1UdHwRwMG4wNaAzoDGGL2h0
-# dHA6Ly9jcmwzLmRpZ2ljZXJ0LmNvbS9zaGEyLWFzc3VyZWQtY3MtZzEuY3JsMDWg
-# M6Axhi9odHRwOi8vY3JsNC5kaWdpY2VydC5jb20vc2hhMi1hc3N1cmVkLWNzLWcx
-# LmNybDBMBgNVHSAERTBDMDcGCWCGSAGG/WwDATAqMCgGCCsGAQUFBwIBFhxodHRw
-# czovL3d3dy5kaWdpY2VydC5jb20vQ1BTMAgGBmeBDAEEATCBhAYIKwYBBQUHAQEE
-# eDB2MCQGCCsGAQUFBzABhhhodHRwOi8vb2NzcC5kaWdpY2VydC5jb20wTgYIKwYB
-# BQUHMAKGQmh0dHA6Ly9jYWNlcnRzLmRpZ2ljZXJ0LmNvbS9EaWdpQ2VydFNIQTJB
-# c3N1cmVkSURDb2RlU2lnbmluZ0NBLmNydDAMBgNVHRMBAf8EAjAAMA0GCSqGSIb3
-# DQEBCwUAA4IBAQCfGaBR90KcYBczv5tVSBquFD0rP4h7oEE8ik+EOJQituu3m/nv
-# X+fG8h8f8+cG+0O55g+P/iGPS1Uo/BUEKjfUvLQjg9gJN7ZZozqP5xU7pn270rFd
-# chmu/vkSGh4waYoASiqJXvkQbVZcxV72j3+RBD1jsmgP05WaKMT5l9VZwGedVn40
-# FHNarFpJoCsyQn6sQInWdDfi6X2cYi0x4U0ogWYYyR8bhBUlt6RhevYn6EfqHgV3
-# oEZ7qwxApjyGpQIwwQUEs60/tO7bkH1futFDdogzsXFJO3cS9OykctpBucaPDrkH
-# 1AcqMqpWVRcXGebpOHnW5zPoGFG9JblyuwBZMIIFMDCCBBigAwIBAgIQBAkYG1/V
-# u2Z1U0O1b5VQCDANBgkqhkiG9w0BAQsFADBlMQswCQYDVQQGEwJVUzEVMBMGA1UE
-# ChMMRGlnaUNlcnQgSW5jMRkwFwYDVQQLExB3d3cuZGlnaWNlcnQuY29tMSQwIgYD
-# VQQDExtEaWdpQ2VydCBBc3N1cmVkIElEIFJvb3QgQ0EwHhcNMTMxMDIyMTIwMDAw
-# WhcNMjgxMDIyMTIwMDAwWjByMQswCQYDVQQGEwJVUzEVMBMGA1UEChMMRGlnaUNl
-# cnQgSW5jMRkwFwYDVQQLExB3d3cuZGlnaWNlcnQuY29tMTEwLwYDVQQDEyhEaWdp
-# Q2VydCBTSEEyIEFzc3VyZWQgSUQgQ29kZSBTaWduaW5nIENBMIIBIjANBgkqhkiG
-# 9w0BAQEFAAOCAQ8AMIIBCgKCAQEA+NOzHH8OEa9ndwfTCzFJGc/Q+0WZsTrbRPV/
-# 5aid2zLXcep2nQUut4/6kkPApfmJ1DcZ17aq8JyGpdglrA55KDp+6dFn08b7KSfH
-# 03sjlOSRI5aQd4L5oYQjZhJUM1B0sSgmuyRpwsJS8hRniolF1C2ho+mILCCVrhxK
-# hwjfDPXiTWAYvqrEsq5wMWYzcT6scKKrzn/pfMuSoeU7MRzP6vIK5Fe7SrXpdOYr
-# /mzLfnQ5Ng2Q7+S1TqSp6moKq4TzrGdOtcT3jNEgJSPrCGQ+UpbB8g8S9MWOD8Gi
-# 6CxR93O8vYWxYoNzQYIH5DiLanMg0A9kczyen6Yzqf0Z3yWT0QIDAQABo4IBzTCC
-# AckwEgYDVR0TAQH/BAgwBgEB/wIBADAOBgNVHQ8BAf8EBAMCAYYwEwYDVR0lBAww
-# CgYIKwYBBQUHAwMweQYIKwYBBQUHAQEEbTBrMCQGCCsGAQUFBzABhhhodHRwOi8v
-# b2NzcC5kaWdpY2VydC5jb20wQwYIKwYBBQUHMAKGN2h0dHA6Ly9jYWNlcnRzLmRp
-# Z2ljZXJ0LmNvbS9EaWdpQ2VydEFzc3VyZWRJRFJvb3RDQS5jcnQwgYEGA1UdHwR6
-# MHgwOqA4oDaGNGh0dHA6Ly9jcmw0LmRpZ2ljZXJ0LmNvbS9EaWdpQ2VydEFzc3Vy
-# ZWRJRFJvb3RDQS5jcmwwOqA4oDaGNGh0dHA6Ly9jcmwzLmRpZ2ljZXJ0LmNvbS9E
-# aWdpQ2VydEFzc3VyZWRJRFJvb3RDQS5jcmwwTwYDVR0gBEgwRjA4BgpghkgBhv1s
-# AAIEMCowKAYIKwYBBQUHAgEWHGh0dHBzOi8vd3d3LmRpZ2ljZXJ0LmNvbS9DUFMw
-# CgYIYIZIAYb9bAMwHQYDVR0OBBYEFFrEuXsqCqOl6nEDwGD5LfZldQ5YMB8GA1Ud
-# IwQYMBaAFEXroq/0ksuCMS1Ri6enIZ3zbcgPMA0GCSqGSIb3DQEBCwUAA4IBAQA+
-# 7A1aJLPzItEVyCx8JSl2qB1dHC06GsTvMGHXfgtg/cM9D8Svi/3vKt8gVTew4fbR
-# knUPUbRupY5a4l4kgU4QpO4/cY5jDhNLrddfRHnzNhQGivecRk5c/5CxGwcOkRX7
-# uq+1UcKNJK4kxscnKqEpKBo6cSgCPC6Ro8AlEeKcFEehemhor5unXCBc2XGxDI+7
-# qPjFEmifz0DLQESlE/DmZAwlCEIysjaKJAL+L3J+HNdJRZboWR3p+nRka7LrZkPa
-# s7CM1ekN3fYBIM6ZMWM9CBoYs4GbT8aTEAb8B4H6i9r5gkn3Ym6hU/oSlBiFLpKR
-# 6mhsRDKyZqHnGKSaZFHvMYICKDCCAiQCAQEwgYYwcjELMAkGA1UEBhMCVVMxFTAT
-# BgNVBAoTDERpZ2lDZXJ0IEluYzEZMBcGA1UECxMQd3d3LmRpZ2ljZXJ0LmNvbTEx
-# MC8GA1UEAxMoRGlnaUNlcnQgU0hBMiBBc3N1cmVkIElEIENvZGUgU2lnbmluZyBD
-# QQIQD274plv3rQv2N1HXnqk5jzAJBgUrDgMCGgUAoHgwGAYKKwYBBAGCNwIBDDEK
-# MAigAoAAoQKAADAZBgkqhkiG9w0BCQMxDAYKKwYBBAGCNwIBBDAcBgorBgEEAYI3
-# AgELMQ4wDAYKKwYBBAGCNwIBFTAjBgkqhkiG9w0BCQQxFgQUXMvj9CGteuRvewEi
-# Wlv55RADkvMwDQYJKoZIhvcNAQEBBQAEggEAM1Gyl3GLDHvSHab3aYq5TzTlKTXz
-# CLSgAv5sOIWPCZ64sph5JnSfT5AifpBh1QEffuFn1WD6/06PQT9xgOMwVpM6h5yH
-# /yAkPecLep16zt+hxh3qn2+VL91cpE9a0cTpdAKnfyBaTCQz0S/1mjCraESrwHJp
-# ct55WGwUUJVeomK6gSfIA2nq3zYi3cT2dIsg9UtScPhoSRM+kebTgrVE6migYHI4
-# dBb8EYoi6vhDtA+6ua3g89gV9OCCuZpkp3Jqv8c2UHo59osPvsKGth7IGG8UUcmc
-# mDKdXIoPUMW0OTETw5zTPASE+BgSSa0PzutnbErMGARkYYh56Ith+dSxeA==
-# SIG # End signature block

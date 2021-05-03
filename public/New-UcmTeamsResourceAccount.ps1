@@ -9,7 +9,7 @@
 			This function will also set the application ID depending on the setting of the ResourceType parameter
 
 			.EXAMPLE
-			New-Office365User -UPN calebs@contoso.onmicrosoft.com -Password "Passw0rd1!" -FirstName Caleb -LastName Sills -Country US -DisplayName "Caleb Sills"
+			UcmTeamsResourceAccount -UPN calebs@contoso.onmicrosoft.com -DisplayName 'Caleb Sills' -ResourceType CallQueue
 
 			.PARAMETER UPN
 			The UPN of the user you wish to create, eg: "button.mash@contoso.com"
@@ -39,13 +39,13 @@
 
 			.LINK
 			http://www.UcMadScientist.com
-			https://github.com/Atreidae/PowerShell-Functions
+			https://github.com/Atreidae/UcmPsTools
 
 			.ACKNOWLEDGEMENTS
 
 			.NOTES
 			Version:		1.1
-			Date:			18/03/2021
+			Date:			03/04/2021
 
 			.VERSION HISTORY
 			1.1: Updated to "Ucm" naming convention
@@ -54,12 +54,17 @@
 			1.0: Initial Public Release
 
 			.REQUIRED FUNCTIONS/MODULES
-			Write-UcmLog: 	https://github.com/Atreidae/PowerShell-Functions/blob/main/Write-UcmLog.ps1
-			MicrosoftTeams 	(Install-Module MicrosoftTeams) 
-			Skype for Business Online (Depreciated, use the Teams module above)
+			Modules
+			Microsoft Teams						(Install-Module MicrosoftTeams)
+			UcmPSTools							(Install-Module UcmPsTools) Includes Cmdlets below.
+
+			Cmdlets
+			Write-UcmLog: 						https://github.com/Atreidae/UcmPsTools/blob/main/public/Write-UcmLog.ps1
+			New-UcmSFBOConnection				https://github.com/Atreidae/UcmPsTools/blob/main/public/New-UcmSFBOConnection.ps1
 
 			.REQUIRED PERMISIONS
-			'Office 365 User Administrator' or better
+			'Teams Administrator' or better
+
 	#>
 
 	Param
@@ -68,10 +73,6 @@
 		[Parameter(ValueFromPipelineByPropertyName=$true, Mandatory, Position=2,HelpMessage='The Display Name of the user you wish to create, eg: "Button Mash"')] [string]$DisplayName,
 		[Parameter(ValueFromPipelineByPropertyName=$true, Mandatory, Position=3,HelpMessage='Used to set the ApplicationID of the new user, Valid options are "AutoAttendant" or "CallQueue"')] [ValidateSet('AutoAttendant', 'CallQueue')] [string]$ResourceType
 	)
-
-	#Set the default logging path
-	If (!$Global:LogFileLocation) {$Script:LogFileLocation = $PSCommandPath -replace '.ps1','.log'}
-
 
 	#region FunctionSetup, Set Default Variables for HTML Reporting and Write Log
 	$function = 'New-UcmTeamsResourceAccount'
@@ -101,45 +102,50 @@
 		'CallQueue' {$ApplicationID ='11cd3e2e-fccb-42ad-ad00-878b93575e07'}
 	}
 
-
 	#Check to see if we are connected to SFBO
-
 	$Test = (Test-UcmSFBOConnection)
-	If ($Test.Status -ne "OK")
+	If ($Test.Status -eq "Error")
 	{
+		#Test-UcmSFBOConnection returned an error, return an error
 		Write-UcmLog -Message "Something went wrong creating user $UPN" -Severity 3 -Component $function
 		Write-UcmLog -Message "Test-UcmSFBOConnection could not locate an SFBO connection" -Severity 2 -Component $function
 		$Return.Status = "Error"
-		$Return.Message = "No MSOL Connection"
+		$Return.Message = "No SFBO Connection"
 		Return $Return
 	}
 
-	#Check to see if the user exists
+	#Check to see if the requested account exists
 	Write-UcmLog -Message "Checking for Existing Resource Account $UPN ..." -Severity 2 -Component $function
 	
+	#TODO, we should be checking if that UPN exists in general. https://github.com/Atreidae/UcmPSTools/issues/1
 	$AppInstance = $null
-	$AppInstance = (Get-CsOnlineApplicationInstance | Where-Object {$_.UserPrincipalName -eq $UPN})
+	$AppInstance = (Get-CsOnlineApplicationInstance | Where-Object {$_.UserPrincipalName -eq $UPN})#TODO is there a better way to filter this? https://github.com/Atreidae/UcmPSTools/issues/2
 
 	If ($AppInstance.UserPrincipalName -eq $UPN)
 	{
+		#We found a resource account with the same name, assume it already been made, return a warning and skip
 		Write-UcmLog -Message "Resource Account already exists, Skipping" -Severity 3 -Component $function
 		$Return.Status = "Warning"
 		$Return.Message = "Skipped: Account Already Exists"
 		Return $Return
 	}
 	Else
-	{ #User Doesnt Exist, make them
-		Write-UcmLog -Message "Not Found. Creating user $UPN" -Severity 2 -Component $function
+	{
+		#Resource account doesnt exist, let's make them
 		Try
 		{
+			Write-UcmLog -Message "Account not found. Creating user $UPN" -Severity 2 -Component $function
 			[Void] (New-CsOnlineApplicationInstance -UserPrincipalName $UPN -DisplayName $DisplayName -ApplicationId $ApplicationID -ErrorAction Stop)
+			
+			#We created the account OK, return an OK result.
 			Write-UcmLog -Message "Resource Account Created Sucessfully" -Severity 2 -Component $function
 			$Return.Status = "OK"
 			$Return.Message = "Resource Account Created"
 			Return $Return
 		}
 		Catch
-		{ #Something went wrong making the resource account
+		{
+			#Something went wrong making the resource account, return an error
 			Write-UcmLog -Message "Something went wrong creating resource account $UPN" -Severity 3 -Component $function
 			Write-UcmLog -Message $Error[0] -Severity 3 -Component $Function
 			$Return.Status = "Error"

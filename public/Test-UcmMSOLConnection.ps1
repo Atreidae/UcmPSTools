@@ -5,11 +5,15 @@
 			Checks to see if we have a connection to Office365
 
 			.DESCRIPTION
-			Tries to pull tenant info and will return an error if unsucsessful
+			Tries to pull tenant info and will attempt to reconnect or return an error depending if the -Reconnect flag is true or not.
+			Handy for any script functions that need to perform something on MSOL, call this first with -reconnect set and if there is no connection New-UcmMSOLConnection will be called to connect with stored credentials.
 
 			.EXAMPLE
 			Test-UcmMSOLConnection
 			Checks to see if we are connected to Office365, will return $Return.Status of 'OK' if true.
+
+			Test-UcmMSOLConnection -Reconnect
+			Checks to see if we are connected to Office365, if not connected will invoke New-UcmMSOLConnection and return a warning on sucsess.
 
 			.INPUTS
 			This function does not accept any input
@@ -20,34 +24,36 @@
 			$Return.Message 
 			
 			Return.Status can return one of three values
-			"OK"      : Connected to Exchange Online
-			"Error"   : Not connected to Exchange Online
-			"Unknown" : Cmdlet reached the end of the fucntion without returning anything, this shouldnt happen, if it does please log an issue on Github
+			"OK"      : Connected to Office365
+			"Warn"    : Reconnected to Office365
+			"Error"   : Not connected to Office365 and didnt reconnect.
+			"Unknown" : Cmdlet reached the end of the function without returning anything, this shouldnt happen, if it does please log an issue on Github
 			
 			Return.Message returns descriptive text showing the connected tenant, mainly for logging or reporting
 
 			.NOTES
 			Version:		1.1
-			Date:			18/03/2021
+			Date:			03/04/2021
 
 			.VERSION HISTORY
 			1.1: Updated to "Ucm" naming convention
-					 Better inline documentation
+			Better inline documentation
+			Reconnect function
 					
 			1.0: Initial Public Release
 
 			.REQUIRED FUNCTIONS/MODULES
-			Write-UcmLog: 						https://github.com/Atreidae/PowerShell-Fuctions/blob/main/Write-UcmLog.ps1
-			Write-HTMLReport:		 			https://github.com/Atreidae/PowerShell-Fuctions/blob/main/Write-HTMLReport.ps1 (optional)
-			AzureAD 									(Install-Module AzureAD) 
-			MSOnline				 					(Install-Module MSOnline) 
+			Write-UcmLog: 						https://github.com/Atreidae/UcmPsTools/blob/main/public/Write-UcmLog.ps1
+			Write-HTMLReport:		 			https://github.com/Atreidae/UcmPsTools/blob/main/public/Write-HTMLReport.ps1 (optional)
+			AzureAD										(Install-Module AzureAD)
+			MSOnline				 					(Install-Module MSOnline)
 
 			.REQUIRED PERMISSIONS
 			Any privledge level that can run 'Get-MsolCompanyInformation'
 
 			.LINK
 			http://www.UcMadScientist.com
-			https://github.com/Atreidae/PowerShell-Fuctions
+			https://github.com/Atreidae/UcmPsTools
 
 			.ACKNOWLEDGEMENTS
 
@@ -55,7 +61,7 @@
 
 	Param #No parameters
 	(
-
+		[Parameter(ValueFromPipelineByPropertyName=$true, Mandatory, Position=1,HelpMessage='When set to $true will attempt to automatically reconnect using New-UcmMSOLConnection')] [switch]$Reconnect
 	)
 
 
@@ -83,7 +89,7 @@
 	Write-UcmLog -Message "Checking for Existing O365 Connection" -Severity 1 -Component $function
 	Try #Check if we can pull company info
 	{
-		$Companyinfo = (Get-MsolCompanyInformation) #this will throw an error if we arent connected
+		$Companyinfo = (Get-MsolCompanyInformation -ErrorAction Stop) #this will throw an error if we arent connected
 		Write-UcmLog -Message "Connected to Tenant $($CompanyInfo.DisplayName)" -Severity 1 -Component $function
 		$Return.Status = "OK"
 		$Return.Message  = "Tenant: $($CompanyInfo.DisplayName)"
@@ -91,12 +97,44 @@
 	}
 	Catch
 	{
-		Write-UcmLog -Message "We dont appear to be connected to Office365! Connect to O365 and try again" -Severity 3 -Component $function
-		Write-UcmLog -Message "Error running Get-MsolCompanyInformation" -Severity 2 -Component $function
-		Write-UcmLog -Message $error[0] -Severity 2 -Component $function
-		$Return.Status = "Error"
-		$Return.Message  = "No Office365 Connection"
-		Return $Return
+		#Not connected, check if we are reconnecting
+		If ($Reconnect) 
+		{
+			#We are reconnecting, call New-UcmMSOLConnection
+			$result = (New-UcmMSOLConnection)
+			
+			#check to see if the reconnection was sucsessful
+			If ($result.Status -ne "OK")
+			{
+				#Something went wrong, throw an error
+				Write-UcmLog -Message "Could not auto reconnect to Office365" -Severity 3 -Component $function
+				Write-UcmLog -Message "Error running New-UcmMsolConnection" -Severity 2 -Component $function
+				Write-UcmLog -Message $error[0] -Severity 2 -Component $function
+				$Return.Status = "Error"
+				$Return.Message  = "No Office365 Connection"
+				Return $Return
+			}
+			
+			Else
+			{
+				#We did reconnect, return a warning.
+				Write-UcmLog -Message "Reconnected to Office365" -Severity 3 -Component $function
+				$Return.Status = "Warning"
+				$Return.Message  = "Reconnectd to Office365"
+				Return $Return
+			}
+		}
+		
+		Else
+		{
+			#We arent connected and the reconnect flag is not set, return an error.
+			Write-UcmLog -Message "We dont appear to be connected to Office365! Connect to O365 and try again" -Severity 3 -Component $function
+			Write-UcmLog -Message "Error running Get-MsolCompanyInformation" -Severity 2 -Component $function
+			Write-UcmLog -Message $error[0] -Severity 2 -Component $function
+			$Return.Status = "Error"
+			$Return.Message  = "No Office365 Connection"
+			Return $Return
+		}
 	}
 	#endregion FunctionWork
 

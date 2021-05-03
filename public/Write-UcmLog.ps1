@@ -1,4 +1,4 @@
-﻿Function Write-Log {
+﻿Function Write-UcmLog {
 	<#
 			.SYNOPSIS
 			Function to output messages to the console based on their severity and create log files
@@ -30,7 +30,7 @@
 
 			.LINK
 			http://www.UcMadScientist.com
-			https://github.com/Atreidae/PowerShell-Fuctions
+			https://github.com/Atreidae/UcmPsTools
 
 			.INPUTS
 			This function does not accept pipelined input
@@ -39,12 +39,15 @@
 			This function does not create pipelined output
 
 			.NOTES
-			Version:		1.1
-			Date:			21/12/2020
+			Version:		1.2
+			Date:			03/04/2021
 
 			.VERSION HISTORY
+			1.1: Updated to "Ucm" naming convention
+			Better inline documentation
+
 			1.1: Bug Fix
-				Resolved an issue where large logfiles would attempt to rename themselves to the same name causing errors when logs grew above 10MB
+			Resolved an issue where large logfiles would attempt to rename themselves to the same name causing errors when logs grew above 10MB
 
 			1.0: Initial Public Release
 	#>
@@ -56,7 +59,7 @@
 		[string]$Component = 'Default',
 		[switch]$LogOnly
 	)
-	$function = 'Write-Log'
+	$function = 'Write-UcmLog'
 	$Date = Get-Date -Format 'HH:mm:ss'
 	$Date2 = Get-Date -Format 'MM-dd-yyyy'
 	$MaxLogFileSizeMB = 10
