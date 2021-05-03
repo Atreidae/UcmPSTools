@@ -8,7 +8,7 @@
 			Tries to pull tenant info and will call New-UcmEXHOConnection if unsucsessful
 
 			.EXAMPLE
-			Test-EXHOConnection
+			Test-UcmEXHOConnection
 
 			.PARAMETER Reconnect
 			When the flag is set Test-UcmEXHOConnection will attempt to automatically reconnect using New-UcmEXHOConnection
@@ -30,12 +30,14 @@
 
 			.NOTES
 			Version:		1.1
-			Date:			12/04/2021
+			Date:			03/05/2021
 
 			.VERSION HISTORY
 			1.1: Updated to "Ucm" naming convention
-					 Better inline documentation
-					
+			Better inline documentation
+			Reconnect flag support
+			Re-wrote reconnect detection
+			
 			1.0: Initial Public Release
 
 			.REQUIRED FUNCTIONS/MODULES
@@ -45,7 +47,7 @@
 
 			Cmdlets
 			Write-UcmLog: 						https://github.com/Atreidae/UcmPsTools/blob/main/public/Write-UcmLog.ps1
-			New-UcmEXHOConnection:					https://github.com/Atreidae/UcmPsTools/blob/main/public/New-UcmEXHOConnection.ps1
+			New-UcmEXHOConnection:				https://github.com/Atreidae/UcmPsTools/blob/main/public/New-UcmEXHOConnection.ps1
 			Write-HTMLReport: 					https://github.com/Atreidae/UcmPsTools/blob/main/public/Write-HTMLReport.ps1 (optional)
 
 			.REQUIRED PERMISIONS
@@ -80,52 +82,59 @@
 	Write-UcmLog -Message "$($PsBoundParameters.Values)" -Severity 1 -Component $function -LogOnly
 	Write-UcmLog -Message "Optional Arguments" -Severity 1 -Component $function -LogOnly
 	Write-UcmLog -Message "$Args" -Severity 1 -Component $function -LogOnly
-Write-Host '' #Insert a blank line to make reading output easier on loops
-	
+	Write-Host '' #Insert a blank line to make reading output easier on loops
+
 	#endregion FunctionSetup
 
 	#region FunctionWork
 
-
 	Write-UcmLog -Message "Checking for Existing EXHO Connection" -Severity 1 -Component $function
-	$Session =(Get-PSSession | Where-Object {$_.ConfigurationName -like "Microsoft.Exchange"}) 
-If($Session.state -ne "opened")
+	$Session =(Get-PSSession | Where-Object {$_.ConfigurationName -like "Microsoft.Exchange"})
+
+	If($Session.state -ne "opened") #Exchange Online Session in Broken state
 	{
 		Write-UcmLog -Message "We dont appear to be connected to Office365!" -Severity 3 -Component $function
-		If ($Reconnect)
+
+		If ($Reconnect)#If the user wants us to reconnect
 		{
-			Try
-			{ 
+
+			#Cleanup old session
 			Get-PSSession | Where-Object {$_.Name -like "Microsoft.Exchange"} | Remove-PSSession
-			New-UcmEXHOConnection
-			$Return.Status = "OK"
-			$Return.Message  = "Reconnected"
-			Return $Return
-			}
-			Catch
+
+			#Call New-UcmEXHOSession
+			$Connection = (New-UcmEXHOConnection)
+
+			#Check we actually connected
+			If ($Connection.status -eq "Error") #an error was reported
 			{
-			$Return.Status = "Error"
-			$Return.Message  = "Unable to reconnect to Exchange Online $error[0]"
-			Return $Return
+				$Return.Status = "Error"
+				$Return.Message  = "Could not reconnect to Exchange Online"
+				Return $Return
+			}
+			Else #The connection was succsessful
+			{
+				$Return.Status = "Warning"
+				$Return.Message  = "Reconnected"
+				Return $Return
 			}
 		}
-		Else
+		Else #Reconnect Flag not set
 		{
 			$Return.Status = "Error"
 			$Return.Message  = "Not Connected"
 			Return $Return
 		}
 	}
-Else
-{
+	Else #The session is connected, no need to do anything.
+	{
 		$Return.Status = "OK"
 		$Return.Message  = "Existing Connection"
 		Return $Return
-}
+	}
 	#endregion FunctionWork
 
 	#region FunctionReturn
- 
+
 	#Default Return Variable for my HTML Reporting Fucntion
 	Write-UcmLog -Message "Reached end of $function without a Return Statement" -Severity 3 -Component $function
 	$return.Status = "Unknown"

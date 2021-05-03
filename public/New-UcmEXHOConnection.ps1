@@ -120,7 +120,6 @@
 	$global:StoredPsCred = New-Object -TypeName System.Management.Automation.PSCredential -ArgumentList ($global:Config.SignInAddress, $global:Config.Credential)
 	($global:StoredPsCred).Password.MakeReadOnly() #Stop modules deleteing the variable.
 
-
 	$pscred = $global:StoredPsCred
 	#Exchange connection try block
 	Write-UcmLog -Message 'Connecting to Exchange Online' -Severity 2 -Component $function
@@ -131,8 +130,6 @@
 	$Return.Status = "OK"
 	$Return.Message  = "Connected"
 	Return $Return
-	
-
 
 	#endregion FunctionWork
 
