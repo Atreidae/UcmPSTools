@@ -23,7 +23,7 @@ stages:
     - task: NuGetCommand@2
       inputs:
         command: 'pack'
-        packagesToPack: '$(System.DefaultWorkingDirectory)/PowerShellModuleProject.nuspec'
+        packagesToPack: '$(System.DefaultWorkingDirectory)/UcmPSTools.nuspec'
         versioningScheme: byEnvVar
         versionEnvVar: buildVer
         buildProperties: 'VERSIONHERE=$(buildVer)'
@@ -38,14 +38,14 @@ stages:
     steps:
     - task: Pester@10 ## If a new version is out, you may have to increment this
       inputs:
-        scriptFolder: "$(System.DefaultWorkingDirectory)/PowerShellModuleProject.Tests.ps1"
-        resultsFile: "$(System.DefaultWorkingDirectory)/PowerShellModuleProject.Tests.XML"
+        scriptFolder: "$(System.DefaultWorkingDirectory)/UcmPSTools.Tests.ps1"
+        resultsFile: "$(System.DefaultWorkingDirectory)/UcmPSTools.Tests.XML"
         usePSCore: true
         run32Bit: False
     - task: PublishTestResults@2
       inputs:
         testResultsFormat: "NUnit"
-        testResultsFiles: "$(System.DefaultWorkingDirectory)/PowerShellModuleProject.Tests.XML"
+        testResultsFiles: "$(System.DefaultWorkingDirectory)/UcmPSTools.Tests.XML"
         failTaskOnFailedTests: true
 - stage: Deploy
   jobs:
