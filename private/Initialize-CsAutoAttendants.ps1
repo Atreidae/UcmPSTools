@@ -319,7 +319,7 @@ END {
 
 #Check for and create the users
 
-#
+<#
 ForEach ($Attendant in $aa) {$Attendant | New-TeamsResourceAccount -ResourceType AutoAttendant}
 ForEach ($Attendant in $aa) {$Attendant | Grant-Office365UserLicence -licencetype PHONESYSTEM_VIRTUALUSER}
 ForEach ($CallQueue in $cc) {$CallQueue | New-TeamsResourceAccount -ResourceType CallQueue}
@@ -327,3 +327,4 @@ ForEach ($CallQueue in $CC) {$CallQueue | Grant-Office365UserLicence -licencetyp
 
 
 #Licnec for stuff PHONESYSTEM_VIRTUALUSER
+#>
