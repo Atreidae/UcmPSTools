@@ -56,7 +56,7 @@
 
 	#>
 
-	Param #No parameters
+	Param
 	(
 		[Parameter(ValueFromPipelineByPropertyName=$true, Position=1)] [switch]$Reconnect
 	)
