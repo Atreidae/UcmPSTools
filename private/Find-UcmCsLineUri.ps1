@@ -1,25 +1,33 @@
-﻿Function Search-CsLineUri {
+﻿Function Search-UcmCsLineUri {
 	<#
 			.SYNOPSIS
-			Checks to see if a DID has already been assigned to an object in an on-prem Skype4B deployment and if so returns the result
+			Checks to see if a DID has already been assigned to an object in a Microsoft Teams deployment and if so returns the result
 
 			.DESCRIPTION
-			Checks to see if a DID has already been assigned to an object in the Skype4B deployment and if so returns the result
+			Checks to see if a DID has already been assigned to an object in a Microsoft Teams deployment and if so returns the result
 
 			.EXAMPLE
-			Search-CsLineUri "61386408640"
+			Search-UcmCsLineUri "61386408640"
 
 			.INPUTS
-			UriCheck the number to check against
+			This function does not accept any input
 
-			.REQUIRED FUNCTIONS
-			Write-Log: https://github.com/Atreidae/PowerShell-Fuctions/blob/main/Write-Log.ps1
-			Write-HTMLReport: https://github.com/Atreidae/PowerShell-Fuctions/blob/main/Write-HTMLReport.ps1
-			Lync or Skype Management tools
+			.OUTPUT
+			This Cmdet returns a PSCustomObject with multiple keys to indicate status
+			$Return.Status 
+			$Return.Message 
+
+			Return.Status can return one of four values
+			"OK"      : Connected to Skype for Business Online
+			"Warning" : Reconnected to Skype for Business Online
+			"Error"   : Not connected to Skype for Business Online
+			"Unknown" : Cmdlet reached the end of the function without returning anything, this shouldnt happen, if it does please log an issue on Github
+			
+			Return.Message returns descriptive text showing the connected tenant, mainly for logging or reporting
 
 			.LINK
 			http://www.UcMadScientist.com
-			https://github.com/Atreidae/PowerShell-Fuctions
+			https://github.com/Atreidae/UcmPsTools
 
 			.ACKNOWLEDGEMENTS
 			This function is based heavily off Tom Arbuthnot's Get-LyncNumberAssignment (Which I think might use code from Pat Richard)
@@ -27,10 +35,22 @@
 
 			.NOTES
 			Version:		1.0
-			Date:			25/11/2020
+			Date:			15/05/2021
 
 			.VERSION HISTORY
 			1.0: Initial Public Release
+
+			.REQUIRED FUNCTIONS/MODULES
+			Modules
+			Microsoft Teams						(Install-Module MicrosoftTeams)
+			UcmPSTools							(Install-Module UcmPsTools) Includes Cmdlets below.
+
+			Cmdlets
+			Write-UcmLog: 						https://github.com/Atreidae/UcmPsTools/blob/main/public/Write-UcmLog.ps1
+			New-UcmSFBOConnection				https://github.com/Atreidae/UcmPsTools/blob/main/public/New-UcmSFBOConnection.ps1
+
+			.REQUIRED PERMISIONS
+			'Teams Administrator' or better
 
 	#>
 
@@ -39,7 +59,7 @@
 	)
 
 	#region FunctionSetup, Set Default Variables for HTML Reporting and Write Log
-	$function = 'Search-CsLineUri'
+	$function = 'Search-UcmCsLineUri'
 	[hashtable]$Return = @{}
 	$return.Function = $function
 	$return.Status = "Unknown"

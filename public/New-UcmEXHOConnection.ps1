@@ -30,10 +30,12 @@
 			Return.Message returns descriptive text showing the connected tenant, mainly for logging or reporting
 
 			.NOTES
-			Version:		1.1
-			Date:			15/04/2021
+			Version:		1.2
+			Date:			17/05/2021
 
 			.VERSION HISTORY
+			1.2: Fixed function returning "OK" on connection failure ( https://github.com/Atreidae/UcmPSTools/issues/6 )
+
 			1.1: Updated to "Ucm" naming convention
 			Better inline documentation
 					
@@ -122,14 +124,28 @@
 
 	$pscred = $global:StoredPsCred
 	#Exchange connection try block
-	Write-UcmLog -Message 'Connecting to Exchange Online' -Severity 2 -Component $function
-	if ($Global:Config.override -eq $Null){ $EXCHOSession = (New-PSSession -ConfigurationName Microsoft.Exchange -ConnectionUri https://outlook.office365.com/powershell-liveid/ -Credential $pscred -Authentication Basic -AllowRedirection)}
-	Else {$EXCHOSession = (New-PSSession -ConfigurationName Microsoft.Exchange -ConnectionUri https://outlook.office365.com/powershell-liveid/ -Credential $pscred -Authentication Basic -AllowRedirection) } #todo fix override
-	Import-Module (Import-PSSession -Session $EXCHOSession -AllowClobber -DisableNameChecking) -Global -DisableNameChecking
 
-	$Return.Status = "OK"
-	$Return.Message  = "Connected"
-	Return $Return
+	Try
+	{
+		Write-UcmLog -Message 'Connecting to Exchange Online' -Severity 2 -Component $function
+		#Handle domain override
+		if ($Global:Config.override -eq $Null){ $EXCHOSession = (New-PSSession -ConfigurationName Microsoft.Exchange -ConnectionUri https://outlook.office365.com/powershell-liveid/ -Credential $pscred -Authentication Basic -AllowRedirection)}
+		Else {$EXCHOSession = (New-PSSession -ConfigurationName Microsoft.Exchange -ConnectionUri https://outlook.office365.com/powershell-liveid/ -Credential $pscred -Authentication Basic -AllowRedirection) } 
+		#Import the connected session
+		Import-Module (Import-PSSession -Session $EXCHOSession -AllowClobber -DisableNameChecking) -Global -DisableNameChecking
+
+		#We haven't errored so return sucsessful
+		$Return.Status = "OK"
+		$Return.Message  = "Connected"
+		Return $Return
+	}
+	Catch
+	{
+		#Something went wrong during the try block, return error
+		$Return.Status = "Error"
+		$Return.Message  = "Failed to connect to Exchange Online: $error[0]"
+		Return $Return
+	}
 
 	#endregion FunctionWork
 
