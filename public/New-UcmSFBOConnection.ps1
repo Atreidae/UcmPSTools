@@ -26,16 +26,18 @@
 
 			Return.Status can return one of three values
 			"OK"      : Connected to Skype for Business Online
-			"Error"   : Not connected to Skype for Business Online
+			"Error"   : Unable to connect to Skype for Business Online
 			"Unknown" : Cmdlet reached the end of the function without returning anything, this shouldnt happen, if it does please log an issue on Github
 			
 			Return.Message returns descriptive text showing the connected tenant, mainly for logging or reporting
 
 			.NOTES
-			Version:		1.1
-			Date:			03/04/2021
+			Version:		1.2
+			Date:			15/05/2021
 
 			.VERSION HISTORY
+			1.2: Fixed required module references (incorrectly referenced the Exchange Module)
+			
 			1.1: Updated to "Ucm" naming convention
 			Better inline documentation
 					
@@ -43,7 +45,7 @@
 
 			.REQUIRED FUNCTIONS/MODULES
 			Modules
-			ExchangeOnlineShell					(Install-Module ExchangeOnlineShell) #Note this is a community module, the official Exchange module can only be installed via ClickOnce
+			Microsoft Teams						(Install-Module MicrosoftTeams)
 			UcmPSTools							(Install-Module UcmPsTools) Includes Cmdlets below.
 
 			Cmdlets

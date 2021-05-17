@@ -6,11 +6,36 @@
 
 			.DESCRIPTION
 			Function will check for available licences and assign one to the supplied user
-			This function will also notify you if you are below 5% of your below licences, a similar warning will be generated if you have less than 5 licences available 
+			This function will also notify you if you are below 5% of your below licences, a similar warning will be generated if you have less than 5 licences available
+			For a full list of Licence codes, see https://docs.microsoft.com/en-us/azure/active-directory/enterprise-users/licensing-service-plan-reference
 
 			.EXAMPLE
 			PS> Grant-UcmOffice365UserLicence -upn 'button.mash@contoso.com' -LicenceType 'MCOEV' -Country 'AU'
 			Grants the Microsoft Phone System Licence to the user Button Mash
+
+			PS> Grant-UcmOffice365UserLicence -upn 'button.mash@contoso.com' -LicenceType 'MCOCAP' -Country 'AU'
+			Grants the Teams Common Area Phone Licence to the user Button Mash
+
+			PS> Grant-UcmOffice365UserLicence -upn 'button.mash@contoso.com' -LicenceType 'MCOPSTN1' -Country 'AU'
+			Grants the Microsoft Domestic Calling Licence to the user Button Mash
+
+			PS> Grant-UcmOffice365UserLicence -upn 'button.mash@contoso.com' -LicenceType 'MCOPSTN2' -Country 'AU'
+			Grants the Microsoft Domestic/International Calling Licence to the user Button Mash
+
+			PS> Grant-UcmOffice365UserLicence -upn 'button.mash@contoso.com' -LicenceType 'MCOPSTNEAU2' -Country 'AU'
+			Grants the TELSTRA CALLING FOR O365 Licence to the user Button Mash (Australia Only)
+
+			PS> Grant-UcmOffice365UserLicence -upn 'button.mash@contoso.com' -LicenceType 'MEETING_ROOM' -Country 'AU'
+			Grants the Teams Meeting Room Licence to the user Button Mash
+
+			PS> Grant-UcmOffice365UserLicence -upn 'button.mash@contoso.com' -LicenceType 'MCOMEETADV' -Country 'AU'
+			Grants the Teams Advanced Meeting Room Licence to the user Button Mash
+
+			PS> Grant-UcmOffice365UserLicence -upn 'button.mash@contoso.com' -LicenceType 'ENTERPRISEPREMIUM' -Country 'AU'
+			Grants the Microsoft E5 Licence to the user Button Mash
+
+			PS> Grant-UcmOffice365UserLicence -upn 'button.mash@contoso.com' -LicenceType 'ENTERPRISEPACK' -Country 'AU'
+			Grants the Microsoft E3 Licence to the user Button Mash
 
 			.INPUTS
 			This function accepts both parameter and pipline input
@@ -29,10 +54,13 @@
 			Return.Message returns descriptive text based on the outcome, mainly for logging or reporting
 
 			.NOTES
-			Version:		1.1
-			Date:			03/04/2021
+			Version:		1.2
+			Date:			15/05/2021
 
 			.VERSION HISTORY
+			1.2: Updated Examples to include more licences
+			Added link to Microsoft licence documentation
+
 			1.1: Updated to "Ucm" naming convention
 			1.0: Initial Public Release
 

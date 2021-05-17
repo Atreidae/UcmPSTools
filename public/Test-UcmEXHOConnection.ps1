@@ -29,10 +29,12 @@
 			Return.Message returns descriptive text showing the connected tenant, mainly for logging or reporting
 
 			.NOTES
-			Version:		1.1
-			Date:			03/05/2021
+			Version:		1.2
+			Date:			14/05/2021
 
 			.VERSION HISTORY
+			1.2: Fixed Exchange Online Typo
+
 			1.1: Updated to "Ucm" naming convention
 			Better inline documentation
 			Reconnect flag support
@@ -93,7 +95,7 @@
 
 	If($Session.state -ne "opened") #Exchange Online Session in Broken state
 	{
-		Write-UcmLog -Message "We dont appear to be connected to Office365!" -Severity 3 -Component $function
+		Write-UcmLog -Message "We dont appear to be connected to Exchange Online" -Severity 3 -Component $function
 
 		If ($Reconnect)#If the user wants us to reconnect
 		{
