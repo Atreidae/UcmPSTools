@@ -1,4 +1,5 @@
-﻿Function Revoke-UcmOffice365UserLicence
+﻿#PerformScriptSigning
+Function Revoke-UcmOffice365UserLicence
 {
 	<#
 			.SYNOPSIS

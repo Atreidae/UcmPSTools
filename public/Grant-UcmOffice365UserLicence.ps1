@@ -1,4 +1,5 @@
-﻿Function Grant-UcmOffice365UserLicence
+﻿#PerformScriptSigning
+Function Grant-UcmOffice365UserLicence
 {
 	<#
 			.SYNOPSIS

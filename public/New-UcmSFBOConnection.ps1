@@ -1,4 +1,5 @@
-﻿Function New-UcmSFBOConnection
+﻿#PerformScriptSigning
+Function New-UcmSFBOConnection
 {
 	<#
 			.SYNOPSIS

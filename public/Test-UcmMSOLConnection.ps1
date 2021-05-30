@@ -1,4 +1,5 @@
-﻿Function Test-UcmMSOLConnection
+﻿#PerformScriptSigning
+Function Test-UcmMSOLConnection
 {
 	<#
 			.SYNOPSIS

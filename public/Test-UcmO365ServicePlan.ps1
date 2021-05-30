@@ -1,4 +1,5 @@
-﻿Function Test-UcmO365ServicePlan
+﻿#PerformScriptSigning
+Function Test-UcmO365ServicePlan
 {
 	<#
 			.SYNOPSIS

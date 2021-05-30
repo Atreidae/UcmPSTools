@@ -1,4 +1,5 @@
-﻿Function New-UcmOffice365User
+﻿#PerformScriptSigning
+Function New-UcmOffice365User
 {
 	<#
 			.SYNOPSIS
