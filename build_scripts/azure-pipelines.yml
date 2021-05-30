@@ -48,9 +48,9 @@ stages:
         testResultsFormat: "NUnit"
         testResultsFiles: "$(System.DefaultWorkingDirectory)/UcmPSTools.Tests.XML"
         failTaskOnFailedTests: true
-- stage: Deploy
+- stage: Sign
   jobs:
-  - job: Deploy
+  - job: Sign
     steps:
       - task: DownloadSecureFile@1
         name: "RootCA"
@@ -118,6 +118,10 @@ stages:
                     Write-Error $_
                 }
             }
+- stage: Deploy
+  jobs:
+  - job: Deploy
+    steps:
       - task: DownloadPipelineArtifact@2
         inputs:
           buildType: 'current'
