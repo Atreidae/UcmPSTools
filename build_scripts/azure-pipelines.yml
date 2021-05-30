@@ -8,7 +8,6 @@ variables:
   minor: 1
   patch: $(Build.BuildID)
   buildVer: $(major).$(minor).$(Build.BuildID)
-  -group: CodeSigning 
 
 pool:
   vmImage: "windows-latest"
@@ -51,6 +50,8 @@ stages:
 - stage: Sign
   jobs:
   - job: Sign
+    variables:
+     group: CodeSigning
     steps:
       - task: DownloadSecureFile@1
         name: "RootCA"
