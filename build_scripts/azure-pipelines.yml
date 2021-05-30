@@ -8,9 +8,10 @@ variables:
   minor: 1
   patch: $(Build.BuildID)
   buildVer: $(major).$(minor).$(Build.BuildID)
+  group: CodeSigning 
 
 pool:
-  vmImage: "ubuntu-latest"
+  vmImage: "windows-latest"
 
 stages:
 - stage: Build
@@ -51,6 +52,27 @@ stages:
   jobs:
   - job: Deploy
     steps:
+      - task: DownloadSecureFile@1
+        name: "RootCA"
+        inputs:
+          secureFile: 'RootCA'
+
+      - task: DownloadSecureFile@1
+        name: "IntermediateCA"
+        inputs:
+          secureFile: 'IntermediateCA'
+      - task: PowerShell@2
+        displayName: "Import root CA"
+        inputs:
+          targetType: 'inline'
+          script: 'Import-Certificate -FilePath "$env:RootCA_SECUREFILEPATH" -CertStoreLocation Cert:\LocalMachine\Root'
+
+      - task: PowerShell@2
+        displayName: "Import intermediate CA"
+        inputs:
+          targetType: 'inline'
+          script: 'Import-Certificate -FilePath "$env:IntermediateCA_SECUREFILEPATH" -CertStoreLocation Cert:\LocalMachine\CA\'
+
       - task: PowerShell@2
         displayName: "Import code signing cert to agent"
         inputs:
