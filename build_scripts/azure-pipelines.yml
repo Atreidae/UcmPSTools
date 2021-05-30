@@ -8,7 +8,7 @@ variables:
   minor: 1
   patch: $(Build.BuildID)
   buildVer: $(major).$(minor).$(Build.BuildID)
-  group: CodeSigning 
+  -group: CodeSigning 
 
 pool:
   vmImage: "windows-latest"
