@@ -6,12 +6,14 @@ Set-StrictMode -Version Latest
 
 $Public = @(Get-ChildItem -Path $PSScriptRoot\Public\*.ps1 -ErrorAction SilentlyContinue)
 
-$Private = @(Get-ChildItem -Path $PSScriptRoot\Private\*.ps1 -ErrorAction SilentlyContinue)
+#$Private = @(Get-ChildItem -Path $PSScriptRoot\Private\*.ps1 -ErrorAction SilentlyContinue)
 
 # Dot source the files.
-foreach ($import in @($Public + $Private)) {
+#foreach ($import in @($Public + $Private)) {
+foreach ($import in @($Public)) {
 	try {
-		Write-Verbose "Importing $($import.FullName)"        . $import.FullName
+		Write-Verbose "Importing $($import.FullName)"
+		. $import.FullName
 	} catch {
 		Write-Error "Failed to import function $($import.FullName): $_"
 	}
