@@ -1,4 +1,5 @@
-﻿Function Enable-UcmO365Service
+﻿#PerformScriptSigning
+Function Enable-UcmO365Service
 {
 	<#
 			.SYNOPSIS

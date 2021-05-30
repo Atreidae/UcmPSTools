@@ -1,4 +1,5 @@
-﻿Function New-UcmEXHOConnection
+﻿#PerformScriptSigning
+Function New-UcmEXHOConnection
 {
 	<#
 			.SYNOPSIS

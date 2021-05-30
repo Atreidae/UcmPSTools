@@ -1,4 +1,5 @@
-﻿Function New-UcmTeamsResourceAccount
+﻿#PerformScriptSigning
+Function New-UcmTeamsResourceAccount
 {
 	<#
 			.SYNOPSIS

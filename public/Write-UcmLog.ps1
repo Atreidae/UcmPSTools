@@ -1,4 +1,5 @@
-﻿Function Write-UcmLog {
+﻿#PerformScriptSigning
+Function Write-UcmLog {
 	<#
 			.SYNOPSIS
 			Function to output messages to the console based on their severity and create log files

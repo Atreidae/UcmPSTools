@@ -1,4 +1,5 @@
-﻿Function Test-UcmSFBOConnection
+﻿#PerformScriptSigning
+Function Test-UcmSFBOConnection
 {
 	<#
 			.SYNOPSIS
