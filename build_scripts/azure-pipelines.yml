@@ -48,10 +48,10 @@ stages:
         testResultsFiles: "$(System.DefaultWorkingDirectory)/UcmPSTools.Tests.XML"
         failTaskOnFailedTests: true
 - stage: Sign
+  variables:
+  - template: variables.yml
   jobs:
   - job: Sign
-    variables:
-     group: CodeSigning
     steps:
       - task: DownloadSecureFile@1
         name: "RootCA"
