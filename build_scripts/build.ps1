@@ -1,5 +1,7 @@
 #Thanks to Adam the Automater for these wicked pipeline tools
 #Check out https://adamtheautomator.com/powershell-devops/ for more info!
+#Plus Nicola Suter's guide to signing PowerShell scripts using Aure Pipelines https://tech.nicolonsky.ch/sign-powershell-az-devops/
+#and COLIN DEMBOVSKY's guide to Azure Pipeline Variables https://colinsalmcorner.com/azure-pipeline-variables/
 
 $buildVersion = $env:BUILDVER
 $moduleName = 'UcmPSTools'
