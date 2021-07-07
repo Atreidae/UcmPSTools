@@ -83,13 +83,13 @@ Function Test-UcmO365ServicePlan
 	$return.Message = 'Function did not return a status message'
 
 	# Log why we were called
-	Write-Log -Message "$($MyInvocation.InvocationName) called with $($MyInvocation.Line)" -Severity 1 -Component $function
-	Write-Log -Message 'Parameters' -Severity 1 -Component $function -LogOnly
-	Write-Log -Message "$($PsBoundParameters.Keys)" -Severity 1 -Component $function -LogOnly
-	Write-Log -Message 'Parameters Values' -Severity 1 -Component $function -LogOnly
-	Write-Log -Message "$($PsBoundParameters.Values)" -Severity 1 -Component $function -LogOnly
-	Write-Log -Message 'Optional Arguments' -Severity 1 -Component $function -LogOnly
-	Write-Log -Message "$Args" -Severity 1 -Component $function -LogOnly
+	Write-UcmLog -Message "$($MyInvocation.InvocationName) called with $($MyInvocation.Line)" -Severity 1 -Component $function
+	Write-UcmLog -Message 'Parameters' -Severity 1 -Component $function -LogOnly
+	Write-UcmLog -Message "$($PsBoundParameters.Keys)" -Severity 1 -Component $function -LogOnly
+	Write-UcmLog -Message 'Parameters Values' -Severity 1 -Component $function -LogOnly
+	Write-UcmLog -Message "$($PsBoundParameters.Values)" -Severity 1 -Component $function -LogOnly
+	Write-UcmLog -Message 'Optional Arguments' -Severity 1 -Component $function -LogOnly
+	Write-UcmLog -Message "$Args" -Severity 1 -Component $function -LogOnly
 	Write-Host '' #Insert a blank line to make reading output easier on loops
 	
 	#endregion FunctionSetup
@@ -123,18 +123,18 @@ Function Test-UcmO365ServicePlan
 			If ($ServiceStatus.ProvisioningStatus -eq 'Disabled' -and $_.ServicePlan.ServiceName -eq "$serviceName")
 			{
 				#Found the service plan, and its disabled, $Enabled is already $False, no need to set anything.
-				Write-Log -Message "$ServiceName Disabled" -Severity 2 -Component $function
+				Write-UcmLog -Message "$ServiceName Disabled" -Severity 2 -Component $function
 			}
 			Elseif ($ServiceStatus.ProvisioningStatus -eq 'Success' -and $_.ServicePlan.ServiceName -eq "$serviceName")
 			{
 				#Found the service plan, and its provisioned, Set the Enabled flag to true
-				Write-Log -Message "$ServiceName Enabled" -Severity 2 -Component $function
+				Write-UcmLog -Message "$ServiceName Enabled" -Severity 2 -Component $function
 				$Enabled = $true
 			}
 			ElseIf ($ServiceStatus.ServicePlan.ServiceName -like "*$serviceName*")
 			{
 				#Found the service plan, and its not provisioned properly, this could be to a service issue or a multitude of other reasons (IE, MCOEV will error if the LineURI is already assigned). return an error
-				Write-Log -Message "$ServiceName is in unknown state , you may need to run '(Get-MsolUser -UserPrincipalName $UPN).Licenses' for more information" -Severity 3 -Component $function
+				Write-UcmLog -Message "$ServiceName is in unknown state , you may need to run '(Get-MsolUser -UserPrincipalName $UPN).Licenses' for more information" -Severity 3 -Component $function
 				$Enabled = 'Error'
 			}
 		} #End Service Plan Status Loop
@@ -144,7 +144,7 @@ Function Test-UcmO365ServicePlan
 	If ($enabled -eq 'Error')
 	{
 		#Encounted an error with Service Plan, return an error.
-		Write-Log -Message "$ServiceName is in unknown state" -Severity 2 -Component $function
+		Write-UcmLog -Message "$ServiceName is in unknown state" -Severity 2 -Component $function
 		$Return.Status = 'ERROR'
 		$Return.Message  = "$ServiceName is in unknown state, you may need to run '(Get-MsolUser -UserPrincipalName $UPN).Licenses' for more information"
 		Return $Return
@@ -152,7 +152,7 @@ Function Test-UcmO365ServicePlan
 	Elseif ($enabled -eq $true)
 	{
 		#The ServicePlan is enabled, return OK
-		Write-Log -Message "$ServiceName Enabled" -Severity 2 -Component $function
+		Write-UcmLog -Message "$ServiceName Enabled" -Severity 2 -Component $function
 		$Return.Status = 'OK'
 		$Return.Message  = "$ServiceName Enabled"
 		Return $Return
@@ -160,7 +160,7 @@ Function Test-UcmO365ServicePlan
 	ElseIf ($_.ServicePlan.ServiceName -like "*$serviceName*")
 	{
 		#The ServicePlan is disabled, return a warning
-		Write-Log -Message "$ServiceName Disabled" -Severity 2 -Component $function
+		Write-UcmLog -Message "$ServiceName Disabled" -Severity 2 -Component $function
 		$Return.Status = 'Warning'
 		$Return.Message  = "$ServiceName Disabled"
 		Return $Return
@@ -170,7 +170,7 @@ Function Test-UcmO365ServicePlan
 	#region FunctionReturn
  
 	#Default Return Variable for my HTML Reporting Fucntion
-	Write-Log -Message "Reached end of $function without a Return Statement" -Severity 3 -Component $function
+	Write-UcmLog -Message "Reached end of $function without a Return Statement" -Severity 3 -Component $function
 	$return.Status = 'Unknown'
 	$return.Message = 'Function did not encounter return statement'
 	Return $Return

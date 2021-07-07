@@ -41,10 +41,14 @@ Function Enable-UcmO365Service
 			Return.Message returns descriptive text based on the outcome, mainly for logging or reporting
 
 			.NOTES
-			Version:		1.1
-			Date:			03/04/2021
+			Version:		1.2
+			Date:			07/07/2021
 
 			.VERSION HISTORY
+			1.2: Fixed issue with random "-Message" messages being written to the pipeline
+			Added check to only attempt to write the service changes if we actually changed something
+			Added more infomative error messages when the cmdet fails to set a service
+
 			1.1: Updated to "Ucm" naming convention
 			Better inline documentation
 
@@ -95,7 +99,7 @@ Function Enable-UcmO365Service
 	Write-UcmLog -Message "$($PsBoundParameters.Values)" -Severity 1 -Component $function -LogOnly
 	Write-UcmLog -Message 'Optional Arguments' -Severity 1 -Component $function -LogOnly
 	Write-UcmLog -Message "$Args" -Severity 1 -Component $function -LogOnly
-	Write-Host -Message '' #Insert a blank line to make reading output easier on loops
+	Write-Host '' #Insert a blank line to make reading output easier on loops
 	
 	#endregion FunctionSetup
 
@@ -107,7 +111,7 @@ Function Enable-UcmO365Service
 	#Get the user Licence details
 	$LicenseDetails = (Get-MsolUser -UserPrincipalName $UPN).Licenses
 
-	#Run through all the services on each licence, one licence at a time.
+	#Run through all the servicesplans on each licence, one licence at a time.
 	ForEach ($License in $LicenseDetails) {
 		Write-UcmLog -Message "Checking $($License.AccountSkuId) for $Servicename" -Severity 1 -Component $function
 		
@@ -134,7 +138,9 @@ Function Enable-UcmO365Service
 			}
 		}
 
-		#Set the licence options using the new list of disabled licences
+		#Did we change any services? if so. Set the licence options using the new list of disabled licences
+		If ($AppEnabled -eq $true)
+		{ 
 		Try {
 			Write-UcmLog -Message 'Setting Licence Options with the following Disabled Services' -Severity 1 -Component $function
 			Write-UcmLog -Message "$DisabledOptions" -Severity 1 -Component $function
@@ -152,22 +158,33 @@ Function Enable-UcmO365Service
 			#Using the License Options attributes, set the users licence.
 			Set-MsolUserLicense -UserPrincipalName $UPN -LicenseOptions $LicenseOptions
 			
-			#Something went wrong setting user licence
+			#Reset the AppEnabled Flag
+			$AppEnabled = $False
+
+			#Set a flag so we can see it was changed
+			$MadeChanges= $True
+
+			
 		}
-		Catch
+		Catch #Something went wrong setting user licence
 		{
 			Write-UcmLog -Message 'Something went wrong assinging the licence' -Severity 3 -Component $function 
 			$AppEnabled = $false
+			$MadeChanges= $False
 		}
+		}
+		#Otherwise we didnt change anything, no need to rewrite the licence
 	} #Repeat for the next Licence
 
 	#Report on success/failure based on the $AppEnabled flag
-	If ($AppEnabled){
+	If ($MadeChanges){
 		$Return.Status = 'OK'
 		$Return.Message  = 'Enabled'
 		Return $Return
 	}
 	Else{
+		Write-UcmLog -Message "No Services were enabled, Either the user already has the service enabled or it is not available with the current licences" -Severity 3 -Component $function
+		Write-UcmLog -Message "Please ensure you test the service is actually disabled using Test-UcmO365Service prior to calling this cmdlet" -Severity 3 -Component $function
 		$Return.Status = 'Error'
 		$Return.Message  = 'Unknown Error'
 		Return $Return

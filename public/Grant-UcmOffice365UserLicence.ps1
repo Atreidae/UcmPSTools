@@ -41,6 +41,15 @@ Function Grant-UcmOffice365UserLicence
 			.INPUTS
 			This function accepts both parameter and pipline input
 
+			.PARAMETER upn
+			The UPN of the user you wish to enable the licence on, eg: button.mash@contoso.com
+
+			.PARAMETER LicenceType
+			The licence you wish to assign, eg: MCOEV'
+
+			.PARAMETER Country
+			The 2 letter country code for the users country, must be in capitals. eg: AU
+
 			.OUTPUT
 			This Cmdet returns a PSCustomObject with multiple Keys to indicate status
 			$Return.Status 
@@ -55,10 +64,12 @@ Function Grant-UcmOffice365UserLicence
 			Return.Message returns descriptive text based on the outcome, mainly for logging or reporting
 
 			.NOTES
-			Version:		1.2
-			Date:			15/05/2021
+			Version:		1.3
+			Date:			13/06/2021
 
 			.VERSION HISTORY
+			1.3: Updated Comment based help to include PARAMETER tags
+
 			1.2: Updated Examples to include more licences
 			Added link to Microsoft licence documentation
 

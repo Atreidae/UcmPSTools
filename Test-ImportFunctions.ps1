@@ -36,8 +36,11 @@
 		[Parameter(ValueFromPipelineByPropertyName=$true, Position=1)] [switch]$Private
 	)
 
+$Global:LogFileLocation = $PSCommandPath -replace '.ps1','.log'
+
 ## Find all of the public functions
 $publicFuncFolderPath = Join-Path -Path $PSScriptRoot -ChildPath 'public'
+
 
 #Check there is actually files here
 if ((Test-Path -Path $publicFuncFolderPath) -and ($publicFunctionNames = Get-ChildItem -Path $publicFuncFolderPath -Filter '*.ps1' | Select-Object PsPath))
