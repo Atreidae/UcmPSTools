@@ -1,0 +1,158 @@
+﻿#DontPerformScriptSigning
+Function Invoke-UcmBatchSfb2TeamsMove
+{
+	<#
+			.SYNOPSIS
+			Migrates a large number of users from Skype for Business to Teams in one batch in an attempt to reduce migration time
+
+			.DESCRIPTION
+			Provided with an array object on the pipeline containing CsUser objects, will attempt to migrate them all to O365, decode the results file and return an array with sucssess/failure for each use
+			
+			Looks for,(todo) and attempts to use the credentials stored in $Global:Creds
+
+			.EXAMPLE
+			PS> New-MSOLConnection
+
+			.INPUTS
+			This function does not accept any input
+
+			.OUTPUT
+			This Cmdet returns a PSCustomObject with multiple keys to indicate status
+			$Return.Status 
+			$Return.Message 
+
+			Return.Status can return one of three values
+			"OK"      : Connected to Azure AD (V1)
+			"Error"   : Not connected to Azure AD (V1)
+			"Unknown" : Cmdlet reached the end of the fucntion without returning anything, this shouldnt happen, if it does please log an issue on Github
+			
+			Return.Message returns descriptive text showing the connected tenant, mainly for logging or reporting
+
+			.NOTES
+			Version:		1.1
+			Date:			12/04/2021
+
+			.VERSION HISTORY
+			1.1: Updated to "Ucm" naming convention
+			Better inline documentation
+					
+			1.0: Initial Public Release
+
+			.REQUIRED FUNCTIONS/MODULES
+			Modules
+			AzureAD								(Install-Module MSOnline)
+			UcmPSTools							(Install-Module UcmPsTools) Includes Cmdlets below.
+
+			Cmdlets
+			Write-UcmLog: 						https://github.com/Atreidae/UcmPsTools/blob/main/public/Write-UcmLog.ps1
+
+			.REQUIRED PERMISSIONS
+			Any privledge level that can run 'Connect-MsolService' 
+			Typically "Office 365 User Administrator" or better
+
+			.LINK
+			http://www.UcMadScientist.com
+			https://github.com/Atreidae/UcmPSTools
+
+			.ACKNOWLEDGEMENTS
+			Greig Sheridan: Stop connect cmdlets deleting password variable https://github.com/Atreidae/BounShell/issues/7
+	#>
+
+	Param #No parameters
+	(
+
+	)
+
+	#region FunctionSetup, Set Default Variables for HTML Reporting and Write Log
+	$function = 'New-UcmMSOLConnection'
+	[hashtable]$Return = @{}
+	$return.Function = $function
+	$return.Status = "Unknown"
+	$return.Message = "Function did not return a status message"
+
+	# Log why we were called
+	Write-UcmLog -Message "$($MyInvocation.InvocationName) called with $($MyInvocation.Line)" -Severity 1 -Component $function
+	Write-UcmLog -Message "Parameters" -Severity 1 -Component $function -LogOnly
+	Write-UcmLog -Message "$($PsBoundParameters.Keys)" -Severity 1 -Component $function -LogOnly
+	Write-UcmLog -Message "Parameters Values" -Severity 1 -Component $function -LogOnly
+	Write-UcmLog -Message "$($PsBoundParameters.Values)" -Severity 1 -Component $function -LogOnly
+	Write-UcmLog -Message "Optional Arguments" -Severity 1 -Component $function -LogOnly
+	Write-UcmLog -Message "$Args" -Severity 1 -Component $function -LogOnly
+	Write-Host '' #Insert a blank line to make reading output easier on loops
+	
+	#endregion FunctionSetup
+
+	#region FunctionWork
+
+	#Check we have creds in memory, if not check for cred.xml, failing that prompt the user and store them.
+	If ($Global:Config.SignInAddress -eq $null)
+	{
+		Write-UcmLog -Message "No Credentials stored in Memory, checking for Creds file" -Severity 2 -Component $function
+		If(!(Test-Path cred.xml)) 
+		{
+			Write-UcmLog -component $function -Message 'Could not locate creds file' -severity 2
+
+			#Create a new creds variable
+			$null = (Remove-Variable -Name Config -Scope Global -ErrorAction SilentlyContinue)
+			$global:Config = @{}
+
+			#Prompt user for creds
+			$Global:Config.SignInAddress = (Read-Host -Prompt "Username")
+			$Global:Config.Password = (Read-Host -Prompt "Password")
+			$Global:Config.Override = (Read-Host -Prompt "OverrideDomain (Blank for none)")
+
+			#Encrypt the creds
+			$global:Config.Credential = ($Global:Config.Password | ConvertTo-SecureString -AsPlainText -Force)
+			Remove-Variable -Name "Config.Password" -Scope "Global" -ErrorAction SilentlyContinue
+
+			#write a secure creds file
+			$Global:Config | Export-Clixml -Path ".\cred.xml"
+		}
+		Else
+		{
+			Write-UcmLog -component $function -Message 'Importing Credentials File' -severity 2
+			$global:Config = @{}
+			$global:Config = (Import-Clixml -Path ".\cred.xml")
+			Write-UcmLog -component $function -Message 'Creds Loaded' -severity 2
+		}
+	}
+
+	#Get the creds ready for the module
+
+	$global:StoredPsCred = New-Object -TypeName System.Management.Automation.PSCredential -ArgumentList ($global:Config.SignInAddress, $global:Config.Credential)
+	($global:StoredPsCred).Password.MakeReadOnly() #Stop modules deleteing the variable.
+
+	#Connect to MSOL
+	$pscred = $global:StoredPsCred
+	Write-UcmLog -Message 'Connecting to MSOnline (AzureAD V1)' -Severity 2 -Component $function
+	Try
+	{
+		$MSOLSession = (Connect-MsolService -Credential $pscred)
+		
+		#Import the connected session
+		Import-Module (Import-PSSession -Session $MSOLSession -AllowClobber -DisableNameChecking) -Global -DisableNameChecking
+		
+		#We haven't errored so return sucsessful
+		$Return.Status = "OK"
+		$Return.Message  = "Connected"
+		Return $Return
+	}
+	Catch
+	{
+		#Something went wrong during the try block, return error
+		$Return.Status = "Error"
+		$Return.Message  = "Failed to connect to Microsoft Online (AzureAD V1): $error[0]"
+		Return $Return
+	}
+	#endregion FunctionWork
+
+	#region FunctionReturn
+ 
+	#Default Return Variable for my HTML Reporting Fucntion
+	Write-UcmLog -Message "Reached end of $function without a Return Statement" -Severity 3 -Component $function
+	$return.Status = "Unknown"
+	$return.Message = "Function did not encounter return statement"
+	Return $Return
+	#endregion FunctionReturn
+
+}

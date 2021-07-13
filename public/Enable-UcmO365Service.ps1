@@ -41,10 +41,16 @@ Function Enable-UcmO365Service
 			Return.Message returns descriptive text based on the outcome, mainly for logging or reporting
 
 			.NOTES
-			Version:		1.2
-			Date:			07/07/2021
+			Version:		1.3
+			Date:			13/07/2021
 
 			.VERSION HISTORY
+			1.3: Added a check and return if the service is already enabled instead of getting caught in the catchall error
+			Updated Catchall error message
+			Added MSOL cmdlet error catching and return
+			Added a check to see if the Service Plan existss for that user
+			Added a check to see if the user is licenced at all
+
 			1.2: Fixed issue with random "-Message" messages being written to the pipeline
 			Added check to only attempt to write the service changes if we actually changed something
 			Added more infomative error messages when the cmdet fails to set a service
@@ -105,8 +111,20 @@ Function Enable-UcmO365Service
 
 	#region FunctionWork
 
-	#Set a flag to track if we found the app or not
+	#Set a flag to track if we enabled the app or not
 	$AppEnabled = $False
+	#Set a flag to track if we found the app or not
+	$servicePlanExists = $False
+
+	#Check the user is even licenced in O365
+	If ((Get-MsolUser -UserPrincipalName $UPN).isLicensed -ne $true)
+	{
+		Write-UcmLog -Message 'User does not have ANY valid O365 licence, abort' -Severity 3 -Component $function 
+		$Return.Status = 'Error'
+		$Return.Message  = "User has no O365 licence, run 'Get-MsolUser -UserPrincipalName $Upn' for more info"
+		Return $Return
+	}
+
 
 	#Get the user Licence details
 	$LicenseDetails = (Get-MsolUser -UserPrincipalName $UPN).Licenses
@@ -119,11 +137,27 @@ Function Enable-UcmO365Service
 		$DisabledOptions = @()
 		ForEach ($Service in $License.ServiceStatus)
 		{
-			#Check to see if this service is disabled
+			#Check this service plan
 			Write-UcmLog -Message "Checking $($Service.ServicePlan.ServiceName)" -Severity 1 -Component $function
+	
+			#check if we this is the plan and its already enabled
+			If ($Service.ServicePlan.ServiceName -eq $ServiceName)
+			{
+			Write-UcmLog -Message "Found requested Serviceplan" -Severity 1 -Component $function
+			$servicePlanExists = $True
+			If ($Service.ProvisioningStatus -eq 'Success')
+				{ 
+				Write-UcmLog -Message "Service Plan is already enabled, returning" -Severity 1 -Component $function
+				$Return.Status = 'OK'
+				$Return.Message  = 'Already Enabled'
+				Return $Return
+				}
+			}
+			#Else check if the ServicePlan is disabled so we can track it (and enable it if needed)
 			If ($Service.ProvisioningStatus -eq 'Disabled') 
 			{
 				#The Service Is disabled, check to see if its the requested service
+				Write-UcmLog -Message "Service Plan is currently Disabled" -Severity 1 -Component $function
 				If ($Service.ServicePlan.ServiceName -eq $ServiceName)
 				{
 					Write-UcmLog -Message "$Servicename Was disabled, Enabling" -Severity 2 -Component $function
@@ -136,45 +170,62 @@ Function Enable-UcmO365Service
 					$DisabledOptions += "$($Service.ServicePlan.ServiceName)"
 				}
 			}
+			Else #$Service.ProvisioningStatus check
+			{
+				Write-UcmLog -Message "Service Plan is currently Enabled" -Severity 1 -Component $function
+			}
 		}
-
 		#Did we change any services? if so. Set the licence options using the new list of disabled licences
 		If ($AppEnabled -eq $true)
 		{ 
-		Try {
-			Write-UcmLog -Message 'Setting Licence Options with the following Disabled Services' -Severity 1 -Component $function
-			Write-UcmLog -Message "$DisabledOptions" -Severity 1 -Component $function
+			Try {
+				Write-UcmLog -Message 'Setting Licence Options with the following Disabled Services' -Severity 1 -Component $function
+				Write-UcmLog -Message "$DisabledOptions" -Severity 1 -Component $function
 
-			#If there are zero options in the disabled list, dont use the -DisabledPlans flag.
-			If ($DisabledOptions.count -eq 0)
-			{
-				$LicenseOptions = New-MsolLicenseOptions -AccountSkuId $License.AccountSkuId
+				#If there are zero options in the disabled list, dont use the -DisabledPlans flag.
+				If ($DisabledOptions.count -eq 0)
+				{
+					$LicenseOptions = New-MsolLicenseOptions -AccountSkuId $License.AccountSkuId
+				}
+				Else
+				{
+					$LicenseOptions = New-MsolLicenseOptions -AccountSkuId $License.AccountSkuId -DisabledPlans $DisabledOptions
+				}
+			
+				#Using the License Options attributes, set the users licence.
+				Set-MsolUserLicense -UserPrincipalName $UPN -LicenseOptions $LicenseOptions
+			
+				#Reset the AppEnabled Flag
+				$AppEnabled = $False
+
+				#Set a flag so we can see it was changed
+				$MadeChanges= $True
+
+			
 			}
-			Else
+			Catch #Something went wrong setting user licence
 			{
-				$LicenseOptions = New-MsolLicenseOptions -AccountSkuId $License.AccountSkuId -DisabledPlans $DisabledOptions
+				Write-UcmLog -Message 'Something went wrong assinging the licence' -Severity 3 -Component $function 
+				$AppEnabled = $false
+				$MadeChanges= $False
+				$Return.Status = 'Error'
+				$Return.Message  = 'Error running New-MsolLicenseOptions or Set-MsolUserLicense'
+				Return $Return
 			}
-			
-			#Using the License Options attributes, set the users licence.
-			Set-MsolUserLicense -UserPrincipalName $UPN -LicenseOptions $LicenseOptions
-			
-			#Reset the AppEnabled Flag
-			$AppEnabled = $False
-
-			#Set a flag so we can see it was changed
-			$MadeChanges= $True
-
-			
-		}
-		Catch #Something went wrong setting user licence
-		{
-			Write-UcmLog -Message 'Something went wrong assinging the licence' -Severity 3 -Component $function 
-			$AppEnabled = $false
-			$MadeChanges= $False
-		}
 		}
 		#Otherwise we didnt change anything, no need to rewrite the licence
 	} #Repeat for the next Licence
+
+		#Does the service plan even exist? Abort if not
+		If ($servicePlanExists -ne $true)
+		{
+		Write-UcmLog -Message "Could not locate $Servicename on user $UPN, make sure the appropriate licence is assigned" -Severity 3 -Component $function
+		$Return.Status = 'Error'
+		$Return.Message  = "Unable to locate $ServiceName"
+		Return $Return
+		}
+
+
 
 	#Report on success/failure based on the $AppEnabled flag
 	If ($MadeChanges){
@@ -183,10 +234,9 @@ Function Enable-UcmO365Service
 		Return $Return
 	}
 	Else{
-		Write-UcmLog -Message "No Services were enabled, Either the user already has the service enabled or it is not available with the current licences" -Severity 3 -Component $function
-		Write-UcmLog -Message "Please ensure you test the service is actually disabled using Test-UcmO365Service prior to calling this cmdlet" -Severity 3 -Component $function
+		Write-UcmLog -Message "No Services were enabled, Either the service is provisioning, has an error, or it is not available with the current assigned licences" -Severity 3 -Component $function
 		$Return.Status = 'Error'
-		$Return.Message  = 'Unknown Error'
+		$Return.Message  = 'Service exists, but returned unknown state'
 		Return $Return
 	}
 	#endregion FunctionWork
