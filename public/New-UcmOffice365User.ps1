@@ -30,7 +30,7 @@ Function New-UcmOffice365User
 			.INPUTS
 			This function accepts both parameter and pipline input
 
-			.OUTPUT
+			.OUTPUTS
 			This Cmdet returns a PSCustomObject with multiple keys to indicate status
 			$Return.Status 
 			$Return.Message 
