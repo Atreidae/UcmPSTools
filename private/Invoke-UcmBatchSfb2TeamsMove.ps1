@@ -140,6 +140,16 @@ Function Invoke-UcmBatchSfb2TeamsMove
 			Throw "No Users, Stop"
 		}
 		
+		#SipAddress Not Implemented, Throw an error
+		if ($SipAddress -ne "")
+		{
+			Write-UcmLog -component $function -message 'Find-UcmSuppliedUserDetails with a sip address, not implemented yet im afraid' -severity 3
+			Throw "No Sip Address Support"
+
+		}
+
+
+
 		#Check for a -Credential Flag, then fall back to $config.Credential, Then throw an error
 
 		if (!$Credential)
@@ -176,8 +186,9 @@ Function Invoke-UcmBatchSfb2TeamsMove
 	{
 
 		#Translate the passed SamAccountName or UPN into a user object and store that
-
-		if ($_.UPN -ne "") { }
+		$CsUserSearch = ""
+		if ($_.UPN -ne "") {$CsUserSearch =  ($_.UPN.split('@')[0])}
+		if ($_.SamAccountName -ne "") {$CsUserSearch =  $_.SamAccountName}
 
 		#region FunctionWork
 

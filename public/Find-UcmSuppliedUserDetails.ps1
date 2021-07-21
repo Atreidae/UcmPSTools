@@ -81,6 +81,7 @@ Function Find-UcmSuppliedUserDetails {
 
 	#region FunctionWork
 
+
 	#Try and find the user using the UPN
     $Aduser                      =  (get-aduser -filter {UserPrincipalName -like $CsUsernameSearch} -erroraction stop)
     if ($null -eq $aduser) 
