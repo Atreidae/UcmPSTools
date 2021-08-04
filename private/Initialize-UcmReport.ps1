@@ -1,37 +1,47 @@
-﻿Function Initialize-HTMLReport
+﻿Function Initialize-UcmReport
 {
+
 	<#
-			.SYNOPSIS
-			Checks for clears and creates a new object to store status for reporting later.
+		.SYNOPSIS
+		Checks for clears and creates a new object to store status for reporting later.
 
-			.DESCRIPTION
-			Checks for clears and creates a new object to store status for reporting later.
+		.DESCRIPTION
+		Checks for clears and creates a new object to store status for reporting later.
 
-			.EXAMPLE
-			Initialize-HTMLReport
+		.EXAMPLE
+		Initialize-UcmHTMLReport
 
-			.INPUTS
-			This function accepts no inputs
+		.INPUTS
+		This function accepts no inputs
 
-			.REQUIRED FUNCTIONS
-			Write-Log: https://github.com/Atreidae/PowerShell-Functions/blob/main/New-Office365User.ps1
-			AzureAD (Install-Module AzureAD) 
-			Connect-MsolService
+        .OUTPUTS
+        This function does not create pipelined output
+		This Cmdet returns a PSCustomObject with multiple keys to indicate status
+		$Return.Status
+		$Return.Message
 
-			.LINK
-			http://www.UcMadScientist.com
-			https://github.com/Atreidae/PowerShell-Functions
+		Return.Status can return one of four values
+		"OK"      : Imported All Modules successfully
+		"Warning" : Modules are already loaded
+		"Error"   : Something happend when attempting to import the modules, check $return.message for more information
+		"Unknown" : Cmdlet reached the end of the function without returning anything, this shouldnt happen, if it does please log an issue on Github
+		
+		Return.Message returns descriptive text for error messages.
 
-			.ACKNOWLEDGEMENTS
+		.LINK
+		https://www.UcMadScientist.com
+		https://github.com/Atreidae/UcmPSTools
 
-			.NOTES
-			Version:		1.0
-			Date:			25/11/2020
+		.NOTES
+		Version:		1.0
+		Date:			04/08/2021
 
-			.VERSION HISTORY
-			1.0: Initial Public Release
+		.VERSION HISTORY
+		1.0: Initial Public Release
 
+		.ACKNOWLEDGEMENTS
 	#>
+
 
 	Param
 	(
@@ -41,7 +51,7 @@
 
 
 	#region FunctionSetup, Set Default Variables for HTML Reporting and Write Log
-	$function = 'Initialize-HTMLReport'
+	$function = 'Initialize-UcmReport'
 	[hashtable]$Return = @{}
 	$return.Function = $function
 	$return.Status = "Unknown"
@@ -66,7 +76,8 @@
 	$Global:ThisReport = @()
 
 
-	$Global:ReportFilename=".\$Title - $StartDate.html"
+	$Global:HTMLReportFilename=".\$Title - $StartDate.html"
+	$Global:CSVReportFilename=".\$Title - $StartDate.CSV"
 	#Import the attributes
 	$Global:ProgressReport | add-member -MemberType NoteProperty -Name "Title"-Value "$title" -Force
 	$Global:ProgressReport | add-member -MemberType NoteProperty -Name "StartDate"-Value "$StartDate" -Force
@@ -75,7 +86,7 @@
 }
 
 
-Function Export-HTMLReport
+Function Export-UcmHTMLReport
 {
 	<#
 			.SYNOPSIS
@@ -85,25 +96,20 @@ Function Export-HTMLReport
 			Grabs the data stored in the report object and converts it to HTML
 
 			.EXAMPLE
-			Export-HTMLReport
+			Export-UcmHTMLReport
 
 			.INPUTS
 			This function accepts no inputs
 
-			.REQUIRED FUNCTIONS
-			Write-Log: https://github.com/Atreidae/PowerShell-Functions/blob/main/New-Office365User.ps1
-			AzureAD (Install-Module AzureAD) 
-			Connect-MsolService
-
 			.LINK
 			http://www.UcMadScientist.com
-			https://github.com/Atreidae/PowerShell-Functions
+			https://github.com/Atreidae/UcmPSTools
 
 			.ACKNOWLEDGEMENTS
 
 			.NOTES
 			Version:		1.0
-			Date:			25/11/2020
+			Date:			04/08/2020
 
 			.VERSION HISTORY
 			1.0: Initial Public Release
@@ -116,7 +122,7 @@ Function Export-HTMLReport
 	)
 
 	#region FunctionSetup, Set Default Variables for HTML Reporting and Write Log
-	$function = 'Export-HTMLReport'
+	$function = 'Export-UcmHTMLReport'
 	[hashtable]$Return = @{}
 	$return.Function = $function
 	$return.Status = "Unknown"
@@ -167,10 +173,10 @@ TD{border-width: 1px;padding: 3px;border-style: solid;border-color: black;text-a
 			{$_ -replace "<td>Error", "<td bgcolor=#CD6155>Error"}
 			Else {$_}
 			#Write this out
-		} | Out-File $Global:ReportFilename
+		} | Out-File $Global:HTMLReportFilename
 
 		#Open Browser
-		invoke-Item $Global:ReportFilename
+		invoke-Item $Global:HTMLReportFilename
 
 		$Return.Status = "OK"
 		$Return.Message = "HTML Report "
@@ -183,37 +189,106 @@ TD{border-width: 1px;padding: 3px;border-style: solid;border-color: black;text-a
 		Write-Log -Message "$error[0]" -Severity 2 -Component $function
 	}
 }
-#endregion FunctionWork
 
-Function New-HTMLReportStep
+Function Export-UcmCSVReport
 {
 	<#
 			.SYNOPSIS
-			Adds a new Object to the HTML Report
+			Grabs the data stored in the report object and converts it to a CSV
 
 			.DESCRIPTION
-			Adds a new Object to the HTML Report
+			Grabs the data stored in the report object and converts it to a CSV
 
 			.EXAMPLE
-			New-HTMLReportStep -Stepname "Enable User" -StepResult "OK: Created User"
+			Export-UcmCsvReport
+
+			.INPUTS
+			This function accepts no inputs
+
+			.LINK
+			http://www.UcMadScientist.com
+			https://github.com/Atreidae/UcmPSTools
+
+			.ACKNOWLEDGEMENTS
+
+			.NOTES
+			Version:		1.0
+			Date:			04/08/2020
+
+			.VERSION HISTORY
+			1.0: Initial Public Release
+
+	#>
+
+	Param
+	(
+		[Parameter(ValueFromPipelineByPropertyName=$true, Position=1)] [string]$EndDate=(Get-Date -format dd.MM.yy.hh.mm)
+	)
+
+	#region FunctionSetup, Set Default Variables for HTML Reporting and Write Log
+	$function = 'Export-UcmCSVReport'
+	[hashtable]$Return = @{}
+	$return.Function = $function
+	$return.Status = "Unknown"
+	$return.Message = "Function did not return a status message"
+
+	# Log why we were called
+	Write-Log -Message "$($MyInvocation.InvocationName) called with $($MyInvocation.Line)" -Severity 1 -Component $function
+	Write-Log -Message "Parameters" -Severity 1 -Component $function -LogOnly
+	Write-Log -Message "$($PsBoundParameters.Keys)" -Severity 1 -Component $function -LogOnly
+	Write-Log -Message "Parameters Values" -Severity 1 -Component $function -LogOnly
+	Write-Log -Message "$($PsBoundParameters.Values)" -Severity 1 -Component $function -LogOnly
+	Write-Log -Message "Optional Arguments" -Severity 1 -Component $function -LogOnly
+	Write-Log -Message "$Args" -Severity 1 -Component $function -LogOnly
+	Write-Host '' #Insert a blank line to make reading output easier on loops
+	
+	#endregion FunctionSetup
+
+	#region FunctionWork
+
+	#Import the end time
+	Try
+	{
+		$Global:ProgressReport | Export-CSV $Global:CSVReportFilename
+		$Return.Status = "OK"
+		$Return.Message = "CSV Report"
+		Return $Return
+	}
+	Catch
+	{
+		
+		Write-Log -Message "Unexpected error when generating CSV report" -Severity 3 -Component $function
+		Write-Log -Message "$error[0]" -Severity 2 -Component $function
+	}
+}
+
+Function New-UcmReportStep
+{
+	<#
+			.SYNOPSIS
+			Adds a new Object to the Report
+
+			.DESCRIPTION
+			Adds a new Object to the Report
+
+			.EXAMPLE
+			New-UcmReportStep -Stepname "Enable User" -StepResult "OK: Created User"
 
 			.INPUTS
 			This function accepts no inputs
 
 			.REQUIRED FUNCTIONS
 			Write-Log: https://github.com/Atreidae/PowerShell-Functions/blob/main/New-Office365User.ps1
-			AzureAD (Install-Module AzureAD) 
-			Connect-MsolService
 
 			.LINK
 			http://www.UcMadScientist.com
-			https://github.com/Atreidae/PowerShell-Functions
+			https://github.com/Atreidae/UcmPSTools
 
 			.ACKNOWLEDGEMENTS
 
 			.NOTES
 			Version:		1.0
-			Date:			25/11/2020
+			Date:			04/08/2021
 
 			.VERSION HISTORY
 			1.0: Initial Public Release
@@ -227,7 +302,7 @@ Function New-HTMLReportStep
 	)
 
 	#region FunctionSetup, Set Default Variables for HTML Reporting and Write Log
-	$function = 'New-HTMLReportStep'
+	$function = 'New-UcmReportStep'
 	[hashtable]$Return = @{}
 	$return.Function = $function
 	$return.Status = "Unknown"
@@ -254,35 +329,30 @@ Function New-HTMLReportStep
 }
 
 
-Function New-HTMLReportItem
+Function New-UCMReportItem
 {
 	<#
 			.SYNOPSIS
-			Adds a new Line Object to the HTML Report
+			Adds a new Line Object to the Report
 
 			.DESCRIPTION
-			Adds a new Line Object to the HTML Report
+			Adds a new Line Object to the Report
 
 			.EXAMPLE
-			New-HTMLReportStep -LineTitle "Username" -LineMessage "bob@contoso.com"
+			New-UCMReportStep -LineTitle "Username" -LineMessage "bob@contoso.com"
 
 			.INPUTS
 			This function accepts no inputs
 
-			.REQUIRED FUNCTIONS
-			Write-Log: https://github.com/Atreidae/PowerShell-Functions/blob/main/New-Office365User.ps1
-			AzureAD (Install-Module AzureAD) 
-			Connect-MsolService
-
 			.LINK
 			http://www.UcMadScientist.com
-			https://github.com/Atreidae/PowerShell-Functions
+			https://github.com/Atreidae/UcmPSTools
 
 			.ACKNOWLEDGEMENTS
 
 			.NOTES
 			Version:		1.0
-			Date:			25/11/2020
+			Date:			04/08/2021
 
 			.VERSION HISTORY
 			1.0: Initial Public Release
@@ -296,7 +366,7 @@ Function New-HTMLReportItem
 	)
 
 	#region FunctionSetup, Set Default Variables for HTML Reporting and Write Log
-	$function = 'New-HTMLReportLine'
+	$function = 'New-UcmReportLine'
 	[hashtable]$Return = @{}
 	$return.Function = $function
 	$return.Status = "Unknown"
