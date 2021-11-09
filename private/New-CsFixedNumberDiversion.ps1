@@ -156,12 +156,34 @@ PROCESS
 		Write-UcmLog -Message "Displayname $AADisplayName" -Severity 2 -Component $Function
 		#Create the resource account
 		$UPN = ($AccountPrefix + $originalNumber + "@" + $domain)
-		Write-UcmLog -Message "Creating Required Resource Account" -Severity 2 -Component $function
-		$AAAccount = (New-UcmTeamsResourceAccount -upn $upn -ResourceType Autoattendant -displayname "$originalnumber forward")
+		
+
+
+		#Check for Resource Account
+		#Powershell throws an error if the account isnt found, so lets trap it and use that instead
+
+		Try 
+		{
+			$AAAccount = (get-csonlineapplicationinstance -Identities $upn)
+			Write-UcmLog -Message "Found Existing Resource Account, skipping creation" -Severity 2 -Component $function
+		}
+		
+		Catch
+		{
+			Write-UcmLog -Message "Creating Required Resource Account" -Severity 2 -Component $function
+			$AAAccount = (New-UcmTeamsResourceAccount -upn $upn -ResourceType Autoattendant -displayname "$originalnumber forward")
+			Write-UcmLog -Message "waiting for account to appear" -Severity 2 -Component $function
+			#Dodgy hack
+			Start-sleep -seconds 20 
+		}
+		
+		
+
 
 		#todo, better error handling
 		#If ($AAAccount.status -eq "Error") {Throw "something went wrong creating the resource account"}
-		Start-sleep -seconds 5 
+		
+		
 
 		#Licence the account for Phone system
 		$Licence1 = (Grant-UcmOffice365UserLicence -licencetype PHONESYSTEM_VIRTUALUSER -country $country -upn $upn)
@@ -171,10 +193,64 @@ PROCESS
 		
 		#todo, better error handling
 		If ($licence1.status -eq "Error" -or $Licence2.status -eq "Error") {Throw "Something went wrong assinging licences"}
+		
 
-		Start-sleep -seconds 5 
+		#Pull the user and make it a callable object
 
+		#$operatorObjectId = (Get-CsOnlineUser $UPN).ObjectId
+		#$operatorEntity = New-CsAutoAttendantCallableEntity -Identity $operatorObjectId -Type User
 
+		#check to see if the Autoattendant already exists
+		Write-UcmLog -Message "Checking for Existing Autoattendant" -Severity 2 -Component $function
+		$o=$null
+		$o=(Get-CsAutoAttendant -NameFilter $AADisplayName)
+
+		If ($o -eq $BeNullOrEmpty) 
+		{
+			Write-UcmLog -Message "New-CsAutoAttendantCallableEntity" -Severity 1 -Component $function
+			$CallForwardEntity = New-CsAutoAttendantCallableEntity -Identity "tel:+$TargetNumber" -Type ExternalPSTN
+	
+			Write-UcmLog -Message "New-CsAutoAttendantMenuOption" -Severity 1 -Component $function
+			$DiversionMenuOption = New-CsAutoAttendantMenuOption -Action TransferCallToTarget -DtmfResponse Automatic -CallTarget $CallForwardEntity
+			
+			Write-UcmLog -Message "New-CsAutoAttendantMenu" -Severity 1 -Component $function
+			$DiversionMenu = New-CsAutoAttendantMenu -Name "Fixed Diversion" -MenuOptions @($DiversionMenuOption)
+	
+			Write-UcmLog -Message "New-CsAutoAttendantCallFlow" -Severity 1 -Component $function
+			$DiversionCallFlow = New-CsAutoAttendantCallFlow -Name "Fixed Diversion" -Menu $DiversionMenu
+			
+			Write-UcmLog -Message "New-CsAutoAttendant" -Severity 1 -Component $function
+			$o=New-CsAutoAttendant -Name $AADisplayName -DefaultCallFlow $DiversionCallFlow -CallHandlingAssociations @($afterHoursCallHandlingAssociation) -Language "en-AU" -TimeZoneId "AUS Eastern Standard Time" 
+	
+	
+			Write-UcmLog -Message "App instance lookup" -Severity 1 -Component $function
+			$applicationInstanceId = (Get-CsOnlineUser $UPN).ObjectId 
+	
+			Write-UcmLog -Message "New-CsOnlineApplicationInstanceAssociation" -Severity 2 -Component $function
+			New-CsOnlineApplicationInstanceAssociation -Identities @($applicationInstanceId) -ConfigurationId $O.identity -ConfigurationType AutoAttendant
+	
+			Write-UcmLog -Message "Get-csAutoAttendant" -Severity 1 -Component $function
+			Get-csAutoAttendant -Identity $o.identity
+		}
+
+		Else
+		{
+			Write-UcmLog -Message "Found Existing Autoattendant, Checking for Resource Account" -Severity 2 -Component $function
+
+			if ($o.applicationInstances -eq $BeNullOrEmpty)
+			{
+				Write-UcmLog -Message "Resource Account Association Missing, fixing" -Severity 2 -Component $function
+
+				Write-UcmLog -Message "App instance lookup" -Severity 1 -Component $function
+				$applicationInstanceId = (Get-CsOnlineUser $UPN).ObjectId 
+		
+				Write-UcmLog -Message "New-CsOnlineApplicationInstanceAssociation" -Severity 2 -Component $function
+				New-CsOnlineApplicationInstanceAssociation -Identities @($applicationInstanceId) -ConfigurationId $O.identity -ConfigurationType AutoAttendant
+
+			}
+		}
+
+		
 		#Assign the phone number to the resource account
 		Write-UcmLog -Message "Assigning Number to Resource Account" -Severity 2 -Component $function
 
@@ -182,37 +258,7 @@ PROCESS
 		$telephoneNumber = ($OriginalNumber).TrimStart("+")
 
 		#Set-CsOnlineApplicationInstance -Identity $AAUPN -OnpremPhoneNumber $telephoneNumber   ## Direct Routing version!
-		Set-CsOnlineVoiceApplicationInstance -Identity $UPN -TelephoneNumber $telephoneNumber
-
-		#Pull the user and make it a callable object
-
-		#$operatorObjectId = (Get-CsOnlineUser $UPN).ObjectId
-		#$operatorEntity = New-CsAutoAttendantCallableEntity -Identity $operatorObjectId -Type User
-		Write-UcmLog -Message "New-CsAutoAttendantCallableEntity" -Severity 1 -Component $function
-		$CallForwardEntity = New-CsAutoAttendantCallableEntity -Identity "tel:+$TargetNumber" -Type ExternalPSTN
-
-		Write-UcmLog -Message "New-CsAutoAttendantMenuOption" -Severity 1 -Component $function
-		$DiversionMenuOption = New-CsAutoAttendantMenuOption -Action TransferCallToTarget -DtmfResponse Automatic -CallTarget $CallForwardEntity
-		
-		Write-UcmLog -Message "New-CsAutoAttendantMenu" -Severity 1 -Component $function
-		$DiversionMenu = New-CsAutoAttendantMenu -Name "Fixed Diversion" -MenuOptions @($DiversionMenuOption)
-
-		Write-UcmLog -Message "New-CsAutoAttendantCallFlow" -Severity 1 -Component $function
-		$DiversionCallFlow = New-CsAutoAttendantCallFlow -Name "Fixed Diversion" -Menu $DiversionMenu
-		
-		Write-UcmLog -Message "New-CsAutoAttendant" -Severity 1 -Component $function
-		$o=New-CsAutoAttendant -Name $AADisplayName -DefaultCallFlow $DiversionCallFlow -CallHandlingAssociations @($afterHoursCallHandlingAssociation) -Language "en-AU" -TimeZoneId "AUS Eastern Standard Time" 
-
-
-		Write-UcmLog -Message "App instance lookup" -Severity 1 -Component $function
-		$applicationInstanceId = (Get-CsOnlineUser $UPN).ObjectId 
-
-		Write-UcmLog -Message "New-CsOnlineApplicationInstanceAssociation" -Severity 2 -Component $function
-		New-CsOnlineApplicationInstanceAssociation -Identities @($applicationInstanceId) -ConfigurationId $O.identity -ConfigurationType AutoAttendant
-
-		Write-UcmLog -Message "Get-csAutoAttendant" -Severity 1 -Component $function
-		Get-csAutoAttendant -Identity $o.identity
-
+		Set-CsOnlineVoiceApplicationInstance -Identity $UPN -TelephoneNumber $telephoneNumber -verbose
 	}
 	Else
 	{

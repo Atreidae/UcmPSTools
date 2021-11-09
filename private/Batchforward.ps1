@@ -4,7 +4,7 @@
 
 cd "C:\Users\Atrei\OneDrive - Telstra Purple\Customers\AGL\Scripts"
 
-$Data = Import-CSV ./forwards.csv -ErrorAction Stop
+$Data = Import-CSV ./forwards5.csv -ErrorAction Stop
 
 $usercount = ($data.count)
 $currentuser = 0
