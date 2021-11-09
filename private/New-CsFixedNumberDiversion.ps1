@@ -237,9 +237,9 @@ PROCESS
 		{
 			Write-UcmLog -Message "Found Existing Autoattendant, Checking for Resource Account" -Severity 2 -Component $function
 
-			if ($o.applicationInstances -eq $BeNullOrEmpty)
+			if ([bool]$o.ApplicationInstances -eq $false)
 			{
-				Write-UcmLog -Message "Resource Account Association Missing, fixing" -Severity 2 -Component $function
+				Write-UcmLog -Message "Resource Account Association Missing, fixing" -Severity 3 -Component $function
 
 				Write-UcmLog -Message "App instance lookup" -Severity 1 -Component $function
 				$applicationInstanceId = (Get-CsOnlineUser $UPN).ObjectId 
