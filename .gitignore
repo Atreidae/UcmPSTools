@@ -2,3 +2,4 @@
 cred.xml
 *.html
 *.lo_
+.vscode/settings.json
