@@ -33,15 +33,17 @@
 		https://github.com/Atreidae/UcmPSTools
 
 		.NOTES
-		Version:		1.0
-		Date:			04/08/2021
+		Version:		1.1
+		Date:			18/11/2021
 
 		.VERSION HISTORY
+
+		1.1: Reordered functions into logical order
+
 		1.0: Initial Public Release
 
 		.ACKNOWLEDGEMENTS
 	#>
-
 
 	Param
 	(
@@ -75,16 +77,212 @@
 	$Global:ProgressReport = @()
 	$Global:ThisReport = @()
 
-
+	#Declare our filenames
 	$Global:HTMLReportFilename=".\$Title - $StartDate.html"
-	$Global:CSVReportFilename=".\$Title - $StartDate.CSV"
-	#Import the attributes
+	$Global:CSVReportFilename=".\$Title - $StartDate.csv"
+
+	#Import the attributes into the report object
 	$Global:ProgressReport | add-member -MemberType NoteProperty -Name "Title"-Value "$title" -Force
 	$Global:ProgressReport | add-member -MemberType NoteProperty -Name "StartDate"-Value "$StartDate" -Force
-	#$Global:ProgressReport | add-member -MemberType NoteProperty -Name "Filename"-Value "$Filename" -Force
+}
+
+Function New-UCMReportItem
+{
+	<#
+			.SYNOPSIS
+			Adds a new Line Object to the Report
+
+			.DESCRIPTION
+			Adds a new Line Object to the Report
+
+			.EXAMPLE
+			New-UCMReportStep -LineTitle "Username" -LineMessage "bob@contoso.com"
+
+			.INPUTS
+			This function accepts no inputs
+
+			.LINK
+			http://www.UcMadScientist.com
+			https://github.com/Atreidae/UcmPSTools
+
+			.ACKNOWLEDGEMENTS
+
+			.NOTES
+			Version:		1.0
+			Date:			18/11/2021
+
+			.VERSION HISTORY
+			1.0: Initial Public Release
+	#>
+
+	Param
+	(
+		[Parameter(ValueFromPipelineByPropertyName=$true, Mandatory, Position=1)] $LineTitle, 
+		[Parameter(ValueFromPipelineByPropertyName=$true, Mandatory, Position=2)] $LineMessage
+	)
+
+	#region FunctionSetup, Set Default Variables for HTML Reporting and Write Log
+	$function = 'New-UcmReportLine'
+	[hashtable]$Return = @{}
+	$return.Function = $function
+	$return.Status = "Unknown"
+	$return.Message = "Function did not return a status message"
+
+	# Log why we were called
+	Write-UcmLog -Message "$($MyInvocation.InvocationName) called with $($MyInvocation.Line)" -Severity 1 -Component $function
+	Write-UcmLog -Message "Parameters" -Severity 1 -Component $function -LogOnly
+	Write-UcmLog -Message "$($PsBoundParameters.Keys)" -Severity 1 -Component $function -LogOnly
+	Write-UcmLog -Message "Parameters Values" -Severity 1 -Component $function -LogOnly
+	Write-UcmLog -Message "$($PsBoundParameters.Values)" -Severity 1 -Component $function -LogOnly
+	Write-UcmLog -Message "Optional Arguments" -Severity 1 -Component $function -LogOnly
+	Write-UcmLog -Message "$Args" -Severity 1 -Component $function -LogOnly
+	Write-Host '' #Insert a blank line to make reading output easier on loops
+	
+	#endregion FunctionSetup
+
+	#region FunctionWork
+
+	#Merge the current line item into the report
+	$Global:ProgressReport+= $Global:ThisReport
+
+	#Init a new line item
+	$Global:ThisReport = @()
+	$Global:ThisReport =  New-Object -TypeName PSobject  
+	$Global:ThisReport | add-member -MemberType NoteProperty -Name "$LineTitle" -Value $LineMessage
+}
+
+Function New-UcmReportStep
+{
+	<#
+			.SYNOPSIS
+			Adds a new Step to the Report
+
+			.DESCRIPTION
+			Creates a new Step for the current line item (for example, creating a user)
+
+			.EXAMPLE
+			New-UcmReportStep -Stepname "Enable User" -StepResult "OK: Created User"
+
+			.INPUTS
+			This function accepts no inputs
+
+			.REQUIRED FUNCTIONS
+			Write-UcmLog: https://github.com/Atreidae/PowerShell-Functions/blob/main/New-Office365User.ps1
+
+			.LINK
+			http://www.UcMadScientist.com
+			https://github.com/Atreidae/UcmPSTools
+
+			.ACKNOWLEDGEMENTS
+
+			.NOTES
+			Version:		1.0
+			Date:			18/11/2021
+
+			.VERSION HISTORY
+			1.0: Initial Public Release
+
+	#>
+
+	Param
+	(
+		[Parameter(ValueFromPipelineByPropertyName=$true, Mandatory, Position=1)] $StepName, 
+		[Parameter(ValueFromPipelineByPropertyName=$true, Mandatory, Position=2)] $StepResult
+	)
+
+	#region FunctionSetup, Set Default Variables for HTML Reporting and Write Log
+	$function = 'New-UcmReportStep'
+	[hashtable]$Return = @{}
+	$return.Function = $function
+	$return.Status = "Unknown"
+	$return.Message = "Function did not return a status message"
+
+	# Log why we were called
+	Write-UcmLog -Message "$($MyInvocation.InvocationName) called with $($MyInvocation.Line)" -Severity 1 -Component $function
+	Write-UcmLog -Message "Parameters" -Severity 1 -Component $function -LogOnly
+	Write-UcmLog -Message "$($PsBoundParameters.Keys)" -Severity 1 -Component $function -LogOnly
+	Write-UcmLog -Message "Parameters Values" -Severity 1 -Component $function -LogOnly
+	Write-UcmLog -Message "$($PsBoundParameters.Values)" -Severity 1 -Component $function -LogOnly
+	Write-UcmLog -Message "Optional Arguments" -Severity 1 -Component $function -LogOnly
+	Write-UcmLog -Message "$Args" -Severity 1 -Component $function -LogOnly
+	Write-Host '' #Insert a blank line to make reading output easier on loops
+	
+	#endregion FunctionSetup
+
+	#region FunctionWork
+
+	$Global:ThisReport | add-member -MemberType NoteProperty -Name "$StepName"-Value "$StepResult" -Force
+
+	# endregion FunctionWork
 
 }
 
+Function Complete-UcmReport
+{
+	<#
+			.SYNOPSIS
+			Adds the last Line Object to the Report
+
+			.DESCRIPTION
+			Adds the last Line Object to the Report
+
+			.EXAMPLE
+			Complete-UcmReport 
+
+			.INPUTS
+			This function accepts no inputs
+
+			.LINK
+			http://www.UcMadScientist.com
+			https://github.com/Atreidae/UcmPSTools
+
+			.ACKNOWLEDGEMENTS
+
+			.NOTES
+			Version:		1.0
+			Date:			18/11/2021
+
+			.VERSION HISTORY
+			1.0: Initial Public Release
+	#>
+
+	Param
+	(
+		#none
+	)
+
+	#region FunctionSetup, Set Default Variables for HTML Reporting and Write Log
+	$function = 'New-UcmReportLine'
+	[hashtable]$Return = @{}
+	$return.Function = $function
+	$return.Status = "Unknown"
+	$return.Message = "Function did not return a status message"
+
+	# Log why we were called
+	Write-UcmLog -Message "$($MyInvocation.InvocationName) called with $($MyInvocation.Line)" -Severity 1 -Component $function
+	Write-UcmLog -Message "Parameters" -Severity 1 -Component $function -LogOnly
+	Write-UcmLog -Message "$($PsBoundParameters.Keys)" -Severity 1 -Component $function -LogOnly
+	Write-UcmLog -Message "Parameters Values" -Severity 1 -Component $function -LogOnly
+	Write-UcmLog -Message "$($PsBoundParameters.Values)" -Severity 1 -Component $function -LogOnly
+	Write-UcmLog -Message "Optional Arguments" -Severity 1 -Component $function -LogOnly
+	Write-UcmLog -Message "$Args" -Severity 1 -Component $function -LogOnly
+	Write-Host '' #Insert a blank line to make reading output easier on loops
+	
+	#endregion FunctionSetup
+
+
+
+	#region FunctionWork
+
+	#Merge the current item and cleanup
+	$Global:ProgressReport+= $Global:ThisReport
+	Remove-variable -Name ProgressReport -scope global
+
+	$Global:ThisReport = @()
+	$Global:ThisReport =  New-Object -TypeName PSobject  
+	$Global:ThisReport | add-member -MemberType NoteProperty -Name "End of Report" -Value "End of report"
+	
+}
 
 Function Export-UcmHTMLReport
 {
@@ -94,6 +292,8 @@ Function Export-UcmHTMLReport
 
 			.DESCRIPTION
 			Grabs the data stored in the report object and converts it to HTML
+			By default, exports the current open report as a HTML in the current folder with the filename "$Title - $StartDate.html"
+			You can change the path by editing $Global:HTMLReportFilename just before calling this function
 
 			.EXAMPLE
 			Export-UcmHTMLReport
@@ -109,7 +309,7 @@ Function Export-UcmHTMLReport
 
 			.NOTES
 			Version:		1.0
-			Date:			04/08/2020
+			Date:			18/11/2021
 
 			.VERSION HISTORY
 			1.0: Initial Public Release
@@ -198,6 +398,8 @@ Function Export-UcmCSVReport
 
 			.DESCRIPTION
 			Grabs the data stored in the report object and converts it to a CSV
+			Exports the current open report as a HTML in the current folder with the filename "$Title - $StartDate.csv"
+			You can change the path by editing $Global:CSVReportFilename just before calling this function
 
 			.EXAMPLE
 			Export-UcmCsvReport
@@ -213,7 +415,7 @@ Function Export-UcmCSVReport
 
 			.NOTES
 			Version:		1.0
-			Date:			04/08/2020
+			Date:			18/11/2021
 
 			.VERSION HISTORY
 			1.0: Initial Public Release
@@ -261,138 +463,3 @@ Function Export-UcmCSVReport
 		Write-UcmLog -Message "$error[0]" -Severity 2 -Component $function
 	}
 }
-
-Function New-UcmReportStep
-{
-	<#
-			.SYNOPSIS
-			Adds a new Object to the Report
-
-			.DESCRIPTION
-			Adds a new Object to the Report
-
-			.EXAMPLE
-			New-UcmReportStep -Stepname "Enable User" -StepResult "OK: Created User"
-
-			.INPUTS
-			This function accepts no inputs
-
-			.REQUIRED FUNCTIONS
-			Write-UcmLog: https://github.com/Atreidae/PowerShell-Functions/blob/main/New-Office365User.ps1
-
-			.LINK
-			http://www.UcMadScientist.com
-			https://github.com/Atreidae/UcmPSTools
-
-			.ACKNOWLEDGEMENTS
-
-			.NOTES
-			Version:		1.0
-			Date:			04/08/2021
-
-			.VERSION HISTORY
-			1.0: Initial Public Release
-
-	#>
-
-	Param
-	(
-		[Parameter(ValueFromPipelineByPropertyName=$true, Mandatory, Position=1)] $StepName, 
-		[Parameter(ValueFromPipelineByPropertyName=$true, Mandatory, Position=2)] $StepResult
-	)
-
-	#region FunctionSetup, Set Default Variables for HTML Reporting and Write Log
-	$function = 'New-UcmReportStep'
-	[hashtable]$Return = @{}
-	$return.Function = $function
-	$return.Status = "Unknown"
-	$return.Message = "Function did not return a status message"
-
-	# Log why we were called
-	Write-UcmLog -Message "$($MyInvocation.InvocationName) called with $($MyInvocation.Line)" -Severity 1 -Component $function
-	Write-UcmLog -Message "Parameters" -Severity 1 -Component $function -LogOnly
-	Write-UcmLog -Message "$($PsBoundParameters.Keys)" -Severity 1 -Component $function -LogOnly
-	Write-UcmLog -Message "Parameters Values" -Severity 1 -Component $function -LogOnly
-	Write-UcmLog -Message "$($PsBoundParameters.Values)" -Severity 1 -Component $function -LogOnly
-	Write-UcmLog -Message "Optional Arguments" -Severity 1 -Component $function -LogOnly
-	Write-UcmLog -Message "$Args" -Severity 1 -Component $function -LogOnly
-	Write-Host '' #Insert a blank line to make reading output easier on loops
-	
-	#endregion FunctionSetup
-
-	#region FunctionWork
-
-	$Global:ThisReport | add-member -MemberType NoteProperty -Name "$StepName"-Value "$StepResult" -Force
-
-	# endregion FunctionWork
-
-}
-
-
-Function New-UCMReportItem
-{
-	<#
-			.SYNOPSIS
-			Adds a new Line Object to the Report
-
-			.DESCRIPTION
-			Adds a new Line Object to the Report
-
-			.EXAMPLE
-			New-UCMReportStep -LineTitle "Username" -LineMessage "bob@contoso.com"
-
-			.INPUTS
-			This function accepts no inputs
-
-			.LINK
-			http://www.UcMadScientist.com
-			https://github.com/Atreidae/UcmPSTools
-
-			.ACKNOWLEDGEMENTS
-
-			.NOTES
-			Version:		1.0
-			Date:			04/08/2021
-
-			.VERSION HISTORY
-			1.0: Initial Public Release
-
-	#>
-
-	Param
-	(
-		[Parameter(ValueFromPipelineByPropertyName=$true, Mandatory, Position=1)] $LineTitle, 
-		[Parameter(ValueFromPipelineByPropertyName=$true, Mandatory, Position=2)] $LineMessage
-	)
-
-	#region FunctionSetup, Set Default Variables for HTML Reporting and Write Log
-	$function = 'New-UcmReportLine'
-	[hashtable]$Return = @{}
-	$return.Function = $function
-	$return.Status = "Unknown"
-	$return.Message = "Function did not return a status message"
-
-	# Log why we were called
-	Write-UcmLog -Message "$($MyInvocation.InvocationName) called with $($MyInvocation.Line)" -Severity 1 -Component $function
-	Write-UcmLog -Message "Parameters" -Severity 1 -Component $function -LogOnly
-	Write-UcmLog -Message "$($PsBoundParameters.Keys)" -Severity 1 -Component $function -LogOnly
-	Write-UcmLog -Message "Parameters Values" -Severity 1 -Component $function -LogOnly
-	Write-UcmLog -Message "$($PsBoundParameters.Values)" -Severity 1 -Component $function -LogOnly
-	Write-UcmLog -Message "Optional Arguments" -Severity 1 -Component $function -LogOnly
-	Write-UcmLog -Message "$Args" -Severity 1 -Component $function -LogOnly
-	Write-Host '' #Insert a blank line to make reading output easier on loops
-	
-	#endregion FunctionSetup
-
-
-	#Merge the current Item
-	$Global:ProgressReport+= $Global:ThisReport
-
-	#region FunctionWork
-
-	$Global:ThisReport = @()
-	$Global:ThisReport =  New-Object -TypeName PSobject  
-	$Global:ThisReport | add-member -MemberType NoteProperty -Name "$LineTitle" -Value $LineMessage
-	
-}
-

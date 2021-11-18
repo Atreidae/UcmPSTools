@@ -10,7 +10,7 @@ Function New-UcmOffice365User
 			Handy for some situations where you need to create a user account for things that cant be sorted by a resource account.
 
 			.EXAMPLE
-			New-Office365User -UPN button.mash@contoso.com -Password "Passw0rd1!" -FirstName Caleb -LastName Sills -Country AU -DisplayName "Button Mash"
+			PS> New-Office365User -UPN button.mash@contoso.com -Password "Passw0rd1!" -FirstName Caleb -LastName Sills -Country AU -DisplayName "Button Mash"
 
 			.PARAMETER UPN
 			The UPN of the user you wish to create, eg: "button.mash@contoso.com"
@@ -50,10 +50,12 @@ Function New-UcmOffice365User
 			.ACKNOWLEDGEMENTS
 
 			.NOTES
-			Version:		1.1
-			Date:			03/04/2021
+			Version:		1.2
+			Date:			18/11/2021
 
 			.VERSION HISTORY
+			1.2: Documentation updates
+
 			1.1: Updated to "Ucm" naming convention
 			Better inline documentation
 			Optmized Try, Catch blocks to neaten code

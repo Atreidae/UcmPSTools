@@ -15,14 +15,10 @@ Function New-UcmCsFixedNumberDiversion
 
 			Note: All accounts will be "Cloud born" and use your tenants onmicrosoft domain as syncing accounts is a PITA
 			Warning: The script presently only supports Cloud Numbers, attempting to use Direct Routing numbers will fail.
-			
 
 			.EXAMPLE
 			PS> New-CsFixedNumberDiversion -OriginalNumber +61370105550 -TargetNumber +61755501234
 			Enables Microsoft Teams for the user Button Mash 
-
-			PS> New-CsFixedNumberDiversion -UPN 'button.mash@contoso.com' -ServiceName 'MCOPSTNEAU'
-			Enables Telstra Calling (Australian version of Microsoft Calling) for the user Button Mash
 
 			.PARAMETER OriginalNumber
 			The number of the new AutoAttendant. IE: The number to wish to forward FROM
@@ -65,11 +61,13 @@ Function New-UcmCsFixedNumberDiversion
 			Return.Message returns descriptive text based on the outcome, mainly for logging or reporting
 
 			.NOTES
-			Version:		1.0
-			Date:			27/09/2021
+			Version:		1.1
+			Date:			18/11/2021
 
 			.VERSION HISTORY
 
+			1.1: Documentation changes
+			
 			1.0: Initial Public Release
 
 			.REQUIRED FUNCTIONS/MODULES
@@ -177,13 +175,8 @@ PROCESS
 			Start-sleep -seconds 20 
 		}
 		
-		
-
-
 		#todo, better error handling
 		#If ($AAAccount.status -eq "Error") {Throw "something went wrong creating the resource account"}
-		
-		
 
 		#Licence the account for Phone system
 		$Licence1 = (Grant-UcmOffice365UserLicence -licencetype PHONESYSTEM_VIRTUALUSER -country $country -upn $upn)
