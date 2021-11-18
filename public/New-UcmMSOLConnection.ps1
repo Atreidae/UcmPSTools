@@ -34,7 +34,7 @@ Function New-UcmMSOLConnection
 
 			.NOTES
 			Version:		1.1
-			Date:			12/04/2021
+			Date:			18/11/2021
 
 			.VERSION HISTORY
 			1.1: Updated to "Ucm" naming convention

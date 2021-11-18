@@ -1,4 +1,4 @@
-﻿Function New-UcmTeamsAutoAttendant
+﻿Function New-UcmTeamsAutoAttendantObject
 {
 	<#
 			.SYNOPSIS
@@ -6,7 +6,7 @@
 
 			.DESCRIPTION
 			This function creates a new Auto Attendant and associated Call Queue with default settings
-			The Call Queue is created first, with
+			The Call Queue is created first, with the Autoattendant pointing to it
 
 			.EXAMPLE
 			New-Office365User -UPN calebs@contoso.onmicrosoft.com -Password "Passw0rd1!" -FirstName Caleb -LastName Sills -Country US -DisplayName "Caleb Sills"

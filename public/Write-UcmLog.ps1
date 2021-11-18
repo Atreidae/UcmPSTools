@@ -41,7 +41,7 @@ Function Write-UcmLog {
 
 			.NOTES
 			Version:		1.2
-			Date:			03/04/2021
+			Date:			18/11/2021
 
 			.VERSION HISTORY
 			1.1: Updated to "Ucm" naming convention
@@ -53,7 +53,8 @@ Function Write-UcmLog {
 			1.0: Initial Public Release
 	#>
 	[CmdletBinding()]
-	PARAM(
+	PARAM
+	(
 		[String]$Message,
 		[String]$Path = $Script:LogFileLocation,
 		[int]$Severity = 1,
