@@ -14,6 +14,9 @@ It will load everything into your current PS session for use!
 
 [![Build Status](https://dev.azure.com/UcMadScientist/UcmPSTools/_apis/build/status/Atreidae.UcmPSTools?branchName=main)](https://dev.azure.com/UcMadScientist/UcmPSTools/_build/latest?definitionId=1&branchName=main)
 
+Note this failure is a known issue, it's caused by cryptominers abusing Azure Pipelines.
+My "im not a bad repo" approval keeps popping off Azure. I've emailed the relevant team.
+
 ## Tests
 
 ## About UcmPSTools
