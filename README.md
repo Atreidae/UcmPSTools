@@ -14,7 +14,7 @@
  This initially started out as a scratch pad for my commonly used UC related functions. I took it as an oppertunity to centralize alot of the code I use in my day to day work.
  Instead of just building things bespoke for me, I decided to clean all the functions up, heavily document them and release them on the PowerShell Gallery
 
- Detailed posts for each function will come soon, but for now you can find inline PowerShell help and documentation to get you started.
+ **Detailed posts for each function will come soon, but for now you can find inline PowerShell help and documentation to get you started.**
 
 ## Reporting Output
 
@@ -65,26 +65,68 @@ Should the Creds.xml not be found, it will prompt the user to provide credential
 
 Note: this function presently uses the old community Exchange module. I am in the process of re-writing it to support the Exchange Online 2.0 module
 
-### Test-MSOLConnection
+#### Test-MSOLConnection
 
 This function will test if the current PowerShell Session is connected to Office 365 Azure AD (Using Azure AD v1) and that the PSSession isnt broken
 If its not connected for any reason, it will return an error
 
-### Test-SFBOConnection
+#### Test-SFBOConnection
 
 This function will test if the current PowerShell Session is connected to Skype for Business Online via either the Skype4B module or the MicrosoftTeams module and that the PSSession isnt broken
 If its not connected for any reason, it will then invoke New-SFBOConnection to reconnect
 
-### Test-EXHOConnection
+#### Test-EXHOConnection
 
 This function will test if the current PowerShell Session is connected to Exchange Online and that the PSSession isnt broken
 If its not connected for any reason, it will then invoke New-EXHOConnection to reconnect
 
-### User Management Related
+### Office365 User Management Related
 
 Functions for creating, licencing and enabling users
 
-#### Todo
+#### Grant-UcmOffice365UserLicence
+
+Function to check for and apply approproate licences to users
+Specify the UPN, Licence Code and Country Code and it will set all accordingly.
+It will also check for licences before applying them and return a warning when less than 5% or 5 licences are available.
+
+```PowerShell
+PS> Grant-UcmOffice365UserLicence -upn 'button.mash@contoso.com' -LicenceType 'MCOEV' -Country 'AU'
+```
+
+Grants the Microsoft Phone System Licence to the user Button Mash
+
+```PowerShell
+PS> Grant-UcmOffice365UserLicence -upn 'button.mash@contoso.com' -LicenceType 'MCOPSTNEAU2' -Country 'AU'
+```
+
+Grants the Telstra Calling for Office 365 Licence (Australia only)
+
+#### Enable-UcmO365Service
+
+Function for checking and enabling Office 365 Service Plans (Apps in the O365 GUI)
+This is great for those enviroments where the admins have turned off Skype/Teams
+
+```PowerShell
+PS> Enable-UcmO365Service -User 'button.mash@Contoso.com' -ServiceName 'MCOSTANDARD'
+```
+
+Enables Skype for Business Online for the user Button Mash (Required to move the user to Teams)
+Users must already have the appropriate licence for the service plan to be enabled.
+
+```PowerShell
+PS> Enable-UcmO365Service -User 'button.mash@Contoso.com' -ServiceName 'MCOPSTNEAU'
+```
+
+Enables the Telstra Calling for Office365 Service Plan
+
+### On-Prem User Management related
+
+#### Find-UcmSuppliedUserDetails
+
+This function is great for converting lists of users supplied by customers into AD objects to pass to Cmdlets like Move-CsUser
+First it will search UserPrincipalNames that match the supplied username, if no match is found, it will then move on to checking using SamAccountName
+Failing that, we will prompt the user to provide an updated username, or return an error to the calling function
 
 ### Call Management Related
 
@@ -107,13 +149,17 @@ Functions for logging and creation of reports to automated proceedures.
 This section covers functions that havent made it to the public folder yet, the documentation may be incorrect, incomplete or just may not exist.
 Use at your own risk
 
-### New-CsFixedNumberDiversion-pipelinework (Broken)
+### Beta Functions
+
+#### Create-OnPremAdAccount
+
+Quickly bashed together function to create on prem accounts, used for creating objects for direct routing AutoAttendants
+
+### Development functions
+
+#### New-CsFixedNumberDiversion-pipelinework (Broken)
 
 Multi input variant of New-CsFixedNumberDiversion, presently broken
-
-### Create-OnPremAdAccount
-
-Quickly bashed together fucntion to create on prem accounts, used for creating objects for direct routing AutoAttendants
 
 ### Find-UcmCsLineUri (broken)
 

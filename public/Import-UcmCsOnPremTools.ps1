@@ -1,5 +1,5 @@
 ﻿#PerformScriptSigning
-Function Import-CsOnPremTools {
+Function Import-UcmCsOnPremTools {
 	<#
         .SYNOPSIS
         Function to check for and import both Skype4B and AD Management tools
@@ -31,7 +31,7 @@ Function Import-CsOnPremTools {
 
 		.NOTES
 		Version:		1.0
-		Date:			20/07/2021
+		Date:			18/11/2021
 
 		.VERSION HISTORY
 		1.0: Initial Public Release

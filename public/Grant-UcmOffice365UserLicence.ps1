@@ -45,7 +45,7 @@ Function Grant-UcmOffice365UserLicence
 			The UPN of the user you wish to enable the licence on, eg: button.mash@contoso.com
 
 			.PARAMETER LicenceType
-			The licence you wish to assign, eg: MCOEV'
+			The licence you wish to assign, eg: 'MCOEV'
 
 			.PARAMETER Country
 			The 2 letter country code for the users country, must be in capitals. eg: AU
@@ -65,7 +65,7 @@ Function Grant-UcmOffice365UserLicence
 
 			.NOTES
 			Version:		1.3
-			Date:			13/06/2021
+			Date:			18/11/2021
 
 			.VERSION HISTORY
 			1.3: Updated Comment based help to include PARAMETER tags
@@ -173,7 +173,7 @@ Function Grant-UcmOffice365UserLicence
 		Write-UcmLog -Message "Unable to locate requested licence on the current tenant" -Severity 3 -Component $function
 		$Return.Status = "Error"
 		$Return.Message = "Unable to locate $LicenceType licence"
-		Return $Return
+		Return $Return 
 	}
 
 	#The tenant has the requested licence, check to see any are free. Trigger a warning when there is less than 5 or 5% available

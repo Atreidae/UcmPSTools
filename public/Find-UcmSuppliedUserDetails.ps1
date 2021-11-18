@@ -9,16 +9,6 @@ Function Find-UcmSuppliedUserDetails {
         Checks the supplied user account against AD, returns the AD object if required
         If the object cant be found prompts the user to correct the username, should this fail it throws an error
 
-
-
-		.PARAMETER DontBypassAudioConferencingCheck
-		When set, shows the warning that the online user doesnt have a Dial In Audio Conferencing licence 
-
-		.PARAMETER -DontUseOAuth 
-		When set, doesnt ask Move-CsUser to use OAuth authentication for Skype4B 2015 and better instead of the live signin assistant.
-		Not reccomended unless you're on Lync 2013
-
-
         .OUTPUTS
         This function does not create pipelined output
 		This Cmdet returns a PSCustomObject with multiple keys to indicate status
@@ -52,7 +42,7 @@ Function Find-UcmSuppliedUserDetails {
 
 		.NOTES
 		Version:		1.0
-		Date:			20/07/2021
+		Date:			18/11/2021
 
 		.VERSION HISTORY
 		1.0: Initial Public Release

@@ -32,7 +32,7 @@ Function New-UcmEXHOConnection
 
 			.NOTES
 			Version:		1.2
-			Date:			17/05/2021
+			Date:			18/11/2021
 
 			.VERSION HISTORY
 			1.2: Fixed function returning "OK" on connection failure ( https://github.com/Atreidae/UcmPSTools/issues/6 )
