@@ -1,5 +1,15 @@
 # UcmPSTools
 
+## Installation notes
+
+This module isnt on the PSGallery yet as I havent quite got the automation going.
+To use the cmdlets, download this repo and dot source Test-ImportFunctions.PS1
+It will load everything into your current PS session for use!
+
+```PowerShell
+. C:\UcMadScientist\PowerShell-Functions\Test-ImportFunctions.ps1 -Private
+```
+
 ## Build Status
 
 [![Build Status](https://dev.azure.com/UcMadScientist/UcmPSTools/_apis/build/status/Atreidae.UcmPSTools?branchName=main)](https://dev.azure.com/UcMadScientist/UcmPSTools/_build/latest?definitionId=1&branchName=main)
