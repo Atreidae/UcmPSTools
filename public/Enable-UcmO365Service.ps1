@@ -105,7 +105,7 @@ Function Enable-UcmO365Service
 	Write-UcmLog -Message "$($PsBoundParameters.Values)" -Severity 1 -Component $function -LogOnly
 	Write-UcmLog -Message 'Optional Arguments' -Severity 1 -Component $function -LogOnly
 	Write-UcmLog -Message "$Args" -Severity 1 -Component $function -LogOnly
-	Write-Host '' #Insert a blank line to make reading output easier on loops
+	
 	
 	#endregion FunctionSetup
 
