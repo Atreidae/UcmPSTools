@@ -33,11 +33,13 @@ Function Test-UcmMSOLConnection
 			Return.Message returns descriptive text showing the connected tenant, mainly for logging or reporting
 
 			.NOTES
-			Version:		1.1
-			Date:			03/04/2021
+			Version:		1.2
+			Date:			20/06/2022
 
 			.VERSION HISTORY
-			1.1: Updated to "Ucm" naming convention
+			1.2: Fixed bug with Reconnect switch being mandatory.
+
+      1.1: Updated to "Ucm" naming convention
 			Better inline documentation
 			Reconnect function
 					
@@ -62,7 +64,7 @@ Function Test-UcmMSOLConnection
 
 	Param #No parameters
 	(
-		[Parameter(ValueFromPipelineByPropertyName=$true, Mandatory, Position=1,HelpMessage='When set to $true will attempt to automatically reconnect using New-UcmMSOLConnection')] [switch]$Reconnect
+		[Parameter(ValueFromPipelineByPropertyName=$true, Position=1)] [switch]$Reconnect
 	)
 
 
