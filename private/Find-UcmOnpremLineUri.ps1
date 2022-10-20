@@ -66,13 +66,13 @@
 	$return.Message = "Function did not return a status message"
 
 	# Log why we were called
-	Write-Log -Message "$($MyInvocation.InvocationName) called with $($MyInvocation.Line)" -Severity 1 -Component $function
-	Write-Log -Message "Parameters" -Severity 3 -Component $function -LogOnly
-	Write-Log -Message "$($PsBoundParameters.Keys)" -Severity 1 -Component $function -LogOnly
-	Write-Log -Message "Parameters Values" -Severity 1 -Component $function -LogOnly
-	Write-Log -Message "$($PsBoundParameters.Values)" -Severity 1 -Component $function -LogOnly
-	Write-Log -Message "Optional Arguments" -Severity 1 -Component $function -LogOnly
-	Write-Log -Message "$Args" -Severity 1 -Component $function -LogOnly
+	Write-UcmLog -Message "$($MyInvocation.InvocationName) called with $($MyInvocation.Line)" -Severity 1 -Component $function
+	Write-UcmLog -Message "Parameters" -Severity 3 -Component $function -LogOnly
+	Write-UcmLog -Message "$($PsBoundParameters.Keys)" -Severity 1 -Component $function -LogOnly
+	Write-UcmLog -Message "Parameters Values" -Severity 1 -Component $function -LogOnly
+	Write-UcmLog -Message "$($PsBoundParameters.Values)" -Severity 1 -Component $function -LogOnly
+	Write-UcmLog -Message "Optional Arguments" -Severity 1 -Component $function -LogOnly
+	Write-UcmLog -Message "$Args" -Severity 1 -Component $function -LogOnly
 	
 	#endregion FunctionSetup
 
@@ -81,7 +81,7 @@
 	#Copy URI Check into Match
 	$match = "*$UriCheck*"
 
-	Write-Log -Message "Checking if $match is a unique number in Skype4B" -Severity 2 -Component $function
+	Write-UcmLog -Message "Checking if $match is a unique number in Skype4B" -Severity 2 -Component $function
 
 	# Define a new object to gather output
 	$OutputCollection = @()
@@ -89,7 +89,7 @@
 	# For Each one we want to output
 	# LineURI, Name, supuri, Type (USER/RGS etc)
 
-	Write-Log -Message "Checking Users" -Severity 1 -Component $function
+	Write-UcmLog -Message "Checking Users" -Severity 1 -Component $function
 	Get-CsUser -Filter {LineURI -like $match} | ForEach-Object {
 		$output           =  New-Object -TypeName PSobject 
 		$output | add-member -MemberType NoteProperty -Name 'LineUri' -Value $_.LineURI
@@ -100,7 +100,7 @@
 		$OutputCollection += $output
 	}
 
-	Write-Log -Message "Checking User Private Lines" -Severity 1 -Component $function
+	Write-UcmLog -Message "Checking User Private Lines" -Severity 1 -Component $function
 	Get-CsUser -Filter {PrivateLine -like $match} | ForEach-Object {
 		$output           =  New-Object -TypeName PSobject 
 		$output | add-member -MemberType NoteProperty -Name 'LineUri' -Value $_.LineURI
@@ -111,7 +111,7 @@
 		$OutputCollection += $output
 	}
 
-	Write-Log -Message "Checking Analog Devices" -Severity 1 -Component $function
+	Write-UcmLog -Message "Checking Analog Devices" -Severity 1 -Component $function
 	Get-CsAnalogDevice -Filter {LineURI -like $match} | ForEach-Object {
 		$output           =  New-Object -TypeName PSobject 
 		$output | add-member -MemberType NoteProperty -Name 'LineUri' -Value $_.LineURI
@@ -133,7 +133,7 @@
 		$OutputCollection += $output
 	}
 
-	Write-Log -Message "Checking Analog Devices" -Severity 1 -Component $function
+	Write-UcmLog -Message "Checking Analog Devices" -Severity 1 -Component $function
 	Write-Verbose -Message 'Checking Exchange UM Contact Objects'
 	Get-CsExUmContact -Filter {LineURI -like $match} | ForEach-Object {
 		$output           =  New-Object -TypeName PSobject 
@@ -145,7 +145,7 @@
 		$OutputCollection += $output
 	}
 
-	Write-Log -Message "Checking Dialin Conference Numbers" -Severity 1 -Component $function
+	Write-UcmLog -Message "Checking Dialin Conference Numbers" -Severity 1 -Component $function
 	Get-CsDialInConferencingAccessNumber -Filter {LineURI -like $match} | ForEach-Object {
 		$output           =  New-Object -TypeName PSobject 
 		$output | add-member -MemberType NoteProperty -Name 'LineUri' -Value $_.LineURI
@@ -156,7 +156,7 @@
 		$OutputCollection += $output
 	}
 
-	Write-Log -Message "Checking Trusted Application Endpoints" -Severity 1 -Component $function
+	Write-UcmLog -Message "Checking Trusted Application Endpoints" -Severity 1 -Component $function
 	Get-CsTrustedApplicationEndpoint -Filter {LineURI -like $match} | ForEach-Object {
 		$output           =  New-Object -TypeName PSobject 
 		$output | add-member -MemberType NoteProperty -Name 'LineUri' -Value $_.LineURI
@@ -168,7 +168,7 @@
 	}
 
 	# No filter on Get-CSRGSworkflow
-	Write-Log -Message "Checking Response Groups" -Severity 1 -Component $function
+	Write-UcmLog -Message "Checking Response Groups" -Severity 1 -Component $function
 	Get-CsRgsWorkflow | Where-Object {$_.LineURI -like $match} | ForEach-Object {
 		$output           =  New-Object -TypeName PSobject 
 		$output | add-member -MemberType NoteProperty -Name 'LineUri' -Value $_.LineURI
@@ -184,14 +184,14 @@
 	#Report on Findings
 	if ($OutputCollection.count -eq 0)
 	{
-		Write-Log -Message "Number $UriCheck does not appear to be used in the Skype4B deployment" -Severity 2 -Component $function
+		Write-UcmLog -Message "Number $UriCheck does not appear to be used in the Skype4B deployment" -Severity 2 -Component $function
 		$Return.Status = "OK"
 		$Return.Message  = "Number Not Used"
 		Return
 	}
 	Else
 	{
-		Write-Log -Message "Number $UriCheck is already in use!" -Severity 3 -Component $function
+		Write-UcmLog -Message "Number $UriCheck is already in use!" -Severity 3 -Component $function
 		$Return.Status = "Error"
 		$Return.Message  = "Number in use: $OutputCollection"
 		Return
@@ -200,7 +200,7 @@
 	#region FunctionReturn
  
 	#Default Return Variable for my HTML Reporting Fucntion
-	Write-Log -Message "Reached end of $function without a Return Statement" -Severity 3 -Component $function
+	Write-UcmLog -Message "Reached end of $function without a Return Statement" -Severity 3 -Component $function
 	$return.Status = "Unknown"
 	$return.Message = "Function did not encounter return statement"
 	Return
