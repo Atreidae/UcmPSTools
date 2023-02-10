@@ -14,8 +14,11 @@ It will load everything into your current PS session for use!
 
 ### Tests
 
-![Main Branch Tests](https://github.com/Atreidae/UcmPSTools/actions/workflows/push-tests.yml/badge.svg?branch=main)
-![Dev Branch Tests](https://github.com/Atreidae/UcmPSTools/actions/workflows/push-tests.yml/badge.svg?branch=dev)
+![Main Branch Pester Tests](https://github.com/Atreidae/UcmPSTools/actions/workflows/push-tests.yml/badge.svg?branch=main)
+![Dev Branch Pester Tests](https://github.com/Atreidae/UcmPSTools/actions/workflows/push-tests.yml/badge.svg?branch=dev)
+
+![Main Branch PSScriptAnalyzer Tests](https://github.com/Atreidae/UcmPSTools/actions/workflows/lint-public.yml/badge.svg?branch=main)
+![Dev Branch PSScriptAnalyzer Tests](https://github.com/Atreidae/UcmPSTools/actions/workflows/lint-public.yml/badge.svg?branch=dev)
 
 ### Build
 
