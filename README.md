@@ -10,11 +10,16 @@ It will load everything into your current PS session for use!
 . C:\UcMadScientist\PowerShell-Functions\Test-ImportFunctions.ps1 -Private
 ```
 
-## Build Status
+## Code Status
 
-[![Build Status](https://dev.azure.com/UcMadScientist/UcmPSTools/_apis/build/status/Atreidae.UcmPSTools?branchName=main)](https://dev.azure.com/UcMadScientist/UcmPSTools/_build/latest?definitionId=1&branchName=main)
+### Tests
 
-## Tests
+![Main Branch Tests](https://github.com/Atreidae/UcmPSTools/actions/workflows/push-tests.yml/badge.svg?branch=main)
+![Dev Branch Tests](https://github.com/Atreidae/UcmPSTools/actions/workflows/push-tests.yml/badge.svg?branch=dev)
+
+### Build
+
+### Publish to PowerShell Gallery
 
 ## About UcmPSTools
 
