@@ -57,6 +57,8 @@ Function Test-UcmSFBOConnection
 
 	#>
 	[Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSUseProcessBlockForPipelineCommand', '', Scope='Function')] #todo, https://github.com/Atreidae/UcmPSTools/issues/23
+	[Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSUseCompatibleCommands', '', Scope='Function')] #PSScriptAnalyzer isnt aware of the whole workspace when it runs on each item, thus assumes many crossreferenced cmdlets are incorrect
+
 	Param
 	(
 		[Parameter(ValueFromPipelineByPropertyName=$true, Position=1)] [switch]$Reconnect #Should re allow this from Pipeline?

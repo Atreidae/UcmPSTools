@@ -95,6 +95,7 @@
 			'CS Read Only Administrator' or better
 
 	#>
+	[Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSUseCompatibleCommands', '', Scope='Function')] #PSScriptAnalyzer isnt aware of the whole workspace when it runs on each item, thus assumes many crossreferenced cmdlets are incorrect
 
 	Param
 		(

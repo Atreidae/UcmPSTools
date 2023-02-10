@@ -61,6 +61,8 @@ Function Revoke-UcmOffice365UserLicence
 
 	#>
 	[Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSUseProcessBlockForPipelineCommand', '', Scope='Function')] #Todo, update return variable to return an array of pipeline objects, so we can report the status of each one to the calling function
+	[Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSUseCompatibleCommands', '', Scope='Function')] #PSScriptAnalyzer isnt aware of the whole workspace when it runs on each item, thus assumes many crossreferenced cmdlets are incorrect
+
 	Param
 	(
 		[Parameter(ValueFromPipelineByPropertyName=$true, Mandatory, Position=1,HelpMessage='The UPN of the user you wish to revoke the licence from, eg: button.mash@contoso.com')] [string]$UPN,

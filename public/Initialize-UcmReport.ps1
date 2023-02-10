@@ -52,6 +52,8 @@
   [Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSUseProcessBlockForPipelineCommand', '', Scope='Function')]
   [Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSAvoidGlobalVars', '', Scope='Function')] #Required due to how this report works. Report must persist outside of its own scope
   [Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSUSeDeclaredVarsMoreThanAssignments', '', Scope='Function')] #Required due to how this report works. Variables must persist outside of their own scope
+	[Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSUseCompatibleCommands', '', Scope='Function')] #PSScriptAnalyzer isnt aware of the whole workspace when it runs on each item, thus assumes many crossreferenced cmdlets are incorrect
+
   Param
   (
     [Parameter(ValueFromPipelineByPropertyName=$true, Position=1)] [String]$Title="HTML Report",
@@ -134,6 +136,8 @@ Function New-UCMReportItem
   [Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSUseShouldProcessForStateChangingfunctions', '', Scope='Function')] #process does not change state, ShouldProcess is not required.
   [Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSAvoidGlobalVars', '', Scope='Function')] #Required due to how this report works. Report must persist outside of its own scope
   [Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSUSeDeclaredVarsMoreThanAssignments', '', Scope='Function')] #Required due to how this report works. Variables must persist outside of their own scope
+	[Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSUseCompatibleCommands', '', Scope='Function')] #PSScriptAnalyzer isnt aware of the whole workspace when it runs on each item, thus assumes many crossreferenced cmdlets are incorrect
+
   Param
   (
     [Parameter(ValueFromPipelineByPropertyName=$true, Mandatory, Position=1)] $LineTitle,
@@ -214,6 +218,8 @@ Function New-UcmReportStep
   [Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSUseShouldProcessForStateChangingfunctions', '', Scope='Function')] #process does not change state, ShouldProcess is not required.
   [Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSAvoidGlobalVars', '', Scope='Function')] #Required due to how this report works. Report must persist outside of its own scope
   [Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSUSeDeclaredVarsMoreThanAssignments', '', Scope='Function')] #Required due to how this report works. Variables must persist outside of their own scope
+	[Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSUseCompatibleCommands', '', Scope='Function')] #PSScriptAnalyzer isnt aware of the whole workspace when it runs on each item, thus assumes many crossreferenced cmdlets are incorrect
+
   Param
   (
     [Parameter(ValueFromPipelineByPropertyName=$true, Mandatory, Position=1)] $StepName,
@@ -277,6 +283,8 @@ Function Complete-UcmReport
   [Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSUseProcessBlockForPipelineCommand', '', Scope='Function')]
   [Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSAvoidGlobalVars', '', Scope='Function')] #Required due to how this report works. Report must persist outside of its own scope
   [Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSUSeDeclaredVarsMoreThanAssignments', '', Scope='Function')] #Required due to how this report works. Variables must persist outside of their own scope
+	[Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSUseCompatibleCommands', '', Scope='Function')] #PSScriptAnalyzer isnt aware of the whole workspace when it runs on each item, thus assumes many crossreferenced cmdlets are incorrect
+
   Param
   (
     #none
@@ -351,6 +359,8 @@ Function Export-UcmHTMLReport
   [Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSUseProcessBlockForPipelineCommand', '', Scope='Function')]
   [Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSAvoidGlobalVars', '', Scope='Function')] #Required due to how this report works. Report must persist outside of its own scope
   [Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSUSeDeclaredVarsMoreThanAssignments', '', Scope='Function')] #Required due to how this report works. Variables must persist outside of their own scope
+	[Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSUseCompatibleCommands', '', Scope='Function')] #PSScriptAnalyzer isnt aware of the whole workspace when it runs on each item, thus assumes many crossreferenced cmdlets are incorrect
+
   Param
   (
     [Parameter(ValueFromPipelineByPropertyName=$true, Position=1)] [string]$EndDate=(Get-Date -DisplayHint datetime)
@@ -457,6 +467,8 @@ Function Export-UcmCSVReport
   [Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSUseProcessBlockForPipelineCommand', '', Scope='Function')]
   [Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSAvoidGlobalVars', '', Scope='Function')] #Required due to how this report works. Report must persist outside of its own scope
   [Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSUSeDeclaredVarsMoreThanAssignments', '', Scope='Function')] #Required due to how this report works. Variables must persist outside of their own scope
+	[Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSUseCompatibleCommands', '', Scope='Function')] #PSScriptAnalyzer isnt aware of the whole workspace when it runs on each item, thus assumes many crossreferenced cmdlets are incorrect
+
   Param
   (
     [Parameter(ValueFromPipelineByPropertyName=$true, Position=1)] [string]$EndDate=(Get-Date -DisplayHint datetime)
