@@ -1,3 +1,6 @@
+name: Analyze with PSScriptAnalyzer
+on: [push]
+jobs: 
   lint-with-PSScriptAnalyzer:
     name: Install and run PSScriptAnalyzer
     runs-on: ubuntu-latest
