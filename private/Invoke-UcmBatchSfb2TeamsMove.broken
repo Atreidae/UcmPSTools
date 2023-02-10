@@ -143,7 +143,7 @@ Function Invoke-UcmBatchSfb2TeamsMove
 		#SipAddress Not Implemented, Throw an error
 		if ($SipAddress -ne "")
 		{
-			Write-UcmLog -component $function -message 'Find-UcmSuppliedUserDetails with a sip address, not implemented yet im afraid' -severity 3
+			Write-UcmLog -component $function -message 'Find-UcmSuppliedUserDetail with a sip address, not implemented yet im afraid' -severity 3
 			Throw "No Sip Address Support"
 
 		}
@@ -193,7 +193,7 @@ Function Invoke-UcmBatchSfb2TeamsMove
 		#region FunctionWork
 
 
-		Find-UcmSuppliedUserDetails -Skipprompt -csusername 
+		Find-UcmSuppliedUserDetail -Skipprompt -csusername 
 
 		#Check we have creds in memory, if not check for cred.xml, failing that prompt the user and store them.
 		If ($Global:Config.SignInAddress -eq $null)

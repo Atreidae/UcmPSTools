@@ -30,10 +30,11 @@
     1.0: Initial Public Release
 
 #>
-
+[Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSAvoidGlobalVars', '', Scope='Function')] #Required when dotsourcing from legacy scripts or when using dev code instead of module.
+[Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSAvoidUsingWriteHost', '', Scope='Function')] #we are litterally showing something on screen for interactive purposes.
   Param #No parameters
   (
-    [Parameter(ValueFromPipelineByPropertyName=$true, Position=1)] [switch]$Private
+    [Parameter(Position=1)] [switch]$Private
   )
 
 $Global:LogFileLocation = $PSCommandPath -replace '.ps1','.log'
@@ -48,9 +49,9 @@ if ((Test-Path -Path $publicFuncFolderPath) -and ($publicFunctionNames = Get-Chi
   #Run through each file to import
   ForEach ($FunctionName in $publicFunctionNames)
   {
-    #Import the fucntion
+    #Import the function
     Try
-    { 
+    {
       Write-host "Importing $FunctionName"
       .$FunctionName.PsPath
     }
@@ -84,7 +85,7 @@ If ($private)
     {
       #Import the function
       Try
-      { 
+      {
         Write-host "Importing $FunctionName"
         .$FunctionName.PsPath
       }

@@ -52,9 +52,9 @@ Function Grant-UcmOffice365UserLicence
 
 			.OUTPUT
 			This Cmdet returns a PSCustomObject with multiple Keys to indicate status
-			$Return.Status 
-			$Return.Message 
-			
+			$Return.Status
+			$Return.Message
+
 			Return.Status can return one of four values
 			"OK"      : The licence has been assigned, or is already assigned to the user.
 			"Warn"    : The licence was assigned, but there was an issue. for example, low availability of licences. Check $return.message for more information
@@ -96,14 +96,14 @@ Function Grant-UcmOffice365UserLicence
 			https://github.com/Atreidae/UcmPSTools
 
 			.ACKNOWLEDGEMENTS
-			Assign licenses for specific services in Office 365 using PowerShell: 
+			Assign licenses for specific services in Office 365 using PowerShell:
 
 
 	#>
-
+	[Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSUseProcessBlockForPipelineCommand', '', Scope='Function')] #todo, https://github.com/Atreidae/UcmPSTools/issues/23
 	Param
 	(
-		[Parameter(ValueFromPipelineByPropertyName=$true, Mandatory, Position=1,HelpMessage='The UPN of the user you wish to enable the licence on, eg: button.mash@contoso.com')] [string]$UPN, 
+		[Parameter(ValueFromPipelineByPropertyName=$true, Mandatory, Position=1,HelpMessage='The UPN of the user you wish to enable the licence on, eg: button.mash@contoso.com')] [string]$UPN,
 		[Parameter(ValueFromPipelineByPropertyName=$true, Mandatory, Position=2,HelpMessage='The licence you wish to assign, eg: MCOEV')] [string]$LicenceType,
 		[Parameter(ValueFromPipelineByPropertyName=$true, Mandatory, Position=3,HelpMessage='The 2 letter country code for the users country, must be in capitals. eg: AU')] [String]$Country #TODO Add country validation.
 	)
@@ -124,8 +124,8 @@ Function Grant-UcmOffice365UserLicence
 	Write-UcmLog -Message "$($PsBoundParameters.Values)" -Severity 1 -Component $function -LogOnly
 	Write-UcmLog -Message "Optional Arguments" -Severity 1 -Component $function -LogOnly
 	Write-UcmLog -Message "$Args" -Severity 1 -Component $function -LogOnly
-	
-	
+
+
 	#endregion functionSetup
 
 
@@ -152,7 +152,7 @@ Function Grant-UcmOffice365UserLicence
 		#So we need to learn the prefix, we do this by looking for the licence and storing its name
 		$O365AcctSku = $null
 		$O365AcctSku = Get-MsolAccountSku | Where-Object {$_.SkuPartNumber -like $LicenceType}
-		
+
 		#Using the stored details, build the full licence name
 		$LicenceToAssign = "$($O365AcctSku.AccountName):$LicenceType"
 	}
@@ -167,13 +167,13 @@ Function Grant-UcmOffice365UserLicence
 		Return $Return
 	}
 
-	If ($O365AcctSku -eq $null)
+	If ($null -eq $O365AcctSku)
 	{
 		#The licence requested doesnt exist on the tenant, return an error
 		Write-UcmLog -Message "Unable to locate requested licence on the current tenant" -Severity 3 -Component $function
 		$Return.Status = "Error"
 		$Return.Message = "Unable to locate $LicenceType licence"
-		Return $Return 
+		Return $Return
 	}
 
 	#The tenant has the requested licence, check to see any are free. Trigger a warning when there is less than 5 or 5% available
@@ -203,7 +203,7 @@ Function Grant-UcmOffice365UserLicence
 			Write-UcmLog -Message "User already has that licence, Skipping" -Severity 3 -Component $function
 
 			#Check to see if we encountered a warning during the run and inject it into the status message
-			If ($warningFlag) 
+			If ($warningFlag)
 			{
 				#Yes, we did, return the warning
 				$Return.Status = "Warning"
@@ -223,15 +223,15 @@ Function Grant-UcmOffice365UserLicence
 		Try
 		{
 			Write-UcmLog -Message "User Exists, Grant Licence" -Severity 2 -Component $function
-			
+
 			#Set the user location, this is required to set the relevant licences. Users can be created without setting a country mistakenly.
 			Write-UcmLog -Message "Setting Location" -Severity 2 -Component $function
 			[void] (Set-MsolUser -UserPrincipalName $UPN -UsageLocation $Country)
-			
+
 			#Try assigning the licence to the user
 			[Void] (Set-MsolUserLicense -UserPrincipalName $UPN -AddLicenses $LicenceToAssign -ErrorAction stop)
 			Write-UcmLog -Message "Licence Granted" -Severity 2 -Component $function
-			
+
 			#Licence assigned OK. Check to see if we encountered a warning during the run and inject it into the status message
 			If ($warningFlag)
 			{
@@ -249,7 +249,7 @@ Function Grant-UcmOffice365UserLicence
 			}
 		}
 		#Something Failed either setting the licence or the country
-		Catch 
+		Catch
 		{
 			#Return an error
 			Write-UcmLog -Message "Something went wrong licencing user $UPN" -Severity 3 -Component $function
@@ -261,7 +261,7 @@ Function Grant-UcmOffice365UserLicence
 	} #End User Check try block #Todo, split this up into seperate blocks to minimise nesting.
 
 	#User doesnt exist, throw error message
-	Catch 
+	Catch
 	{
 		#Return an error
 		Write-UcmLog -Message "Something went wrong granting $UPN's licence" -Severity 3 -Component $function
@@ -274,7 +274,7 @@ Function Grant-UcmOffice365UserLicence
 
 
 	#region FunctionReturn
- 
+
 	#Default Return Variable for my HTML Reporting Fucntion
 	Write-UcmLog -Message "Reached end of $function without a Return Statement" -Severity 3 -Component $function
 	$return.Status = "Unknown"

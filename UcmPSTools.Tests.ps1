@@ -35,15 +35,15 @@ describe 'Module-level tests' {
 
 	it 'Writes to the log file' {(Get-Content -path $testPath)} | should -contain "Pester"
 
-<#	it 'Displays a verbose message' { $(Write-UcmLog -Message "Pester Test Verbose Message" -Severity 1 -Component "Pester")4>&1 }| Should -eq 'Pester Test Verbose Message' 
+<#	it 'Displays a verbose message' { $(Write-UcmLog -Message "Pester Test Verbose Message" -Severity 1 -Component "Pester")4>&1 }| Should -eq 'Pester Test Verbose Message'
 
-	it 'Displays an info message' { $(Write-UcmLog -Message "Pester Test Info Message" -Severity 3 -Component "Pester") }| Should -eq 'Pester Test Info Message' 
+	it 'Displays an info message' { $(Write-UcmLog -Message "Pester Test Info Message" -Severity 3 -Component "Pester") }| Should -eq 'Pester Test Info Message'
 
-	it 'Displays a warning message' { $(Write-UcmLog -Message "Pester Test Warning Message" -Severity 3 -Component "Pester")3>&1 }| Should -eq 'Pester Test Warning Message' 
+	it 'Displays a warning message' { $(Write-UcmLog -Message "Pester Test Warning Message" -Severity 3 -Component "Pester")3>&1 }| Should -eq 'Pester Test Warning Message'
 
-	it 'Displays an error message' { $(Write-UcmLog -Message "Pester Test Error Message" -Severity 4 -Component "Pester")2>&1 }| Should -eq 'Pester Test Error Message' 
+	it 'Displays an error message' { $(Write-UcmLog -Message "Pester Test Error Message" -Severity 4 -Component "Pester")2>&1 }| Should -eq 'Pester Test Error Message'
 
-	it 'Injects the function name' { $(Write-UcmLog -Message "Testing Function Test" -Severity 2 -Component "Pester") }| Should -eq 'Pester' 
+	it 'Injects the function name' { $(Write-UcmLog -Message "Testing Function Test" -Severity 2 -Component "Pester") }| Should -eq 'Pester'
 
 	#it 'Rotates the log file' {}
 

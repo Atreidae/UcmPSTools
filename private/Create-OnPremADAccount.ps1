@@ -3,6 +3,8 @@
 
 function Create-OnPremADAccount
 {
+	[Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSAvoidUsingConvertToSecureStringWithPlainText', '', Scope='Function')] #Todo https://github.com/Atreidae/UcmPSTools/issues/24
+
 #Import-Csv "C:\kloud\mel-ad-caps-miss.csv" | ForEach-Object{
 $upn = $_.SamAccountName + "skype4badmin.local"
 Write-host "Creating user $Upn"
@@ -15,7 +17,7 @@ New-ADUser -Name $_.Name `
  -Path $_.Path `
  -PasswordNeverExpires $True `
  -CannotChangePassword $true `
- -AccountPassword (ConvertTo-SecureString "boop"ù -AsPlainText -force) -Enabled $true
+ -AccountPassword (ConvertTo-SecureString "boop" -AsPlainText -force) -Enabled $true
 #}
 
 }

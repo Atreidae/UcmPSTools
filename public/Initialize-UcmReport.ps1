@@ -1,6 +1,5 @@
 ﻿Function Initialize-UcmReport
 {
-
   <#
       .SYNOPSIS
       Checks for clears and creates a new object to store status for reporting later.
@@ -25,7 +24,7 @@
       "Warning" : Modules are already loaded
       "Error"   : Something happend when attempting to import the modules, check $return.message for more information
       "Unknown" : Cmdlet reached the end of the function without returning anything, this shouldnt happen, if it does please log an issue on Github
-		
+
       Return.Message returns descriptive text for error messages.
 
       .LINK
@@ -37,24 +36,26 @@
       Date:			19/06/2022
 
       .VERSION HISTORY
-    
+
       1.2: Bug fixes for date reporting
       Added per line item numbers
       Added per line timestamps
       Updated Date format to respect system locale
-      Added Subtitle support to HTML report 
-		
+      Added Subtitle support to HTML report
+
       1.1: Reordered functions into logical order
 
       1.0: Initial Public Release
 
       .ACKNOWLEDGEMENTS
   #>
-
+  [Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSUseProcessBlockForPipelineCommand', '', Scope='Function')]
+  [Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSAvoidGlobalVars', '', Scope='Function')] #Required due to how this report works. Report must persist outside of its own scope
+  [Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSUSeDeclaredVarsMoreThanAssignments', '', Scope='Function')] #Required due to how this report works. Variables must persist outside of their own scope
   Param
   (
-    [Parameter(ValueFromPipelineByPropertyName=$true, Position=1)] [String]$Title="HTML Report", 
-    [Parameter(ValueFromPipelineByPropertyName=$true, Position=2)] [String]$SubTitle="The results were as follows", 
+    [Parameter(ValueFromPipelineByPropertyName=$true, Position=1)] [String]$Title="HTML Report",
+    [Parameter(ValueFromPipelineByPropertyName=$true, Position=2)] [String]$SubTitle="The results were as follows",
     [Parameter(ValueFromPipelineByPropertyName=$true, Position=3)] [string]$StartDate=(Get-Date -format dd.MM.yy.hh.mm),
     [Parameter(ValueFromPipelineByPropertyName=$true, Position=4)] [string]$NiceDate=(Get-Date -displayhint datetime)
   )
@@ -75,7 +76,7 @@
   Write-UcmLog -Message "$($PsBoundParameters.Values)" -Severity 1 -Component $function -LogOnly
   Write-UcmLog -Message "Optional Arguments" -Severity 1 -Component $function -LogOnly
   Write-UcmLog -Message "$Args" -Severity 1 -Component $function -LogOnly
-	
+
   #endregion FunctionSetup
 
   #region FunctionWork
@@ -83,7 +84,6 @@
   #Declare our reports
   $Global:ProgressReport = @()
   $Global:ThisReport = @()
-  
 
   #Declare our filenames
   $Global:HTMLReportFilename=".\$Title - $StartDate.html"
@@ -94,10 +94,8 @@
   $Global:ProgressReportTitle = $Title
   $Global:ProgressReportSubtitle = $Subtitle
   $Global:ProgressReportStartTime = $NiceDate
-  
-  
-  $Global:ProgressReportItemCount = 0  
-  
+  $Global:ProgressReportItemCount = 0
+
   New-UCMReportStep -StepName "Item" -StepResult "$($Global:ProgressReportItemCount)"
 }
 
@@ -132,10 +130,13 @@ Function New-UCMReportItem
 
       1.0: Initial Public Release
   #>
-
+  [Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSUseProcessBlockForPipelineCommand', '', Scope='Function')]
+  [Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSUseShouldProcessForStateChangingfunctions', '', Scope='Function')] #process does not change state, ShouldProcess is not required.
+  [Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSAvoidGlobalVars', '', Scope='Function')] #Required due to how this report works. Report must persist outside of its own scope
+  [Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSUSeDeclaredVarsMoreThanAssignments', '', Scope='Function')] #Required due to how this report works. Variables must persist outside of their own scope
   Param
   (
-    [Parameter(ValueFromPipelineByPropertyName=$true, Mandatory, Position=1)] $LineTitle, 
+    [Parameter(ValueFromPipelineByPropertyName=$true, Mandatory, Position=1)] $LineTitle,
     [Parameter(ValueFromPipelineByPropertyName=$true, Mandatory, Position=2)] $LineMessage
   )
 
@@ -154,22 +155,22 @@ Function New-UCMReportItem
   Write-UcmLog -Message "$($PsBoundParameters.Values)" -Severity 1 -Component $function -LogOnly
   Write-UcmLog -Message "Optional Arguments" -Severity 1 -Component $function -LogOnly
   Write-UcmLog -Message "$Args" -Severity 1 -Component $function -LogOnly
-	
+
   #endregion FunctionSetup
 
   #region FunctionWork
-  
+
   #Add the current time to the end of the old line
   New-UCMReportStep -Stepname "Time" -StepResult (Get-Date -displayhint time)
-  
+
   #Merge the current line item into the report
   $Global:ProgressReport+= $Global:ThisReport
 
   #Init a new line item
   $Global:ThisReport = @()
-  $Global:ThisReport =  New-Object -TypeName PSobject  
+  $Global:ThisReport =  New-Object -TypeName PSobject
   $Global:ThisReport | add-member -MemberType NoteProperty -Name "$LineTitle" -Value $LineMessage
-  
+
   #Increment the line counter and add to the new line
   $Global:ProgressReportItemCount ++
   New-UCMReportStep -Stepname "ItemNumber" -StepResult "$Global:ProgressReportItemCount"
@@ -209,10 +210,13 @@ Function New-UcmReportStep
       1.0: Initial Public Release
 
   #>
-
+  [Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSUseProcessBlockForPipelineCommand', '', Scope='Function')]
+  [Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSUseShouldProcessForStateChangingfunctions', '', Scope='Function')] #process does not change state, ShouldProcess is not required.
+  [Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSAvoidGlobalVars', '', Scope='Function')] #Required due to how this report works. Report must persist outside of its own scope
+  [Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSUSeDeclaredVarsMoreThanAssignments', '', Scope='Function')] #Required due to how this report works. Variables must persist outside of their own scope
   Param
   (
-    [Parameter(ValueFromPipelineByPropertyName=$true, Mandatory, Position=1)] $StepName, 
+    [Parameter(ValueFromPipelineByPropertyName=$true, Mandatory, Position=1)] $StepName,
     [Parameter(ValueFromPipelineByPropertyName=$true, Mandatory, Position=2)] $StepResult
   )
 
@@ -231,7 +235,7 @@ Function New-UcmReportStep
   Write-UcmLog -Message "$($PsBoundParameters.Values)" -Severity 1 -Component $function -LogOnly
   Write-UcmLog -Message "Optional Arguments" -Severity 1 -Component $function -LogOnly
   Write-UcmLog -Message "$Args" -Severity 1 -Component $function -LogOnly
-	
+
   #endregion FunctionSetup
 
   #region FunctionWork
@@ -252,7 +256,7 @@ Function Complete-UcmReport
       Adds the last Line Object to the Report
 
       .EXAMPLE
-      Complete-UcmReport 
+      Complete-UcmReport
 
       .INPUTS
       This function accepts no inputs
@@ -270,14 +274,16 @@ Function Complete-UcmReport
       .VERSION HISTORY
       1.0: Initial Public Release
   #>
-
+  [Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSUseProcessBlockForPipelineCommand', '', Scope='Function')]
+  [Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSAvoidGlobalVars', '', Scope='Function')] #Required due to how this report works. Report must persist outside of its own scope
+  [Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSUSeDeclaredVarsMoreThanAssignments', '', Scope='Function')] #Required due to how this report works. Variables must persist outside of their own scope
   Param
   (
     #none
   )
 
   #region FunctionSetup, Set Default Variables for HTML Reporting and Write Log
-  $function = 'New-UcmReportLine'
+  $function = 'Complete-UcmReport'
   [hashtable]$Return = @{}
   $return.Function = $function
   $return.Status = "Unknown"
@@ -291,10 +297,8 @@ Function Complete-UcmReport
   Write-UcmLog -Message "$($PsBoundParameters.Values)" -Severity 1 -Component $function -LogOnly
   Write-UcmLog -Message "Optional Arguments" -Severity 1 -Component $function -LogOnly
   Write-UcmLog -Message "$Args" -Severity 1 -Component $function -LogOnly
-	
+
   #endregion FunctionSetup
-
-
 
   #region FunctionWork
 
@@ -303,9 +307,9 @@ Function Complete-UcmReport
   Remove-variable -Name ProgressReport -scope global
 
   $Global:ThisReport = @()
-  $Global:ThisReport = New-Object -TypeName PSobject  
+  $Global:ThisReport = New-Object -TypeName PSobject
   $Global:ThisReport | add-member -MemberType NoteProperty -Name "End of Report" -Value "End of report"
-	
+
 }
 
 Function Export-UcmHTMLReport
@@ -344,7 +348,9 @@ Function Export-UcmHTMLReport
       1.0: Initial Public Release
 
   #>
-
+  [Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSUseProcessBlockForPipelineCommand', '', Scope='Function')]
+  [Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSAvoidGlobalVars', '', Scope='Function')] #Required due to how this report works. Report must persist outside of its own scope
+  [Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSUSeDeclaredVarsMoreThanAssignments', '', Scope='Function')] #Required due to how this report works. Variables must persist outside of their own scope
   Param
   (
     [Parameter(ValueFromPipelineByPropertyName=$true, Position=1)] [string]$EndDate=(Get-Date -DisplayHint datetime)
@@ -365,7 +371,7 @@ Function Export-UcmHTMLReport
   Write-UcmLog -Message "$($PsBoundParameters.Values)" -Severity 1 -Component $function -LogOnly
   Write-UcmLog -Message "Optional Arguments" -Severity 1 -Component $function -LogOnly
   Write-UcmLog -Message "$Args" -Severity 1 -Component $function -LogOnly
-	
+
   #endregion FunctionSetup
 
   #region FunctionWork
@@ -385,13 +391,12 @@ TD{border-width: 1px;padding: 3px;border-style: solid;border-color: black;text-a
 </style>
 "@
 
-
   Try #Export the report
   {
     $Global:ProgressReport | ConvertTo-Html -head $Style -body "<h1> $($Global:ProgressReportTitle) </h1> <h2> $Global:ProgressReportSubtitle </h2> The following report was started at $Global:ProgressReportStartTime and finishes at $Global:ProgressReportEndTime <br><br>" | ForEach-Object {
       #Add formatting for the different states
       if($_ -like "*<td>OK*")
-      {$_ -replace "<td>OK", "<td bgcolor=#33FF66>OK"} 
+      {$_ -replace "<td>OK", "<td bgcolor=#33FF66>OK"}
       Else {$_}
     } | ForEach-Object {
       if($_ -like "*<td>Warning*")
@@ -412,7 +417,7 @@ TD{border-width: 1px;padding: 3px;border-style: solid;border-color: black;text-a
   }
   Catch
   {
-		
+
     Write-UcmLog -Message "Unexpected error when generating HTML report" -Severity 3 -Component $function
     Write-UcmLog -Message "$error[0]" -Severity 2 -Component $function
   }
@@ -449,7 +454,9 @@ Function Export-UcmCSVReport
       1.0: Initial Public Release
 
   #>
-
+  [Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSUseProcessBlockForPipelineCommand', '', Scope='Function')]
+  [Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSAvoidGlobalVars', '', Scope='Function')] #Required due to how this report works. Report must persist outside of its own scope
+  [Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSUSeDeclaredVarsMoreThanAssignments', '', Scope='Function')] #Required due to how this report works. Variables must persist outside of their own scope
   Param
   (
     [Parameter(ValueFromPipelineByPropertyName=$true, Position=1)] [string]$EndDate=(Get-Date -DisplayHint datetime)
@@ -470,7 +477,7 @@ Function Export-UcmCSVReport
   Write-UcmLog -Message "$($PsBoundParameters.Values)" -Severity 1 -Component $function -LogOnly
   Write-UcmLog -Message "Optional Arguments" -Severity 1 -Component $function -LogOnly
   Write-UcmLog -Message "$Args" -Severity 1 -Component $function -LogOnly
-	
+
   #endregion FunctionSetup
 
   #region FunctionWork
@@ -485,7 +492,7 @@ Function Export-UcmCSVReport
   }
   Catch
   {
-		
+
     Write-UcmLog -Message "Unexpected error when generating CSV report" -Severity 3 -Component $function
     Write-UcmLog -Message "$error[0]" -Severity 2 -Component $function
   }

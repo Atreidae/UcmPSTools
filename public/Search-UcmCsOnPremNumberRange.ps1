@@ -7,7 +7,7 @@
 		Checks to see how many numbers are assigned in a number range to each service, returns a summary of the results or a full listing depending on the presence of the -summary parameter
 		Presently only supports number blocks aligned to full number ranges (00-99 for example.)
 
-		Note, the function currently performs a search based on a match filter, thus only whole ranges are supported. 
+		Note, the function currently performs a search based on a match filter, thus only whole ranges are supported.
 		IE: Start +613864086400 End +613864086499, Start +613864086000 End +61386408699 or Start +613864080000 End +61386409999
 
 		Attempting to search for subranges will return all items in the whole range.
@@ -37,7 +37,7 @@
 
 			.OUTPUT
 			This Cmdet returns a PSCustomObject with multiple keys to indicate results
-			$Return.Status 
+			$Return.Status
 			$Return.Message
 			$Return.Users
 			$Return.PrivateLines
@@ -53,7 +53,7 @@
 			"Warning" : Reconnected to Skype for Business Online
 			"Error"   : Not connected to Skype for Business Online
 			"Unknown" : Cmdlet reached the end of the function without returning anything, this shouldnt happen, if it does please log an issue on Github
-			
+
 			Return.Message returns descriptive text showing the connected tenant, mainly for logging or reporting
 
 			$Return.Users
@@ -63,7 +63,7 @@
 			$Return.ExchangeUM
 			$Return.DialInConf
 			$Return.ResponseGroups
-			
+
 			Each of the above return either a object count (when using -summary) or a list of the associated objects
 
 			$Return.All returns either a total count, or a full list of the located objects.
@@ -100,7 +100,7 @@
 		(
 			[Parameter(Mandatory, Position=1)] [string]$Start,
 			[Parameter(Mandatory, Position=2)] [string]$End,
-			[Parameter(Position=3)] [Switch]$summary 
+			[Parameter(Position=3)] [Switch]$summary
 		)
 
 	#region FunctionSetup, Set Default Variables for HTML Reporting and Write Log
@@ -118,7 +118,7 @@
 	Write-Log -Message "$($PsBoundParameters.Values)" -Severity 1 -Component $function -LogOnly
 	Write-Log -Message "Optional Arguments" -Severity 1 -Component $function -LogOnly
 	Write-Log -Message "$Args" -Severity 1 -Component $function -LogOnly
-	
+
 	#endregion FunctionSetup
 
 	#region FunctionWork
@@ -135,9 +135,9 @@
 					$MatchError = $true
 				}
 
-			Else 
+			Else
 				{
-					#keep trying to increment the match number 
+					#keep trying to increment the match number
 					$i = ($i + 1)
 				}
 		}
@@ -150,7 +150,7 @@
 
 	Write-Log -Message "Checking Users" -Severity 1 -Component $function
 	Get-CsUser -Filter {LineURI -like $match} | ForEach-Object {
-		$output           =  New-Object -TypeName PSobject 
+		$output           =  New-Object -TypeName PSobject
 		$output | add-member -MemberType NoteProperty -Name 'LineUri' -Value $_.LineURI
 		$output | add-member -MemberType NoteProperty -Name 'DisplayName' -Value $_.DisplayName
 		$output | add-member -MemberType NoteProperty -Name 'SipUri' -Value $_.SipAddress
@@ -161,7 +161,7 @@
 
 	Write-Log -Message "Checking User Private Lines" -Severity 1 -Component $function
 	Get-CsUser -Filter {PrivateLine -like $match} | ForEach-Object {
-		$output           =  New-Object -TypeName PSobject 
+		$output           =  New-Object -TypeName PSobject
 		$output | add-member -MemberType NoteProperty -Name 'LineUri' -Value $_.LineURI
 		$output | add-member -MemberType NoteProperty -Name 'DisplayName' -Value $_.DisplayName
 		$output | add-member -MemberType NoteProperty -Name 'SipUri' -Value $_.SipAddress
@@ -172,7 +172,7 @@
 
 	Write-Log -Message "Checking Analog Devices" -Severity 1 -Component $function
 	Get-CsAnalogDevice -Filter {LineURI -like $match} | ForEach-Object {
-		$output           =  New-Object -TypeName PSobject 
+		$output           =  New-Object -TypeName PSobject
 		$output | add-member -MemberType NoteProperty -Name 'LineUri' -Value $_.LineURI
 		$output | add-member -MemberType NoteProperty -Name 'DisplayName' -Value $_.DisplayName
 		$output | add-member -MemberType NoteProperty -Name 'SipUri' -Value $_.SipAddress
@@ -183,7 +183,7 @@
 
 	Write-Verbose -Message 'Checking Common Area Phones'
 	Get-CsCommonAreaPhone -Filter {LineURI -like $match} | ForEach-Object {
-		$output           =  New-Object -TypeName PSobject 
+		$output           =  New-Object -TypeName PSobject
 		$output | add-member -MemberType NoteProperty -Name 'LineUri' -Value $_.LineURI
 		$output | add-member -MemberType NoteProperty -Name 'DisplayName' -Value $_.DisplayName
 		$output | add-member -MemberType NoteProperty -Name 'SipUri' -Value $_.SipAddress
@@ -195,7 +195,7 @@
 	Write-Log -Message "Checking Analog Devices" -Severity 1 -Component $function
 	Write-Verbose -Message 'Checking Exchange UM Contact Objects'
 	Get-CsExUmContact -Filter {LineURI -like $match} | ForEach-Object {
-		$output           =  New-Object -TypeName PSobject 
+		$output           =  New-Object -TypeName PSobject
 		$output | add-member -MemberType NoteProperty -Name 'LineUri' -Value $_.LineURI
 		$output | add-member -MemberType NoteProperty -Name 'DisplayName' -Value $_.DisplayName
 		$output | add-member -MemberType NoteProperty -Name 'SipUri' -Value $_.SipAddress
@@ -206,7 +206,7 @@
 
 	Write-Log -Message "Checking Dialin Conference Numbers" -Severity 1 -Component $function
 	Get-CsDialInConferencingAccessNumber -Filter {LineURI -like $match} | ForEach-Object {
-		$output           =  New-Object -TypeName PSobject 
+		$output           =  New-Object -TypeName PSobject
 		$output | add-member -MemberType NoteProperty -Name 'LineUri' -Value $_.LineURI
 		$output | add-member -MemberType NoteProperty -Name 'DisplayName' -Value $_.DisplayName
 		$output | add-member -MemberType NoteProperty -Name 'SipUri' -Value $_.PrimaryUri
@@ -217,7 +217,7 @@
 
 	Write-Log -Message "Checking Trusted Application Endpoints" -Severity 1 -Component $function
 	Get-CsTrustedApplicationEndpoint -Filter {LineURI -like $match} | ForEach-Object {
-		$output           =  New-Object -TypeName PSobject 
+		$output           =  New-Object -TypeName PSobject
 		$output | add-member -MemberType NoteProperty -Name 'LineUri' -Value $_.LineURI
 		$output | add-member -MemberType NoteProperty -Name 'DisplayName' -Value $_.DisplayName
 		$output | add-member -MemberType NoteProperty -Name 'SipUri' -Value $_.SipAddress
@@ -229,7 +229,7 @@
 	# No filter on Get-CSRGSworkflow
 	Write-Log -Message "Checking Response Groups" -Severity 1 -Component $function
 	Get-CsRgsWorkflow | Where-Object {$_.LineURI -like $match} | ForEach-Object {
-		$output           =  New-Object -TypeName PSobject 
+		$output           =  New-Object -TypeName PSobject
 		$output | add-member -MemberType NoteProperty -Name 'LineUri' -Value $_.LineURI
 		$output | add-member -MemberType NoteProperty -Name 'DisplayName' -Value $_.Name
 		$output | add-member -MemberType NoteProperty -Name 'SipUri' -Value $_.PrimaryUri
@@ -238,7 +238,7 @@
 		$OutputCollection += $output
 	}
 
-	$OutputCollection #Put the output to the pipeline
+	$OutputCollection #Put the output to the pipeline #TODO https://github.com/Atreidae/UcmPSTools/issues/28
 
 	#Report on Findings
 	if ($OutputCollection.count -eq 0)
@@ -257,12 +257,11 @@
 	}
 
 	#region FunctionReturn
- 
+
 	#Default Return Variable for my HTML Reporting Fucntion
 	Write-Log -Message "Reached end of $function without a Return Statement" -Severity 3 -Component $function
 	$return.Status = "Unknown"
 	$return.Message = "Function did not encounter return statement"
 	Return
 	#endregion FunctionReturn
-
 }

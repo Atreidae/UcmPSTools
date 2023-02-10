@@ -16,15 +16,15 @@ Function Test-UcmSFBOConnection
 
 			.OUTPUT
 			This Cmdet returns a PSCustomObject with multiple keys to indicate status
-			$Return.Status 
-			$Return.Message 
+			$Return.Status
+			$Return.Message
 
 			Return.Status can return one of four values
 			"OK"      : Connected to Skype for Business Online
 			"Warning" : Reconnected to Skype for Business Online
 			"Error"   : Not connected to Skype for Business Online
 			"Unknown" : Cmdlet reached the end of the function without returning anything, this shouldnt happen, if it does please log an issue on Github
-			
+
 			Return.Message returns descriptive text showing the connected tenant, mainly for logging or reporting
 
 			.LINK
@@ -40,7 +40,7 @@ Function Test-UcmSFBOConnection
 			.VERSION HISTORY
 			1.1: Updated to "Ucm" naming convention
 			Better inline documentation
-					
+
 			1.0: Initial Public Release
 
 			.REQUIRED FUNCTIONS/MODULES
@@ -56,12 +56,11 @@ Function Test-UcmSFBOConnection
 			'Teams Administrator' or better
 
 	#>
-
+	[Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSUseProcessBlockForPipelineCommand', '', Scope='Function')] #todo, https://github.com/Atreidae/UcmPSTools/issues/23
 	Param
 	(
-		[Parameter(ValueFromPipelineByPropertyName=$true, Position=1)] [switch]$Reconnect
+		[Parameter(ValueFromPipelineByPropertyName=$true, Position=1)] [switch]$Reconnect #Should re allow this from Pipeline?
 	)
-
 
 	#region FunctionSetup, Set Default Variables for HTML Reporting and Write Log
 	$function = 'Test-UcmSFBOConnection'
@@ -78,28 +77,27 @@ Function Test-UcmSFBOConnection
 	Write-UcmLog -Message "$($PsBoundParameters.Values)" -Severity 1 -Component $function -LogOnly
 	Write-UcmLog -Message "Optional Arguments" -Severity 1 -Component $function -LogOnly
 	Write-UcmLog -Message "$Args" -Severity 1 -Component $function -LogOnly
-	
-	
+
 	#endregion FunctionSetup
 
 	#region FunctionWork
 
 
 	Write-UcmLog -Message "Checking for Existing SFBO Connection" -Severity 1 -Component $function
-	$Session =(Get-PSSession | Where-Object {$_.Name -like "SfBPowerShellSession*"}) 
+	$Session =(Get-PSSession | Where-Object {$_.Name -like "SfBPowerShellSession*"})
 
 	If($Session.state -ne "opened") #Skype For Business Session in Broken state
 	{
 		Write-UcmLog -Message "We dont appear to be connected to Skype for Business Online!" -Severity 3 -Component $function
-		
+
 		If ($Reconnect) #If the user wants us to reconnect
-		{ 
+		{
 			#Cleanup old session
 			Get-PSSession | Where-Object {$_.Name -like "SfBPowerShellSession*"} |Remove-PSSession
-			
+
 			#Call New-UcmSFBOSession
 			$Connection = (New-UcmSFBOConnection)
-			
+
 			#Check we actually connected
 			If ($Connection.status -eq "Error") #an error was reported
 			{
@@ -130,7 +128,7 @@ Function Test-UcmSFBOConnection
 	#endregion FunctionWork
 
 	#region FunctionReturn
- 
+
 	#Default Return Variable for my HTML Reporting Function
 	Write-UcmLog -Message "Reached end of $function without a Return Statement" -Severity 3 -Component $function
 	$return.Status = "Unknown"

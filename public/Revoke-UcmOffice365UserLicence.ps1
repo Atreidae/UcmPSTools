@@ -17,9 +17,9 @@ Function Revoke-UcmOffice365UserLicence
 
 			.OUTPUT
 			This Cmdet returns a PSCustomObject with multiple Keys to indicate status
-			$Return.Status 
-			$Return.Message 
-			
+			$Return.Status
+			$Return.Message
+
 			Return.Status can return one of four values
 			"OK"      : The licence has been removed.
 			"Warn"    : The licence was not assigned to the user, no changes have been made
@@ -56,17 +56,16 @@ Function Revoke-UcmOffice365UserLicence
 			https://github.com/Atreidae/UcmPSTools
 
 			.ACKNOWLEDGEMENTS
-			Assign licenses for specific services in Office 365 using PowerShell: 
+			Assign licenses for specific services in Office 365 using PowerShell:
 
 
 	#>
-
+	[Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSUseProcessBlockForPipelineCommand', '', Scope='Function')] #Todo, update return variable to return an array of pipeline objects, so we can report the status of each one to the calling function
 	Param
 	(
-		[Parameter(ValueFromPipelineByPropertyName=$true, Mandatory, Position=1,HelpMessage='The UPN of the user you wish to revoke the licence from, eg: button.mash@contoso.com')] [string]$UPN, 
+		[Parameter(ValueFromPipelineByPropertyName=$true, Mandatory, Position=1,HelpMessage='The UPN of the user you wish to revoke the licence from, eg: button.mash@contoso.com')] [string]$UPN,
 		[Parameter(ValueFromPipelineByPropertyName=$true, Mandatory, Position=2,HelpMessage='The licence you wish to revoke, eg: MCOEV')] [string]$LicenceType
 	)
-
 
 	#region functionSetup, Set Default Variables for HTML Reporting and Write Log
 	$Function = 'Revoke-UcmOffice365UserLicence'
@@ -83,10 +82,8 @@ Function Revoke-UcmOffice365UserLicence
 	Write-UcmLog -Message "$($PsBoundParameters.Values)" -Severity 1 -Component $function -LogOnly
 	Write-UcmLog -Message "Optional Arguments" -Severity 1 -Component $function -LogOnly
 	Write-UcmLog -Message "$Args" -Severity 1 -Component $function -LogOnly
-	
-	
-	#endregion functionSetup
 
+	#endregion functionSetup
 
 	#region functionWork
 
@@ -111,7 +108,7 @@ Function Revoke-UcmOffice365UserLicence
 		#So we need to learn the prefix, we do this by looking for the licence and storing it
 		$O365AcctSku = $null
 		$O365AcctSku = Get-MsolAccountSku | Where-Object {$_.SkuPartNumber -like $LicenceType}
-		
+
 		#Using the stored details, build the full licence name
 		$LicenceToRevoke = "$($O365AcctSku.AccountName):$LicenceType"
 	}
@@ -126,7 +123,7 @@ Function Revoke-UcmOffice365UserLicence
 		Return $Return
 	}
 
-	If ($O365AcctSku -eq $null)
+	If ($null -eq $O365AcctSku)
 	{
 		#The licence requested doesnt exist on the tenant, return an error
 		Write-UcmLog -Message "Unable to locate Licence on Tenant" -Severity 3 -Component $function
@@ -159,7 +156,7 @@ Function Revoke-UcmOffice365UserLicence
 			#Try Removing the licence
 			[Void] (Set-MsolUserLicense -UserPrincipalName $UPN -RemoveLicenses $LicenceToRevoke -ErrorAction stop)
 			Write-UcmLog -Message "Licence Revoked" -Severity 2 -Component $function
-			
+
 			#Everything went well, return OK
 			$Return.Status = "OK"
 			$Return.Message = "Licence Revoked"

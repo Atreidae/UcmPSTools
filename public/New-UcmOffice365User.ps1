@@ -32,15 +32,15 @@ Function New-UcmOffice365User
 
 			.OUTPUTS
 			This Cmdet returns a PSCustomObject with multiple keys to indicate status
-			$Return.Status 
-			$Return.Message 
+			$Return.Status
+			$Return.Message
 
 			Return.Status can return one of four values
 			"OK"      : Created User
 			"Warning" : User already exists, creation was skipped
 			"Error"   : Something happend when attempting to create the user, check $return.message for more information
 			"Unknown" : Cmdlet reached the end of the function without returning anything, this shouldnt happen, if it does please log an issue on Github
-			
+
 			Return.Message returns descriptive text showing the connected tenant, mainly for logging or reporting
 
 			.LINK
@@ -59,7 +59,7 @@ Function New-UcmOffice365User
 			1.1: Updated to "Ucm" naming convention
 			Better inline documentation
 			Optmized Try, Catch blocks to neaten code
-					
+
 			1.0: Initial Public Release
 
 			.REQUIRED FUNCTIONS/MODULES
@@ -77,10 +77,12 @@ Function New-UcmOffice365User
 			'Office 365 User Administrator' or better
 
 	#>
-
+	[Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSUseProcessBlockForPipelineCommand', '', Scope='Function')]
+	[Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSAvoidUsingPlainTextForPassword', '', Scope='Function')] #Todo https://github.com/Atreidae/UcmPSTools/issues/24
+	[Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSUseShouldProcessForStateChangingFunctions', '', Scope='Function')] #Todo https://github.com/Atreidae/UcmPSTools/issues/27
 	Param
 	(
-		[Parameter(ValueFromPipelineByPropertyName=$true, Mandatory, Position=1,HelpMessage='The UPN of the user you wish to create, eg: button.mash@contoso.com')] [string]$UPN, 
+		[Parameter(ValueFromPipelineByPropertyName=$true, Mandatory, Position=1,HelpMessage='The UPN of the user you wish to create, eg: button.mash@contoso.com')] [string]$UPN,
 		[Parameter(ValueFromPipelineByPropertyName=$true, Mandatory, Position=2,HelpMessage='The Password for the user you wish to create, eg: %%32/young/PRESS/road/86%%')] [string]$Password,
 		[Parameter(ValueFromPipelineByPropertyName=$true, Mandatory, Position=3,HelpMessage='The first name of the user you wish to create eg: Button')] [string]$FirstName,
 		[Parameter(ValueFromPipelineByPropertyName=$true, Mandatory, Position=4,HelpMessage='The last name of the user you wish to create eg: Mash')] [string]$LastName,
@@ -104,8 +106,8 @@ Function New-UcmOffice365User
 	Write-UcmLog -Message "$($PsBoundParameters.Values)" -Severity 1 -Component $function -LogOnly
 	Write-UcmLog -Message "Optional Arguments" -Severity 1 -Component $function -LogOnly
 	Write-UcmLog -Message "$Args" -Severity 1 -Component $function -LogOnly
-	
-	
+
+
 	#endregion FunctionSetup
 
 	#region FunctionWork
@@ -143,7 +145,7 @@ Function New-UcmOffice365User
 	Try
 	{
 		[Void] (New-MsolUser -UserPrincipalName $UPN -DisplayName $DisplayName -FirstName $Firstname -LastName $LastName -UsageLocation $Country -Password $Password -ErrorAction Stop)
-		
+
 		#User was created, return OK
 		Write-UcmLog -Message "User Created Sucessfully" -Severity 2 -Component $function
 		$Return.Status = "OK"
@@ -163,7 +165,7 @@ Function New-UcmOffice365User
 
 
 	#region FunctionReturn
- 
+
 	#Default Return Variable for my HTML Reporting Fucntion
 	Write-UcmLog -Message "Reached end of $function without a Return Statement" -Severity 3 -Component $function
 	$return.Status = "Unknown"

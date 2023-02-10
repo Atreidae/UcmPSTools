@@ -3,7 +3,7 @@ Function Import-UcmCsOnPremTools {
 	<#
         .SYNOPSIS
         Function to check for and import both Skype4B and AD Management tools
-      
+
         .DESCRIPTION
         Checks for and loads the approprate modules for Skype4B and Active Directory
         Will throw an error and abort script if they arent found
@@ -22,7 +22,7 @@ Function Import-UcmCsOnPremTools {
 		"Warning" : Modules are already loaded
 		"Error"   : Something happend when attempting to import the modules, check $return.message for more information
 		"Unknown" : Cmdlet reached the end of the function without returning anything, this shouldnt happen, if it does please log an issue on Github
-		
+
 		Return.Message returns descriptive text for error messages.
 
 		.LINK
@@ -39,6 +39,8 @@ Function Import-UcmCsOnPremTools {
 		.ACKNOWLEDGEMENTS
 	#>
 	[CmdletBinding()]
+	[Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSUseSingularNouns', '', Scope='Function')] #stop PSScriptAnalyzer complaining that we refer to the onpremtools as tools instead of a tool
+	[Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSUseProcessBlockForPipelineCommand', '', Scope='Function')] #todo, https://github.com/Atreidae/UcmPSTools/issues/23
 	PARAM
 	(
 		#No Parameters
@@ -59,14 +61,14 @@ Function Import-UcmCsOnPremTools {
 	Write-UcmLog -Message "$($PsBoundParameters.Values)" -Severity 1 -Component $function -LogOnly
 	Write-UcmLog -Message "Optional Arguments" -Severity 1 -Component $function -LogOnly
 	Write-UcmLog -Message "$Args" -Severity 1 -Component $function -LogOnly
-	
-	
+
+
 	#endregion FunctionSetup
 
 	#region FunctionWork
-	
+
 	#Check to see if the modules are already loaded
-	Write-UcmLog -Message 'Checking for Lync/Skype management tools' -Severity 1 -Component $function 
+	Write-UcmLog -Message 'Checking for Lync/Skype management tools' -Severity 1 -Component $function
 	$CsManagementTools = $false
 	$ADManagementTools = $false
 	if(Get-Module -Name 'SkypeForBusiness') {$CSManagementTools = $true}
@@ -88,7 +90,7 @@ Function Import-UcmCsOnPremTools {
 	if(Get-Module -Name 'SkypeForBusiness' -ListAvailable) {$CSManagementTools = $true}
     if(Get-Module -Name 'Lync'-ListAvailable) {$CSManagementTools = $true}
 	if(Get-Module -Name 'ActiveDirectory' -ListAvailable) {$ADManagementTools = $true}
-	
+
 	#Return an error if we cant find Lync/Skype
 	If ($CSManagementTools -ne $true)
 	{
@@ -111,12 +113,15 @@ Function Import-UcmCsOnPremTools {
 
 
     #Okay, we got this far, import everything
-	Try 
+	Try
 	{
 		if(!(Get-Module -Name 'SkypeForBusiness')) {Import-Module -Name SkypeForBusiness -Verbose:$false}
 		if(!(Get-Module -Name 'Lync')) {Import-Module -Name Lync -Verbose:$false}
-		if(Get-Module -Name 'SkypeForBusiness') {$ManagementTools = $true}
-		if(Get-Module -Name 'Lync') {$ManagementTools = $true}
+		if(!(Get-Module -Name 'ActiveDirectory')) {Import-Module -Name Lync -Verbose:$false}
+		if(Get-Module -Name 'SkypeForBusiness') {$CsManagementTools = $true}
+		if(Get-Module -Name 'Lync') {$CsManagementTools = $true}
+		if(Get-Module -Name 'ActiveDirectory') {$AdManagementTools = $true}
+
 	}
 	Catch
 	{
@@ -135,7 +140,7 @@ Function Import-UcmCsOnPremTools {
 	  $Return.Message = "Modules Loaded"
 	  Return $Return
     }
-	Else 
+	Else
 	{
 	  Write-UcmLog -Message 'Import-Module sucseeded, but modules not resident' -Severity 5 -Component $Function
 	  Write-UcmLog -Message "$Error[0]" -Severity 3 -Component $function
@@ -144,13 +149,11 @@ Function Import-UcmCsOnPremTools {
 	  Return $Return
 	}
 
-	
-	#Default Return Variable for my HTML Reporting Fucntion, this should never run!
+
+	#Default Return Variable for UcmPsTools HTML Reporting Fucntion, this should never run!
 	Write-UcmLog -Message "Reached end of $function without a Return Statement" -Severity 3 -Component $function
 	$return.Status = "Unknown"
 	$return.Message = "Function did not encounter return statement"
 	Return $Return
 	#endregion FunctionReturn
-    
-
   }

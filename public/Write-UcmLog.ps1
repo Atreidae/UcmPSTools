@@ -17,7 +17,7 @@ Function Write-UcmLog {
 			Sets the severity of the log message, Higher severities will call Write-Warning or Write-Error
 
 			.PARAMETER Component
-			Used to track the module or function that called "Write-Log" 
+			Used to track the module or function that called "Write-Log"
 
 			.PARAMETER LogOnly
 			Forces Write-Log to not display anything to the user
@@ -52,6 +52,7 @@ Function Write-UcmLog {
 
 			1.0: Initial Public Release
 	#>
+	[Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSAvoidUsingWriteHost', '', Scope='Function')] #we are litterally showing something on screen as well as logging.
 	[CmdletBinding()]
 	PARAM
 	(
@@ -61,7 +62,6 @@ Function Write-UcmLog {
 		[string]$Component = 'Default',
 		[switch]$LogOnly
 	)
-	$function = 'Write-UcmLog'
 	$Date = Get-Date -Format 'HH:mm:ss'
 	$Date2 = Get-Date -Format 'MM-dd-yyyy'
 	$MaxLogFileSizeMB = 10
@@ -80,25 +80,25 @@ Function Write-UcmLog {
 	"$env:ComputerName date=$([char]34)$Date2$([char]34) time=$([char]34)$Date$([char]34) component=$([char]34)$component$([char]34) type=$([char]34)$severity$([char]34) Message=$([char]34)$Message$([char]34)"| Out-File -FilePath $Path -Append -NoClobber -Encoding default
 
 	#If LogOnly is not set, output the log entry to the screen
-	If (!$LogOnly) 
+	If (!$LogOnly)
 	{
 		#If the log entry is just Verbose (1), output it to write-verbose
-		if ($severity -eq 1) 
+		if ($severity -eq 1)
 		{
 			"$Message"| Write-verbose
 		}
 		#If the log entry is just informational (2), output it to write-host
-		if ($severity -eq 2) 
+		if ($severity -eq 2)
 		{
 			"INFO: $Message"| Write-Host -ForegroundColor Green
 		}
 		#If the log entry has a severity of 3 assume its a warning and write it to write-warning
-		if ($severity -eq 3) 
+		if ($severity -eq 3)
 		{
 			"$Date $Message"| Write-Warning
 		}
 		#If the log entry has a severity of 4 or higher, assume its an error and display an error message (Note, critical errors are caught by throw statements so may not appear here)
-		if ($severity -ge 4) 
+		if ($severity -ge 4)
 		{
 			"$Date $Message"| Write-Error
 		}

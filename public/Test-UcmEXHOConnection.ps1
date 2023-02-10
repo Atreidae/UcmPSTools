@@ -19,14 +19,14 @@ Function Test-UcmEXHOConnection
 
 			.OUTPUT
 			This Cmdet returns a PSCustomObject with multiple Keys to indicate status
-			$Return.Status 
-			$Return.Message 
-			
+			$Return.Status
+			$Return.Message
+
 			Return.Status can return one of three values
 			"OK"      : Connected to Exchange Online
 			"Error"   : Not connected to Exchange Online
 			"Unknown" : Cmdlet reached the end of the fucntion without returning anything, this shouldnt happen, if it does please log an issue on Github
-			
+
 			Return.Message returns descriptive text showing the connected tenant, mainly for logging or reporting
 
 			.NOTES
@@ -40,7 +40,7 @@ Function Test-UcmEXHOConnection
 			Better inline documentation
 			Reconnect flag support
 			Re-wrote reconnect detection
-			
+
 			1.0: Initial Public Release
 
 			.REQUIRED FUNCTIONS/MODULES
@@ -63,7 +63,7 @@ Function Test-UcmEXHOConnection
 			.ACKNOWLEDGEMENTS
 
 	#>
-
+	[Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSUseProcessBlockForPipelineCommand', '', Scope='Function')] #todo, https://github.com/Atreidae/UcmPSTools/issues/23
 	Param
 	(
 		[Parameter(ValueFromPipelineByPropertyName=$true, Mandatory, Position=1,HelpMessage='When set to $true will attempt to automatically reconnect using New-UcmEXHOConnection')] [switch]$Reconnect
@@ -85,7 +85,7 @@ Function Test-UcmEXHOConnection
 	Write-UcmLog -Message "$($PsBoundParameters.Values)" -Severity 1 -Component $function -LogOnly
 	Write-UcmLog -Message "Optional Arguments" -Severity 1 -Component $function -LogOnly
 	Write-UcmLog -Message "$Args" -Severity 1 -Component $function -LogOnly
-	
+
 
 	#endregion FunctionSetup
 

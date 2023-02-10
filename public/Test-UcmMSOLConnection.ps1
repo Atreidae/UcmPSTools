@@ -21,15 +21,15 @@ Function Test-UcmMSOLConnection
 
 			.OUTPUT
 			This Cmdet returns a PSCustomObject with multiple Keys to indicate status
-			$Return.Status 
-			$Return.Message 
-			
+			$Return.Status
+			$Return.Message
+
 			Return.Status can return one of three values
 			"OK"      : Connected to Office365
 			"Warn"    : Reconnected to Office365
 			"Error"   : Not connected to Office365 and didnt reconnect.
 			"Unknown" : Cmdlet reached the end of the function without returning anything, this shouldnt happen, if it does please log an issue on Github
-			
+
 			Return.Message returns descriptive text showing the connected tenant, mainly for logging or reporting
 
 			.NOTES
@@ -42,7 +42,7 @@ Function Test-UcmMSOLConnection
       1.1: Updated to "Ucm" naming convention
 			Better inline documentation
 			Reconnect function
-					
+
 			1.0: Initial Public Release
 
 			.REQUIRED FUNCTIONS/MODULES
@@ -61,10 +61,10 @@ Function Test-UcmMSOLConnection
 			.ACKNOWLEDGEMENTS
 
 	#>
-
-	Param #No parameters
+	[Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSUseProcessBlockForPipelineCommand', '', Scope='Function')] #todo, https://github.com/Atreidae/UcmPSTools/issues/23
+	Param
 	(
-		[Parameter(ValueFromPipelineByPropertyName=$true, Position=1)] [switch]$Reconnect
+		[Parameter(ValueFromPipelineByPropertyName=$true, Position=1)] [switch]$Reconnect #Todo Should this even be allowed from Pipeline?
 	)
 
 
@@ -83,8 +83,8 @@ Function Test-UcmMSOLConnection
 	Write-UcmLog -Message "$($PsBoundParameters.Values)" -Severity 1 -Component $function -LogOnly
 	Write-UcmLog -Message "Optional Arguments" -Severity 1 -Component $function -LogOnly
 	Write-UcmLog -Message "$Args" -Severity 1 -Component $function -LogOnly
-	
-	
+
+
 	#endregion FunctionSetup
 
 	#region FunctionWork
@@ -101,11 +101,11 @@ Function Test-UcmMSOLConnection
 	Catch
 	{
 		#Not connected, check if we are reconnecting
-		If ($Reconnect) 
+		If ($Reconnect)
 		{
 			#We are reconnecting, call New-UcmMSOLConnection
 			$result = (New-UcmMSOLConnection)
-			
+
 			#check to see if the reconnection was sucsessful
 			If ($result.Status -ne "OK")
 			{
@@ -117,7 +117,7 @@ Function Test-UcmMSOLConnection
 				$Return.Message  = "No Office365 Connection"
 				Return $Return
 			}
-			
+
 			Else
 			{
 				#We did reconnect, return a warning.
@@ -127,7 +127,7 @@ Function Test-UcmMSOLConnection
 				Return $Return
 			}
 		}
-		
+
 		Else
 		{
 			#We arent connected and the reconnect flag is not set, return an error.
@@ -142,7 +142,7 @@ Function Test-UcmMSOLConnection
 	#endregion FunctionWork
 
 	#region FunctionReturn
- 
+
 	#Default Return Variable for my HTML Reporting Fucntion
 	Write-UcmLog -Message "Reached end of $function without a Return Statement" -Severity 3 -Component $function
 	$return.Status = "Unknown"

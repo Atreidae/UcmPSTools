@@ -52,7 +52,7 @@ Dev ![Dev Branch PSScriptAnalyzer Tests](https://github.com/Atreidae/UcmPSTools/
 
 ## Security Information
 
-As this module frequently runs automated automations, it has been designed to hold on to creds and tokens as long as it can. 
+As this module frequently runs automated automations, it has been designed to hold on to creds and tokens as long as it can.
 As such great care should be taken to ensure that the scripts are unmodified before using them. Either download this directly from my GitHub Repo <https://github.com/atreidae/ucmpstools> or from the PowerShell Gallery ##todo## License
 
 ### A Note on Creds.xml
@@ -161,7 +161,7 @@ PS> New-Office365User -UPN button.mash@contoso.com -Password "Passw0rd1!" -First
 
 ### On-Prem Management related
 
-#### Find-UcmSuppliedUserDetails
+#### Find-UcmSuppliedUserDetail
 
 This function is great for converting lists of users supplied by customers into AD objects to pass to Cmdlets like Move-CsUser
 First it will search UserPrincipalNames that match the supplied username, if no match is found, it will then move on to checking using SamAccountName
@@ -186,7 +186,7 @@ Functions related to the creation and management of Call Queues, Auto Attendants
 
 Diverts a number associated with Microsoft Teams Via Microsoft Calling plans or Telstra Calling to an external PSTN number by performing the following actions
 
-* Creates a Resource Account with named "PSTN_FWD_<inboundNumber>@domain.onmicrosoft.com" by default (Configurable using -AccountPrefix)
+* Creates a Resource Account with named "PSTN_FWD_(inboundNumber)@domain.onmicrosoft.com" by default (Configurable using -AccountPrefix)
 * Licences the account with a Virtual Phone System Licence
 * Licences the account with an appropriate calling licence (Will attempt to locate a calling licence using Locate-CsCallingLicence)
 * Creates an AutoAttendant with a 24 hour schedule

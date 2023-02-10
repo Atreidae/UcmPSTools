@@ -25,15 +25,15 @@ Function Test-UcmO365ServicePlan
 
 			.OUTPUT
 			This Cmdet returns a PSCustomObject with multiple Keys to indicate status
-			$Return.Status 
-			$Return.Message 
-			
+			$Return.Status
+			$Return.Message
+
 			Return.Status can return one of four values
 			"OK"      : Service Plan is Enabled
 			"Warning"    : Service Plan is Disabled
-			"Error"   : Service Plan in an unknown state, like PendingProvisioning 
+			"Error"   : Service Plan in an unknown state, like PendingProvisioning
 			"Unknown" : Cmdlet reached the end of the fucntion without returning anything, this shouldnt happen, if it does please log an issue on Github
-			
+
 			Return.Message returns descriptive text based on the outcome, mainly for logging or reporting
 
 			.NOTES
@@ -44,7 +44,7 @@ Function Test-UcmO365ServicePlan
 			1.1: Updated to "Ucm" naming convention
 			Better inline documentation
 			Updated PowerShell Verbage from Find to Test
-			
+
 			1.0: Initial Public Release
 
 			.REQUIRED FUNCTIONS/MODULES
@@ -68,11 +68,11 @@ Function Test-UcmO365ServicePlan
 			.ACKNOWLEDGEMENTS
 
 	#>
-
-	Param 
+	[Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSUseProcessBlockForPipelineCommand', '', Scope='Function')] #todo, https://github.com/Atreidae/UcmPSTools/issues/23
+	Param
 	(
-		[Parameter(ValueFromPipelineByPropertyName=$true, Mandatory, Position=1,HelpMessage='The UPN of the user you wish to check the Service Plan on, eg: button.mash@contoso.com')] [string]$UPN, 
-		[Parameter(ValueFromPipelineByPropertyName=$true, Mandatory, Position=2,HelpMessage="The name of the Office365 Service Plan you wish check the status of, eg: 'MCOSTANDARD' for Skype Online")] [string]$ServiceName 
+		[Parameter(ValueFromPipelineByPropertyName=$true, Mandatory, Position=1,HelpMessage='The UPN of the user you wish to check the Service Plan on, eg: button.mash@contoso.com')] [string]$UPN,
+		[Parameter(ValueFromPipelineByPropertyName=$true, Mandatory, Position=2,HelpMessage="The name of the Office365 Service Plan you wish check the status of, eg: 'MCOSTANDARD' for Skype Online")] [string]$ServiceName
 	)
 
 	#region FunctionSetup, Set Default Variables for HTML Reporting and Write Log
@@ -90,8 +90,7 @@ Function Test-UcmO365ServicePlan
 	Write-UcmLog -Message "$($PsBoundParameters.Values)" -Severity 1 -Component $function -LogOnly
 	Write-UcmLog -Message 'Optional Arguments' -Severity 1 -Component $function -LogOnly
 	Write-UcmLog -Message "$Args" -Severity 1 -Component $function -LogOnly
-	
-	
+
 	#endregion FunctionSetup
 
 	#region FunctionWork
@@ -138,7 +137,7 @@ Function Test-UcmO365ServicePlan
 				$Enabled = 'Error'
 			}
 		} #End Service Plan Status Loop
-		
+
 	}#End licence loop
 
 	If ($enabled -eq 'Error')
@@ -168,7 +167,7 @@ Function Test-UcmO365ServicePlan
 	#endregion FunctionWork
 
 	#region FunctionReturn
- 
+
 	#Default Return Variable for my HTML Reporting Fucntion
 	Write-UcmLog -Message "Reached end of $function without a Return Statement" -Severity 3 -Component $function
 	$return.Status = 'Unknown'

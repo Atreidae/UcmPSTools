@@ -27,15 +27,15 @@ Function New-UcmTeamsResourceAccount
 
 			.OUTPUT
 			This Cmdet returns a PSCustomObject with multiple keys to indicate status
-			$Return.Status 
-			$Return.Message 
+			$Return.Status
+			$Return.Message
 
 			Return.Status can return one of four values
 			"OK"      : Created Resource Account
 			"Warn"    : Resource Account already exists, creation was skipped
 			"Error"   : Something happend when attempting to create the Resource Account, check $return.message for more information
 			"Unknown" : Cmdlet reached the end of the fucntion without returning anything, this shouldnt happen, if it does please log an issue on Github
-			
+
 			Return.Message returns descriptive text showing the connected tenant, mainly for logging or reporting
 
 			.LINK
@@ -51,7 +51,7 @@ Function New-UcmTeamsResourceAccount
 			.VERSION HISTORY
 			1.1: Updated to "Ucm" naming convention
 			Better inline documentation
-					
+
 			1.0: Initial Public Release
 
 			.REQUIRED FUNCTIONS/MODULES
@@ -67,10 +67,11 @@ Function New-UcmTeamsResourceAccount
 			'Teams Administrator' or better
 
 	#>
-
+	[Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSUseProcessBlockForPipelineCommand', '', Scope='Function')] #todo, https://github.com/Atreidae/UcmPSTools/issues/23
+	[Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSUseShouldProcessForStateChangingFunctions', '', Scope='Function')] #Todo https://github.com/Atreidae/UcmPSTools/issues/27
 	Param
 	(
-		[Parameter(ValueFromPipelineByPropertyName=$true, Mandatory, Position=1,HelpMessage='The UPN of the user you wish to create, eg: "button.mash@contoso.com"')] [string]$UPN, 
+		[Parameter(ValueFromPipelineByPropertyName=$true, Mandatory, Position=1,HelpMessage='The UPN of the user you wish to create, eg: "button.mash@contoso.com"')] [string]$UPN,
 		[Parameter(ValueFromPipelineByPropertyName=$true, Mandatory, Position=2,HelpMessage='The Display Name of the user you wish to create, eg: "Button Mash"')] [string]$DisplayName,
 		[Parameter(ValueFromPipelineByPropertyName=$true, Mandatory, Position=3,HelpMessage='Used to set the ApplicationID of the new user, Valid options are "AutoAttendant" or "CallQueue"')] [ValidateSet('AutoAttendant', 'CallQueue')] [string]$ResourceType
 	)
@@ -90,8 +91,7 @@ Function New-UcmTeamsResourceAccount
 	Write-UcmLog -Message "$($PsBoundParameters.Values)" -Severity 1 -Component $function -LogOnly
 	Write-UcmLog -Message "Optional Arguments" -Severity 1 -Component $function -LogOnly
 	Write-UcmLog -Message "$Args" -Severity 1 -Component $function -LogOnly
-	
-	
+
 	#endregion FunctionSetup
 
 	#region FunctionWork
@@ -117,7 +117,7 @@ Function New-UcmTeamsResourceAccount
 
 	#Check to see if the requested account exists
 	Write-UcmLog -Message "Checking for Existing Resource Account $UPN ..." -Severity 2 -Component $function
-	
+
 	#TODO, we should be checking if that UPN exists in general. https://github.com/Atreidae/UcmPSTools/issues/1
 	$AppInstance = $null
 	$AppInstance = (Get-CsOnlineApplicationInstance | Where-Object {$_.UserPrincipalName -eq $UPN})#TODO is there a better way to filter this? https://github.com/Atreidae/UcmPSTools/issues/2
@@ -137,7 +137,7 @@ Function New-UcmTeamsResourceAccount
 		{
 			Write-UcmLog -Message "Account not found. Creating user $UPN" -Severity 2 -Component $function
 			[Void] (New-CsOnlineApplicationInstance -UserPrincipalName $UPN -DisplayName $DisplayName -ApplicationId $ApplicationID -ErrorAction Stop)
-			
+
 			#We created the account OK, return an OK result.
 			Write-UcmLog -Message "Resource Account Created Sucessfully" -Severity 2 -Component $function
 			$Return.Status = "OK"
@@ -154,11 +154,11 @@ Function New-UcmTeamsResourceAccount
 			Return $Return
 		}
 	}
-	
+
 	#endregion FunctionWork
 
 	#region FunctionReturn
- 
+
 	#Default Return Variable for my HTML Reporting Fucntion
 	Write-UcmLog -Message "Reached end of $function without a Return Statement" -Severity 3 -Component $function
 	$return.Status = "Unknown"

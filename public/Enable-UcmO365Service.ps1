@@ -11,10 +11,10 @@ Function Enable-UcmO365Service
 
 			.EXAMPLE
 			PS> Enable-UcmO365Service -User 'button.mash@Contoso.com' -ServiceName 'MCOSTANDARD'
-			Enables Skype for Business Online for the user Button Mash 
+			Enables Skype for Business Online for the user Button Mash
 
 			PS> Enable-UcmO365Service -UPN 'button.mash@contoso.com' -ServiceName 'TEAMS1'
-			Enables Microsoft Teams for the user Button Mash 
+			Enables Microsoft Teams for the user Button Mash
 
 			PS> Enable-UcmO365Service -UPN 'button.mash@contoso.com' -ServiceName 'MCOPSTNEAU'
 			Enables Telstra Calling (Australian version of Microsoft Calling) for the user Button Mash
@@ -30,14 +30,14 @@ Function Enable-UcmO365Service
 
 			.OUTPUT
 			This Cmdet returns a PSCustomObject with multiple Keys to indicate status
-			$Return.Status 
-			$Return.Message 
-			
+			$Return.Status
+			$Return.Message
+
 			Return.Status can return one of three values
 			"OK"      : The Service Plan was enabled
-			"Error"   : The Service Plan was wasnt enabled, it may not have been found or there was an error setting the users attributes. 
+			"Error"   : The Service Plan was wasnt enabled, it may not have been found or there was an error setting the users attributes.
 			"Unknown" : Cmdlet reached the end of the function without returning anything, this shouldnt happen, if it does please log an issue on Github
-			
+
 			Return.Message returns descriptive text based on the outcome, mainly for logging or reporting
 
 			.NOTES
@@ -82,11 +82,11 @@ Function Enable-UcmO365Service
 			Alex Verboon, Powershell script to remove Office 365 Service Plans from a User: https://www.verboon.info/2015/12/powershell-script-to-remove-office-365-service-plans-from-a-user/
 
 	#>
-
+	[Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSUseProcessBlockForPipelineCommand', '', Scope='Function')] #todo, https://github.com/Atreidae/UcmPSTools/issues/23
 	Param
 	(
-		[Parameter(ValueFromPipelineByPropertyName=$true, Mandatory, Position=1,HelpMessage='The UPN of the user you wish to enable the Service Plan on, eg: button.mash@contoso.com')] [string]$UPN, 
-		[Parameter(ValueFromPipelineByPropertyName=$true, Mandatory, Position=2,HelpMessage="The name of the Office365 Service Plan you wish enable, eg: 'MCOSTANDARD' for Skype Online")] [string]$ServiceName 
+		[Parameter(ValueFromPipelineByPropertyName=$true, Mandatory, Position=1,HelpMessage='The UPN of the user you wish to enable the Service Plan on, eg: button.mash@contoso.com')] [string]$UPN,
+		[Parameter(ValueFromPipelineByPropertyName=$true, Mandatory, Position=2,HelpMessage="The name of the Office365 Service Plan you wish enable, eg: 'MCOSTANDARD' for Skype Online")] [string]$ServiceName
 	)
 
 
@@ -105,8 +105,8 @@ Function Enable-UcmO365Service
 	Write-UcmLog -Message "$($PsBoundParameters.Values)" -Severity 1 -Component $function -LogOnly
 	Write-UcmLog -Message 'Optional Arguments' -Severity 1 -Component $function -LogOnly
 	Write-UcmLog -Message "$Args" -Severity 1 -Component $function -LogOnly
-	
-	
+
+
 	#endregion FunctionSetup
 
 	#region FunctionWork
@@ -119,7 +119,7 @@ Function Enable-UcmO365Service
 	#Check the user is even licenced in O365
 	If ((Get-MsolUser -UserPrincipalName $UPN).isLicensed -ne $true)
 	{
-		Write-UcmLog -Message 'User does not have ANY valid O365 licence, abort' -Severity 3 -Component $function 
+		Write-UcmLog -Message 'User does not have ANY valid O365 licence, abort' -Severity 3 -Component $function
 		$Return.Status = 'Error'
 		$Return.Message  = "User has no O365 licence, run 'Get-MsolUser -UserPrincipalName $Upn' for more info"
 		Return $Return
@@ -132,21 +132,21 @@ Function Enable-UcmO365Service
 	#Run through all the servicesplans on each licence, one licence at a time.
 	ForEach ($License in $LicenseDetails) {
 		Write-UcmLog -Message "Checking $($License.AccountSkuId) for $Servicename" -Severity 1 -Component $function
-		
+
 		#Find all the Disabled services and add them to an array, except for the requsted service. We need them for later
 		$DisabledOptions = @()
 		ForEach ($Service in $License.ServiceStatus)
 		{
 			#Check this service plan
 			Write-UcmLog -Message "Checking $($Service.ServicePlan.ServiceName)" -Severity 1 -Component $function
-	
+
 			#check if we this is the plan and its already enabled
 			If ($Service.ServicePlan.ServiceName -eq $ServiceName)
 			{
 			Write-UcmLog -Message "Found requested Serviceplan" -Severity 1 -Component $function
 			$servicePlanExists = $True
 			If ($Service.ProvisioningStatus -eq 'Success')
-				{ 
+				{
 				Write-UcmLog -Message "Service Plan is already enabled, returning" -Severity 1 -Component $function
 				$Return.Status = 'OK'
 				$Return.Message  = 'Already Enabled'
@@ -154,7 +154,7 @@ Function Enable-UcmO365Service
 				}
 			}
 			#Else check if the ServicePlan is disabled so we can track it (and enable it if needed)
-			If ($Service.ProvisioningStatus -eq 'Disabled') 
+			If ($Service.ProvisioningStatus -eq 'Disabled')
 			{
 				#The Service Is disabled, check to see if its the requested service
 				Write-UcmLog -Message "Service Plan is currently Disabled" -Severity 1 -Component $function
@@ -177,7 +177,7 @@ Function Enable-UcmO365Service
 		}
 		#Did we change any services? if so. Set the licence options using the new list of disabled licences
 		If ($AppEnabled -eq $true)
-		{ 
+		{
 			Try {
 				Write-UcmLog -Message 'Setting Licence Options with the following Disabled Services' -Severity 1 -Component $function
 				Write-UcmLog -Message "$DisabledOptions" -Severity 1 -Component $function
@@ -191,21 +191,21 @@ Function Enable-UcmO365Service
 				{
 					$LicenseOptions = New-MsolLicenseOptions -AccountSkuId $License.AccountSkuId -DisabledPlans $DisabledOptions
 				}
-			
+
 				#Using the License Options attributes, set the users licence.
 				Set-MsolUserLicense -UserPrincipalName $UPN -LicenseOptions $LicenseOptions
-			
+
 				#Reset the AppEnabled Flag
 				$AppEnabled = $False
 
 				#Set a flag so we can see it was changed
 				$MadeChanges= $True
 
-			
+
 			}
 			Catch #Something went wrong setting user licence
 			{
-				Write-UcmLog -Message 'Something went wrong assinging the licence' -Severity 3 -Component $function 
+				Write-UcmLog -Message 'Something went wrong assinging the licence' -Severity 3 -Component $function
 				$AppEnabled = $false
 				$MadeChanges= $False
 				$Return.Status = 'Error'
@@ -242,12 +242,11 @@ Function Enable-UcmO365Service
 	#endregion FunctionWork
 
 	#region FunctionReturn
- 
-	#Default Return Variable for my HTML Reporting Fucntion
+
+	#Default Return Variable for UcmPsTools HTML Reporting Fucntion
 	Write-UcmLog -Message "Reached end of $function without a Return Statement" -Severity 3 -Component $function
 	$return.Status = 'Unknown'
 	$return.Message = 'Function did not encounter return statement'
 	Return $Return
 	#endregion FunctionReturn
-
 }
