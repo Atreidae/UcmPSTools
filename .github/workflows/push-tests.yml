@@ -10,7 +10,7 @@ jobs:
         uses: actions/checkout@v3
       - name: Test Public ps1 files
         shell: pwsh
-        run: Test-ImportFunctions.ps1 | Should -Be $true
+        run: ./Test-ImportFunctions.ps1 | Should -Be $true
       - name: Perform a Pester test from the UcmPSTools.Tests file
         shell: pwsh
         run: |
