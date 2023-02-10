@@ -1,0 +1,17 @@
+name: 'Pester Tests'
+on: push
+
+jobs:
+  pester-test:
+    name: Pre-Build Tests
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository code
+        uses: actions/checkout@v3
+      - name: Test Public ps1 files
+        shell: pwsh
+        run: Test-ImportFunctions.ps1 | Should -Be $true
+      - name: Perform a Pester test from the UcmPSTools.Tests file
+        shell: pwsh
+        run: |
+          Invoke-Pester UcmPSTools.Tests.ps1 -Passthru
