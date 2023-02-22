@@ -3,7 +3,7 @@
 #Plus Nicola Suter's guide to signing PowerShell scripts using Aure Pipelines https://tech.nicolonsky.ch/sign-powershell-az-devops/
 #and COLIN DEMBOVSKY's guide to Azure Pipeline Variables https://colinsalmcorner.com/azure-pipeline-variables/
 
-$buildVersion = {(get-content ./version) + ".$($ENV:build)"}
+$buildVersion = {(get-content ./build_scripts/version) + ".$($ENV:build)"}
 Write-Debug "Building version $buildversion"
 $moduleName = 'UcmPSTools'
 
