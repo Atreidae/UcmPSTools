@@ -10,7 +10,7 @@ Function New-UcmTeamsResourceAccount
 			This function will also set the application ID depending on the setting of the ResourceType parameter
 
 			.EXAMPLE
-			UcmTeamsResourceAccount -UPN calebs@contoso.onmicrosoft.com -DisplayName 'Caleb Sills' -ResourceType CallQueue
+			New-UcmTeamsResourceAccount -UPN calebs@contoso.onmicrosoft.com -DisplayName 'Caleb Sills' -ResourceType CallQueue
 
 			.PARAMETER UPN
 			The UPN of the user you wish to create, eg: "button.mash@contoso.com"
