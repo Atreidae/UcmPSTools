@@ -7,7 +7,7 @@ $buildVersion = {(get-content ./version) + ".$($ENV:build)"}
 Write-Debug "Building version $buildversion"
 $moduleName = 'UcmPSTools'
 
-$manifestPath = Join-Path -Path $env:GITHUB_PATH -ChildPath "$moduleName.psd1"
+$manifestPath = Join-Path -Path "/home/runner/work/UcmPSTools/UcmPSTools" -ChildPath "$moduleName.psd1"
 
 ## Update build version in manifest
 $manifestContent = Get-Content -Path $manifestPath -Raw
