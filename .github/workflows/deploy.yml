@@ -15,5 +15,4 @@ jobs:
         shell: pwsh
         run: ./build_scripts/build.ps1
         env: 
-         env:
             build: ${{GITHUB.RUN_NUMBER}}
