@@ -16,3 +16,4 @@ jobs:
         run: ./build_scripts/build.ps1
         env: 
             build: ${{GITHUB.RUN_NUMBER}}
+            path: ${{$GITHUB_WORKSPACE}}
