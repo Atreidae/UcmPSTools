@@ -6,11 +6,12 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
-      - name: Install PSScriptAnalyzer module
-        shell: pwsh
-        run: |
-          Set-PSRepository PSGallery -InstallationPolicy Trusted
-          Install-Module PSScriptAnalyzer -ErrorAction Stop
+      - name: Install and cache PowerShell modules
+        id: psmodulecache
+        uses: potatoqualitee/psmodulecache@v5.2
+        with:
+          modules-to-cache: PSScriptAnalyzer
+          shell: powershell, pwsh
       - name: Lint with PSScriptAnalyzer
         shell: pwsh
         run: |
