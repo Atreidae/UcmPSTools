@@ -28,7 +28,7 @@ jobs:
         with:
           ref: ${{ github.head_ref }}   # checkout the correct branch name
           fetch-depth: 0                # fetch the whole repo history
-          
+
       - name: Sign PowerShell scripts
         shell: powershell
         run: |
@@ -67,7 +67,7 @@ jobs:
           $PSDContent = Get-Content -Path ./UcmPSTools.psd1 -Raw
           $PSDContent = $PSDContent -replace "'<PreReleaseToken>'", "alpha"
           $PSDContent | Set-Content -Path ./UcmPSTools.psd1
-          Publish-Module -Name "UcmPSTools" -NuGetApiKey $env:BASE64_PFX
+          Publish-Module -Name "UcmPSTools" -NuGetApiKey $env:PSGALLERYAPIKEY
 
       - name: Publish RC Module
         if: ${{ github.ref == 'refs/heads/rc' }}
@@ -79,7 +79,7 @@ jobs:
           $PSDContent = Get-Content -Path ./UcmPSTools.psd1 -Raw
           $PSDContent = $PSDContent -replace "'<PreReleaseToken>'", "ReleaseCandidate"
           $PSDContent | Set-Content -Path ./UcmPSTools.psd1
-          Publish-Module -Name "UcmPSTools" -NuGetApiKey $env:BASE64_PFX
+          Publish-Module -Name "UcmPSTools" -NuGetApiKey $env:PSGALLERYAPIKEY
           
 
       - name: Publish Public Module 
@@ -87,4 +87,4 @@ jobs:
         shell: powershell
         env:
           PSGALLERYAPIKEY: ${{ secrets.PSGALLERYAPIKEY }}
-        run: Publish-Module -Name "UcmPSTools" -NuGetApiKey $env:BASE64_PFX
+        run: Publish-Module -Name "UcmPSTools" -NuGetApiKey $env:PSGALLERYAPIKEY
