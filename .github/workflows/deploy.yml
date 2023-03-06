@@ -65,7 +65,7 @@ jobs:
         run: |
           #Set PreRelease Flag
           $PSDContent = Get-Content -Path ./UcmPSTools.psd1 -Raw
-          $PSDContent = $PSDContent -replace "'<PreReleaseToken>'", "PreRelease"
+          $PSDContent = $PSDContent -replace "<PreReleaseToken>", "alpha"
           $PSDContent | Set-Content -Path ./UcmPSTools.psd1
           Publish-Module -NuGetApiKey $env:PSGALLERYAPIKEY  -path ./ 
 
@@ -77,7 +77,7 @@ jobs:
         run: |
           #Set PreRelease Flag
           $PSDContent = Get-Content -Path ./UcmPSTools.psd1 -Raw
-          $PSDContent = $PSDContent -replace "'<PreReleaseToken>'", "ReleaseCandidate"
+          $PSDContent = $PSDContent -replace "<PreReleaseToken>", "ReleaseCandidate"
           $PSDContent | Set-Content -Path ./UcmPSTools.psd1
           Publish-Module -NuGetApiKey $env:PSGALLERYAPIKEY -path ./
 
