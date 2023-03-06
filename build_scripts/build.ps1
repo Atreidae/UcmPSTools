@@ -4,7 +4,7 @@
 #and COLIN DEMBOVSKY's guide to Azure Pipeline Variables https://colinsalmcorner.com/azure-pipeline-variables/
 
 [string]$patchver = $ENV:build
-$buildVersion = {(get-content ./version) + $patchver}
+$buildVersion = (get-content ./version) + $patchver
 Write-Debug "Building version $buildversion"
 $moduleName = 'UcmPSTools'
 
