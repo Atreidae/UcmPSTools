@@ -8,7 +8,7 @@ $buildVersion = (get-content ./build_scripts/version) + $patchver
 Write-Debug "Building version $buildversion"
 $moduleName = 'UcmPSTools'
 
-$manifestPath = Join-Path -Path $PSScriptRoot -ChildPath "$moduleName.psd1"
+$manifestPath = Join-Path -Path $PSScriptRoot -ChildPath "../$moduleName.psd1"
 
 ## Update build version in manifest
 $manifestContent = Get-Content -Path $manifestPath -Raw
