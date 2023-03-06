@@ -28,15 +28,7 @@ jobs:
         with:
           ref: ${{ github.head_ref }}   # checkout the correct branch name
           fetch-depth: 0                # fetch the whole repo history
-
-      - name: Git Version
-        id: version
-        uses: codacy/git-version@2.7.1
-
-      - name: Update Version
-        run: |
-          echo ${{ steps.version.outputs.version }} > "./build_scripts/version"
-
+          
       - name: Sign PowerShell scripts
         shell: powershell
         run: |
