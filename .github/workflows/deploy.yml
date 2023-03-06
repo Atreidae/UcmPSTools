@@ -81,11 +81,15 @@ jobs:
           $PSDContent | Set-Content -Path ./UcmPSTools.psd1
           Publish-Module -NuGetApiKey $env:PSGALLERYAPIKEY -path ./
 
-          
-
       - name: Publish Public Module 
         if: ${{ github.ref == 'refs/heads/main' }}
         shell: powershell
         env:
           PSGALLERYAPIKEY: ${{ secrets.PSGALLERYAPIKEY }}
-        run: Publish-Module -NuGetApiKey $env:PSGALLERYAPIKEY -path ./
+        run: |
+          #remove pre-release flags from PSD1
+          $PSDContent = Get-Content -Path ./UcmPSTools.psd1 -Raw
+          $PSDContent = $PSDContent -replace "Prerelease = '<PreReleaseToken>'", ""
+          $PSDContent | Set-Content -Path ./UcmPSTools.psd1
+          Publish-Module -NuGetApiKey $env:PSGALLERYAPIKEY -path ./
+
