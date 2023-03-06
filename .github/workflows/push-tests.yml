@@ -1,5 +1,7 @@
 name: 'Pester Tests'
-on: push
+on: 
+  push:
+
 
 jobs:
   pester-test:
