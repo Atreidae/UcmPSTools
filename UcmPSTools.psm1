@@ -4,7 +4,7 @@
 #and COLIN DEMBOVSKY's guide to Azure Pipeline Variables https://colinsalmcorner.com/azure-pipeline-variables/
 
 
-#Set-StrictMode -Version Latest
+Set-StrictMode -Version Latest
 # Get public and private function definition files.
 
 $Public = @(Get-ChildItem -Path $PSScriptRoot\Public\*.ps1 -ErrorAction SilentlyContinue)

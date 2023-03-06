@@ -24,6 +24,10 @@ Dev ![Dev Branch PSScriptAnalyzer Tests](https://github.com/Atreidae/UcmPSTools/
 
 ### Publish to PowerShell Gallery
 
+## Better Documentation
+This documentation is here as im in the process of migrating everything over to GitBook.
+You can find it over here
+
 ## About UcmPSTools
 
  UcmPSTools is a collection of PowerShell functions to ease the administration of Microsoft Teams Unified Communications features and its related services.
