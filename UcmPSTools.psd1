@@ -5,7 +5,7 @@
 	Author            = 'James Arber'
 	CompanyName       = 'UCMadScientist'
 	Copyright		  = '(c) 2023 James Arber. All rights reserved.'
-	Description 	  = 'A collection of PowerShell cmdlets for Microsoft Teams Voice Admins. If you work with Teams Voice, there will be something handy for you in here'
+	Description 	  = 'A collection of PowerShell cmdlets for Microsoft Teams Voice Admins. If you work with Teams Voice, there will be something handy for you in here. See https://UcMadScientist.com or see https://github.com/Atreidae/UcmPSTools for more information'
 	PowerShellVersion = '5.1'
 	FunctionsToExport = @('<FunctionsToExport>')
 	PrivateData = @{
@@ -23,7 +23,7 @@
 			ReleaseNotes = 'Automated build, see https://github.com/Atreidae/UcmPSTools for upto date notes'
 
 			# A URL to an icon representing this module.
-        	# IconUri = 'https://www.ucmadscientist.com/UcmPsTools.png'
+        	IconUri = 'https://www.ucmadscientist.com/UcmPsTools.png'
 
 			#This gets replaced during the build with the relevant flag
             Prerelease = '<PreReleaseToken>'
