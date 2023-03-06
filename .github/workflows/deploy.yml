@@ -67,7 +67,7 @@ jobs:
           $PSDContent = Get-Content -Path ./UcmPSTools.psd1 -Raw
           $PSDContent = $PSDContent -replace "'<PreReleaseToken>'", "alpha"
           $PSDContent | Set-Content -Path ./UcmPSTools.psd1
-          Publish-Module -Name "UcmPSTools" -NuGetApiKey $env:PSGALLERYAPIKEY
+          Publish-Module -Name "UcmPSTools" -NuGetApiKey $env:PSGALLERYAPIKEY  -path ./
 
       - name: Publish RC Module
         if: ${{ github.ref == 'refs/heads/rc' }}
@@ -79,7 +79,7 @@ jobs:
           $PSDContent = Get-Content -Path ./UcmPSTools.psd1 -Raw
           $PSDContent = $PSDContent -replace "'<PreReleaseToken>'", "ReleaseCandidate"
           $PSDContent | Set-Content -Path ./UcmPSTools.psd1
-          Publish-Module -Name "UcmPSTools" -NuGetApiKey $env:PSGALLERYAPIKEY
+          Publish-Module -Name "UcmPSTools" -NuGetApiKey $env:PSGALLERYAPIKEY -path ./
           
 
       - name: Publish Public Module 
@@ -87,4 +87,4 @@ jobs:
         shell: powershell
         env:
           PSGALLERYAPIKEY: ${{ secrets.PSGALLERYAPIKEY }}
-        run: Publish-Module -Name "UcmPSTools" -NuGetApiKey $env:PSGALLERYAPIKEY
+        run: Publish-Module -Name "UcmPSTools" -NuGetApiKey $env:PSGALLERYAPIKEY -path ./
