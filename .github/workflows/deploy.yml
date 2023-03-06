@@ -24,14 +24,25 @@ jobs:
           PFX_PASSWORD: ${{ secrets.PFX_PASSWORD }}
 
       - name: Check out repository
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
+        with:
+          ref: ${{ github.head_ref }}   # checkout the correct branch name
+          fetch-depth: 0                # fetch the whole repo history
+
+      - name: Git Version
+        id: version
+        uses: codacy/git-version@2.7.1
+
+      - name: Update Version
+        run: |
+          echo ${{ steps.version.outputs.version }} > "./build_scripts/version"
 
       - name: Sign PowerShell scripts
         shell: powershell
         run: |
           # remove git dir from checked out repo
           Get-ChildItem -Path "." -Filter ".git*" -Force | ForEach-Object {Remove-Item -Path $_.FullName -Recurse -Force}
-          $scripts = Get-ChildItem -Path . -Filter "*.ps1" -Recurse -ErrorAction Stop
+          $scripts = Get-ChildItem -Path ./public -Filter "*.ps1" -Recurse -ErrorAction Stop
           # load cert
           $codeSigningCert = Get-ChildItem Cert:\CurrentUser\My -CodeSigningCert | Select-Object -First 1
           foreach ($script in $scripts) {
