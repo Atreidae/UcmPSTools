@@ -9,7 +9,7 @@ Function New-UcmCsFixedNumberDiversion
 			Diverts a number associated with Microsoft Teams Via Microsoft Calling plans or Telstra Calling to an external PSTN number by performing the following actions
 			- Creates a Resource Account with named "PSTN_FWD_<inboundNumber>@domain.onmicrosoft.com" by default (Configurable using -AccountPrefix)
 			- Licences the account with a Virtual Phone System Licence
-			- Licences the account with an appropriate calling licence (Will attempt to locate a calling licence using Locate-CsCallingLicence)
+			- Licences the account with an appropriate calling licence specified using -LicenceType
 			- Creates an AutoAttendant with a 24 hour schedule
 			- Configures a forward rule in the AutoAttendant
 
@@ -17,8 +17,8 @@ Function New-UcmCsFixedNumberDiversion
 			Warning: The script presently only supports Cloud Numbers, attempting to use Direct Routing numbers will fail.
 
 			.EXAMPLE
-			PS> New-CsFixedNumberDiversion -OriginalNumber +61370105550 -TargetNumber +61755501234
-			Enables Microsoft Teams for the user Button Mash
+			PS> New-UcmCsFixedNumberDiversion -OriginalNumber +61370105550 -TargetNumber +61755501234 -Domain Contoso.onmicrosoft.com -Country-AU -LicenceType MCOPSTNEAU2
+			Forwards the number 61370105550 to 61755501234
 
 			.PARAMETER OriginalNumber
 			The number of the new AutoAttendant. IE: The number to wish to forward FROM
@@ -26,12 +26,8 @@ Function New-UcmCsFixedNumberDiversion
 			.PARAMETER TargetNumber
 			The number the AutoAttendant will forward calls to. IE: the number to wish to forward TO
 
-			.PARAMETER AccountPrefix
-			This is the name that will be placed before the inbound phone number in the account name, used if you have a special naming convention for service accounts
-			"PSTN_FWD_" by default
-
 			.PARAMETER Domain
-			This is the domain name that will be used to create the resource accounts for the diversion. This should be an "onmicrosoft" domain to minimise any directory sync issues
+			This is the domain name that will be used to create the resource accounts for the diversion. This should be an "onmicrosoft" domain or fully AzureAD domain to minimise any directory sync issues
 			For example "Contoso.onmicrosoft.com"
 
 			.PARAMETER LicenceType
@@ -42,7 +38,12 @@ Function New-UcmCsFixedNumberDiversion
 			As we are setting licence's for the virtual users, we need to know what country to licence them in.
 			Make sure to use upper case!
 
-			.PARAMETER AADisplayName
+			.PARAMETER AccountPrefix (optional)
+			This is the name that will be placed before the inbound phone number in the account name, used if you have a special naming convention for service accounts
+			"PSTN_FWD_" by default
+
+
+			.PARAMETER AADisplayName (optional)
 			The name to assign to the AutoAttendant "<Original Number> Forward" by default
 
 			.INPUTS
@@ -61,10 +62,13 @@ Function New-UcmCsFixedNumberDiversion
 			Return.Message returns descriptive text based on the outcome, mainly for logging or reporting
 
 			.NOTES
-			Version:		1.1
-			Date:			18/11/2021
+			Version:		1.2
+			Date:			23/03/2023
 
 			.VERSION HISTORY
+
+			1.2 Updates for UcmPsTools public module
+				Added Country Validation
 
 			1.1: Documentation changes
 
@@ -104,7 +108,7 @@ Param
 	[Parameter(ValueFromPipelineByPropertyName=$true, Position=3)] [string]$AccountPrefix="PSTN_FWD_",
 	[Parameter(ValueFromPipelineByPropertyName=$true, mandatory=$true, Position=4)] [string]$Domain,
 	[Parameter(ValueFromPipelineByPropertyName=$true, mandatory=$true, Position=5)] [string]$LicenceType,
-	[Parameter(ValueFromPipelineByPropertyName=$true, mandatory=$true, Position=6)] [string]$Country,
+	[Parameter(ValueFromPipelineByPropertyName=$true, mandatory=$true, Position=6, HelpMessage='The 2 letter country code for the users country, must be in capitals. eg: AU')] [ValidateSet("AF","AX","AL","DZ","AS","AD","AO","AI","AQ","AG","AR","AM","AW","AU","AT","AZ","BS","BH","BD","BB","BY","BE","BZ","BJ","BM","BT","BO","BQ","BA","BW","BV","BR","IO","BN","BG","BF","BI","CV","KH","CM","CA","KY","CF","TD","CL","CN","CX","CC","CO","KM","CG","CD","CK","CR","CI","HR","CU","CW","CY","CZ","DK","DJ","DM","DO","EC","EG","SV","GQ","ER","EE","SZ","ET","FK","FO","FJ","FI","FR","GF","PF","TF","GA","GM","GE","DE","GH","GI","GR","GL","GD","GP","GU","GT","GG","GN","GW","GY","HT","HM","VA","HN","HK","HU","IS","IN","ID","IR","IQ","IE","IM","IL","IT","JM","JP","JE","JO","KZ","KE","KI","KP","KR","KW","KG","LA","LV","LB","LS","LR","LY","LI","LT","LU","MO","MG","MW","MY","MV","ML","MT","MH","MQ","MR","MU","YT","MX","FM","MD","MC","MN","ME","MS","MA","MZ","MM","NA","NR","NP","NL","NC","NZ","NI","NE","NG","NU","NF","MK","MP","NO","OM","PK","PW","PS","PA","PG","PY","PE","PH","PN","PL","PT","PR","QA","RE","RO","RU","RW","BL","SH","KN","LC","MF","PM","VC","WS","SM","ST","SA","SN","RS","SC","SL","SG","SX","SK","SI","SB","SO","ZA","GS","SS","ES","LK","SD","SR","SJ","SE","CH","SY","TW","TJ","TZ","TH","TL","TG","TK","TO","TT","TN","TR","TM","TC","TV","UG","UA","AE","GB","US","UM","UY","UZ","VU","VE","VN","VG","VI","WF","EH","YE","ZM","ZW")][String]$Country,
 	[Parameter(ValueFromPipelineByPropertyName=$true, Position=7)] [string]$AADisplayName
 )
 
@@ -130,11 +134,11 @@ BEGIN
 	}
 
 	#Check to see if we are connected to MSOL
-	$Test = (Test-MSOLConnection -reconnect)
+	$Test = (Test-UcmMSOLConnection -reconnect)
 	If ($Test.Status -eq "Error")
 	{
 	Write-UcmLog -Message "Couldnt configure diversions." -Severity 3 -Component $function
-	Write-UcmLog -Message "Test-MSOLConnection could not locate an MSOL connection" -Severity 2 -Component $function
+	Write-UcmLog -Message "Test-UcmMSOLConnection could not locate an MSOL connection" -Severity 2 -Component $function
 	$Return.Status = "Error"
 	$Return.Message = "No MSOL Connection ( $($test.message) )"
 	Return $Return

@@ -26,7 +26,7 @@ Dev ![Dev Branch PSScriptAnalyzer Tests](https://github.com/Atreidae/UcmPSTools/
 
 ## Better Documentation
 This documentation is here as im in the process of migrating everything over to GitBook.
-You can find it over here
+You can find it over here https://docs.ucmadscientist.com
 
 ## About UcmPSTools
 

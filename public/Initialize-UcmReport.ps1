@@ -8,7 +8,7 @@
       Checks for clears and creates a new object to store status for reporting later.
 
       .EXAMPLE
-      Initialize-UcmHTMLReport
+      Initialize-UcmReport
 
       .INPUTS
       This function accepts no inputs
@@ -110,7 +110,7 @@ Function New-UCMReportItem
       Adds a new Line Object to the Report
 
       .EXAMPLE
-      New-UCMReportStep -LineTitle "Username" -LineMessage "bob@contoso.com"
+      New-UCMReportItem -LineTitle "Username" -LineMessage "bob@contoso.com"
 
       .INPUTS
       This function accepts no inputs
