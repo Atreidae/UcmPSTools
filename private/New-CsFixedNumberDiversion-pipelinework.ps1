@@ -1,5 +1,5 @@
 #PerformScriptSigning
-Function New-UcmCsFixedNumberDiversion
+Function New-UcmCsFixedNumberDiversionpipe
 {
     <#
 			.SYNOPSIS

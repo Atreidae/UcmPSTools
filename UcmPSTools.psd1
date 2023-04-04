@@ -5,7 +5,7 @@
 	Author            = 'James Arber'
 	CompanyName       = 'UCMadScientist'
 	Copyright		  = '(c) 2023 James Arber. All rights reserved.'
-	Description 	  = 'A collection of PowerShell cmdlets for Microsoft Teams Voice Admins. If you work with Teams Voice, there will be something handy for you in here. See https://UcMadScientist.com or see https://github.com/Atreidae/UcmPSTools for more information'
+	Description 	  = 'A collection of PowerShell cmdlets for Microsoft Teams Voice Admins. If you work with Teams Voice, there will be something handy for you in here. Full documentation for every cmdlet is available using PowerShell help or https://docs.ucmadscientist.com See https://UcMadScientist.com or see https://github.com/Atreidae/UcmPSTools for development information'
 	PowerShellVersion = '5.1'
 	FunctionsToExport = @('<FunctionsToExport>')
 	PrivateData = @{

@@ -34,10 +34,12 @@ Function Test-UcmSFBOConnection
 			.ACKNOWLEDGEMENTS
 
 			.NOTES
-			Version:		1.1
-			Date:			03/04/2021
+			Version:		1.2
+			Date:			24/03/2023
 
 			.VERSION HISTORY
+			1.2: Updated to use Teams Cmdlets
+
 			1.1: Updated to "Ucm" naming convention
 			Better inline documentation
 
@@ -84,12 +86,17 @@ Function Test-UcmSFBOConnection
 	#region FunctionWork
 
 
-	Write-UcmLog -Message "Checking for Existing SFBO Connection" -Severity 1 -Component $function
-	$Session =(Get-PSSession | Where-Object {$_.Name -like "SfBPowerShellSession*"})
-
-	If($Session.state -ne "opened") #Skype For Business Session in Broken state
+	Write-UcmLog -Message "Checking for Existing Teams Phone System Connection" -Severity 1 -Component $function
+	Try
 	{
-		Write-UcmLog -Message "We dont appear to be connected to Skype for Business Online!" -Severity 3 -Component $function
+		(Get-CsTenant).tenantid
+		$Return.Status = "OK"
+		$Return.Message  = "Existing Connection"
+		Return $Return
+	}
+	Catch
+	{
+		Write-UcmLog -Message "We dont appear to be connected to Teams Phone System!" -Severity 3 -Component $function
 
 		If ($Reconnect) #If the user wants us to reconnect
 		{
@@ -97,7 +104,7 @@ Function Test-UcmSFBOConnection
 			Get-PSSession | Where-Object {$_.Name -like "SfBPowerShellSession*"} |Remove-PSSession
 
 			#Call New-UcmSFBOSession
-			$Connection = (New-UcmSFBOConnection)
+			$Connection = (Connect-MicrosoftTeams)
 
 			#Check we actually connected
 			If ($Connection.status -eq "Error") #an error was reported
@@ -120,12 +127,7 @@ Function Test-UcmSFBOConnection
 			Return $Return
 		}
 	}
-	Else #The session is connected, no need to do anything.
-	{
-		$Return.Status = "OK"
-		$Return.Message  = "Existing Connection"
-		Return $Return
-	}
+
 	#endregion FunctionWork
 
 	#region FunctionReturn

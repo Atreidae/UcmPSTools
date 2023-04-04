@@ -17,7 +17,7 @@ Function New-UcmCsFixedNumberDiversion
 			Warning: The script presently only supports Cloud Numbers, attempting to use Direct Routing numbers will fail.
 
 			.EXAMPLE
-			PS> New-UcmCsFixedNumberDiversion -OriginalNumber +61370105550 -TargetNumber +61755501234 -Domain Contoso.onmicrosoft.com -Country-AU -LicenceType MCOPSTNEAU2
+			PS> New-UcmCsFixedNumberDiversion -OriginalNumber +61370105550 -TargetNumber +61755501234 -Domain Contoso.onmicrosoft.com -Country AU -LicenceType MCOPSTNEAU2
 			Forwards the number 61370105550 to 61755501234
 
 			.PARAMETER OriginalNumber
@@ -63,12 +63,18 @@ Function New-UcmCsFixedNumberDiversion
 
 			.NOTES
 			Version:		1.2
-			Date:			23/03/2023
+			Date:			02/04/2023
 
 			.VERSION HISTORY
 
 			1.2 Updates for UcmPsTools public module
 				Added Country Validation
+				Added account creation error checking
+				Updated timeframe handling to support updated Teams backend storing all new timeframes as global
+				Resolved an issue with E164 formatted numbers causing AAD Account issues
+				Resolved an issue with E164 formatted numbers causing invalid forward destinations
+				Resoved issues with 'CallHandlingAssociations' parmeter stripping
+				Updated to use Set-CsPhoneNumberAssignment instead of 'Set-CsOnlineVoiceApplicationInstance'
 
 			1.1: Documentation changes
 
@@ -115,7 +121,6 @@ Param
 
 BEGIN
 {
-	$ScriptVersion = 1.0
 	$StartTime = Get-Date
 	$Script:LogFileLocation = $PSCommandPath -replace '.ps1','.log' #Needing to actually figure out a better way of doing this for the module TODO
 
@@ -123,7 +128,7 @@ BEGIN
 	Write-UcmLog -Message "Perfoming connection checks" -Severity 2 -Component $Function
 
 	#Check to see if we are connected to SFBO
-	$Test = (Test-SFBOConnection -reconnect)
+	$Test = (Test-UcmSFBOConnection -reconnect)
 	If ($Test.Status -eq "Error")
 	{
 	Write-UcmLog -Message "Couldnt configure diversions." -Severity 3 -Component $function
@@ -143,6 +148,10 @@ BEGIN
 	$Return.Message = "No MSOL Connection ( $($test.message) )"
 	Return $Return
 	}
+
+	#Everything went well, lets get ready for pipline
+	#Create an object to store all our pipeline objects
+	$Objects= @()
 }
 
 
@@ -153,6 +162,12 @@ PROCESS
 	if ($OriginalNumber)
 	{
 		Write-UcmLog -Message "Executing process block with Diversion for $originalNumber" -Severity 2 -Component $Function
+
+		$OriginalNumber = ($OriginalNumber).TrimStart("tel:+")
+		$OriginalNumber = ($OriginalNumber).TrimStart("+")
+		$TargetNumber = ($TargetNumber).TrimStart("tel:+")
+		$TargetNumber = ($TargetNumber).TrimStart("+")
+
 		if ($null -eq $AADisplayName) {$AADisplayName = ($OriginalNumber + " Forward")}
 
 		$AADisplayName = ($OriginalNumber + " Forward")  #todo fix the damn naming problem
@@ -160,25 +175,48 @@ PROCESS
 		#Create the resource account
 		$UPN = ($AccountPrefix + $OriginalNumber + "@" + $domain)
 
-
-
 		#Check for Resource Account
 		#Powershell throws an error if the account isnt found, so lets trap it and use that instead
 
 		Try
 		{
-			$AAAccount = (get-csonlineapplicationinstance -Identities $upn)
+			$AAAccount = (get-csonlineapplicationinstance -Identity $upn -ErrorAction Stop)
 			Write-UcmLog -Message "Found Existing Resource Account, skipping creation" -Severity 2 -Component $function
 			Write-UcmLog -Message $AAAccount -Severity 2 -Component $function
 		}
 
+		#we didnt find the account, make it
 		Catch
 		{
 			Write-UcmLog -Message "Creating Required Resource Account" -Severity 2 -Component $function
-			$AAAccount = (New-UcmTeamsResourceAccount -upn $upn -ResourceType Autoattendant -displayname "$originalnumber forward")
-			Write-UcmLog -Message "waiting for account to appear" -Severity 2 -Component $function
-			#Dodgy hack
-			Start-sleep -seconds 20
+			$AAAccounttemp = (New-UcmTeamsResourceAccount -upn $upn -ResourceType Autoattendant -displayname "$originalnumber forward")
+			Write-UcmLog -Message "waiting for account to appear in AzureAD" -Severity 2 -Component $function
+
+			#start checking for the account
+			For ($i = 0; $i -lt 7)
+			{
+				#Check we havent been waiting too long
+				if ($i -gt 5)
+				{
+					Write-UcmLog -Message "Account has not appeared after 60 seconds!" -Severity 3 -Component $function
+					Write-UcmLog -Message "Aborting account $AADisplayName" -Severity 3 -Component $function
+					Return
+				}
+
+				Write-UcmLog -Message "Waiting 10 seconds" -Severity 2 -Component $function
+				Start-sleep -seconds 10
+				Try
+				{
+					$AAAccount = (get-csonlineapplicationinstance -Identity $upn -ErrorAction stop)
+					Write-UcmLog -Message "Account found" -Severity 2 -Component $function
+					Continue
+				}
+				Catch
+				{
+					Write-UcmLog -Message "Account not found, trying again" -Severity 2 -Component $function
+					$i ++
+				}
+			}
 		}
 
 		#todo, better error handling
@@ -218,8 +256,9 @@ PROCESS
 			Write-UcmLog -Message "New-CsAutoAttendantCallFlow" -Severity 1 -Component $function
 			$DiversionCallFlow = New-CsAutoAttendantCallFlow -Name "Fixed Diversion" -Menu $DiversionMenu
 
-			Write-UcmLog -Message "New-CsAutoAttendant" -Severity 1 -Component $function
-			$o=New-CsAutoAttendant -Name $AADisplayName -DefaultCallFlow $DiversionCallFlow -CallHandlingAssociations @($afterHoursCallHandlingAssociation) -Language "en-AU" -TimeZoneId "AUS Eastern Standard Time"
+			Write-UcmLog -Message "New-CsAutoAttendant $o=New-CsAutoAttendant -Name $AADisplayName -DefaultCallFlow $DiversionCallFlow -CallHandlingAssociations @($afterHoursCallHandlingAssociation) -Language 'en-AU' -TimeZoneId 'AUS Eastern Standard Time'" -Severity 1 -Component $function
+			#$o=New-CsAutoAttendant -Name $AADisplayName -DefaultCallFlow $DiversionCallFlow -CallHandlingAssociations @($afterHoursCallHandlingAssociation) -Language "en-AU" -TimeZoneId "AUS Eastern Standard Time"
+			$o=New-CsAutoAttendant -Name $AADisplayName -DefaultCallFlow $DiversionCallFlow -Language "en-AU" -TimeZoneId "AUS Eastern Standard Time"
 
 			Write-UcmLog -Message "App instance lookup" -Severity 1 -Component $function
 			$applicationInstanceId = (Get-CsOnlineUser $UPN).ObjectId
@@ -240,22 +279,21 @@ PROCESS
 				Write-UcmLog -Message "Resource Account Association Missing, fixing" -Severity 3 -Component $function
 
 				Write-UcmLog -Message "App instance lookup" -Severity 1 -Component $function
-				$applicationInstanceId = (Get-CsOnlineUser $UPN).ObjectId
+				$applicationInstanceId = (Get-CsOnlineUser $UPN).identity
+
+				Start-sleep -seconds 10
 
 				Write-UcmLog -Message "New-CsOnlineApplicationInstanceAssociation" -Severity 2 -Component $function
-				New-CsOnlineApplicationInstanceAssociation -Identities @($applicationInstanceId) -ConfigurationId $O.identity -ConfigurationType AutoAttendant
-
+				[void](New-CsOnlineApplicationInstanceAssociation -Identities @($applicationInstanceId) -ConfigurationId $O.identity -ConfigurationType AutoAttendant)
 			}
 		}
 
 		#Assign the phone number to the resource account
 		Write-UcmLog -Message "Assigning Number to Resource Account" -Severity 2 -Component $function
 
-		$telephoneNumber = ($OriginalNumber).TrimStart("tel:+")
-		$telephoneNumber = ($OriginalNumber).TrimStart("+")
-
 		#Set-CsOnlineApplicationInstance -Identity $AAUPN -OnpremPhoneNumber $telephoneNumber   ## Direct Routing version!
-		Set-CsOnlineVoiceApplicationInstance -Identity $UPN -TelephoneNumber $telephoneNumber -verbose
+		#Set-CsOnlineVoiceApplicationInstance -Identity $UPN -TelephoneNumber $telephoneNumber -verbose  ##Deprecated
+		Set-CsPhoneNumberAssignment -Identity $UPN -PhoneNumber "+$OriginalNumber" -PhoneNumberType CallingPlan  ##todo update for more calling types
 	}
 	Else
 	{
