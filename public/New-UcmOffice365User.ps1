@@ -7,7 +7,8 @@ Function New-UcmOffice365User
 
 			.DESCRIPTION
 			Checks for and creates a new blank Office 365 user
-			Handy for some situations where you need to create a user account for things that cant be sorted by a resource account.
+			Used by other UcmPsTools Cmdlets, but can be handy for some situations where you need to create a user account for things that cant be sorted with a Teams resource account.
+			Examples include Teams Meeting Room accounts, Common Area Phones, etc.
 
 			.EXAMPLE
 			PS> New-Office365User -UPN button.mash@contoso.com -Password "Passw0rd1!" -FirstName Caleb -LastName Sills -Country AU -DisplayName "Button Mash"

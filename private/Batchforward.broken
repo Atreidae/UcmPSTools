@@ -2,14 +2,14 @@
 . C:\UcMadScientist\PowerShell-Functions\private\New-CsFixedNumberDiversion.ps1
 . C:\UcMadScientist\PowerShell-Functions\Test-ImportFunctions.ps1
 
-cd "C:\Users\Atrei\OneDrive - Telstra Purple\Customers\AGL\Scripts"
+cd "C:\Users\Atrei\OneDrive - Telstra Purple\Customers\foo\Scripts"
 
 $Data = Import-CSV ./forwards5.csv -ErrorAction Stop
 
 $usercount = ($data.count)
 $currentuser = 0
 
-$data | New-UcmCsFixedNumberDiversion  -Domain aglenergy.onmicrosoft.com -LicenceType MCOPSTNEAU2 -Country AU -Verbose
+$data | New-UcmCsFixedNumberDiversion  -Domain foo.onmicrosoft.com -LicenceType MCOPSTNEAU2 -Country AU -Verbose
 
 <#
 Foreach ($Forward in $data) { 

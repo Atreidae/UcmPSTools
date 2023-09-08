@@ -14,15 +14,15 @@
 
 			.OUTPUT
 			This Cmdet returns a PSCustomObject with multiple keys to indicate status
-			$Return.Status 
-			$Return.Message 
+			$Return.Status
+			$Return.Message
 
 			Return.Status can return one of four values
 			"OK"      : Connected to Skype for Business Online
 			"Warning" : Reconnected to Skype for Business Online
 			"Error"   : Not connected to Skype for Business Online
 			"Unknown" : Cmdlet reached the end of the function without returning anything, this shouldnt happen, if it does please log an issue on Github
-			
+
 			Return.Message returns descriptive text showing the connected tenant, mainly for logging or reporting
 
 			.LINK
@@ -73,7 +73,7 @@
 	Write-UcmLog -Message "$($PsBoundParameters.Values)" -Severity 1 -Component $function -LogOnly
 	Write-UcmLog -Message "Optional Arguments" -Severity 1 -Component $function -LogOnly
 	Write-UcmLog -Message "$Args" -Severity 1 -Component $function -LogOnly
-	
+
 	#endregion FunctionSetup
 
 	#region FunctionWork

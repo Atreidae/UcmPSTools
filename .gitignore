@@ -3,3 +3,10 @@ cred.xml
 *.html
 *.lo_
 .vscode/settings.json
+notes/Get-CsTeamConfig cmdlets.xlsx
+notes/~$Get-CsTeamConfig cmdlets.xlsx
+notes/Number sorting scratch.ps1
+notes/Number sorting scratch2.ps1
+notes/Report Cmdlets.txt
+notes/samplenumbers.txt
+Teams5.1.1-cmdlets.txt

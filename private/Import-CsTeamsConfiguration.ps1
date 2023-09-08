@@ -25,7 +25,7 @@ Function Import-CsTeamsConfiguration
       Cmdlets
       Write-UcmLog: 									https://github.com/Atreidae/UcmPsTools/blob/main/public/Write-UcmLog.ps1
       Write-HTMLReport: 							https://github.com/Atreidae/UcmPsTools/blob/main/public/Write-HTMLReport.ps1 (optional)
-	
+
       .REQUIRED PERMISSIONS
       'CSReadOnlyAdministrator' or better
 
@@ -66,15 +66,14 @@ Function Import-CsTeamsConfiguration
   Write-UcmLog -Message "Optional Arguments" -Severity 1 -Component $function -LogOnly
   Write-UcmLog -Message "$Args" -Severity 1 -Component $function -LogOnly
   Write-Host '' #Insert a blank line to make reading output easier on loops
-	
+
   #endregion FunctionSetup
 
   #region FunctionWork
 
   Write-UcmLog -Message "Checking for relevant connections" -Severity 2 -Component $function
-  
+
   #todo Check Connections
-  
 
   #Global Variables
 
@@ -86,7 +85,7 @@ Function Import-CsTeamsConfiguration
 
 
   #AppPolicies
-  
+
   Get-CsApplicationAccessPolicy 
 
 

@@ -21,7 +21,7 @@ Function New-UcmCsFixedNumberDiversion
 			Forwards the number 61370105550 to 61755501234
 
 			.PARAMETER OriginalNumber
-			The number of the new AutoAttendant. IE: The number to wish to forward FROM
+			The number of the new AutoAttendant. IE: The number you wish to forward FROM
 
 			.PARAMETER TargetNumber
 			The number the AutoAttendant will forward calls to. IE: the number to wish to forward TO
@@ -41,7 +41,6 @@ Function New-UcmCsFixedNumberDiversion
 			.PARAMETER AccountPrefix (optional)
 			This is the name that will be placed before the inbound phone number in the account name, used if you have a special naming convention for service accounts
 			"PSTN_FWD_" by default
-
 
 			.PARAMETER AADisplayName (optional)
 			The name to assign to the AutoAttendant "<Original Number> Forward" by default
