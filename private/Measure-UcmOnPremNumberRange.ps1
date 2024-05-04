@@ -54,7 +54,8 @@ Function Measure-UcmOnPremNumberRange
   (
     [Parameter(Position = 1)] $NormalLength = 0,
     [Parameter(Position = 2)] [bool]$Debuging = $false,
-    [Parameter(Position = 3)] [bool]$Report = $false
+    [Parameter(Position = 3)] [bool]$Offline = $false,
+    [Parameter(Position = 4)] [bool]$Report = $false
   )
 
   #region FunctionSetup, Set Default Variables for HTML Reporting and Write Log
@@ -141,7 +142,7 @@ Function Measure-UcmOnPremNumberRange
   Write-UcmLog -Message 'Obtaining Skype User data, this make take some time...' -Severity 2 -Component $function
   Write-Progress -Activity 'Obtaining Skype Enviroment Data' -Status 'Obtain User Data'  -PercentComplete (((1) / 8) * 100)
 
-  If ($Debuging)
+  If ($Debuging -or $offline)
   {
     $Userlist = Import-Csv -Path userlist.csv
 
@@ -191,6 +192,7 @@ Function Measure-UcmOnPremNumberRange
       Write-Progress -Activity 'Obtaining Skype Enviroment Data'-Status 'Trusted App Endpoints'  -PercentComplete (((6) / 8) * 100)
       $TrustedAppEndpoints = Get-CsTrustedApplicationEndpoint
 
+      #todo
       Write-Progress -Activity 'Obtaining Skype Enviroment Data' -Status 'Response Group Data'  -PercentComplete (((7) / 8) * 100)
       $ResponseGroupWorkflows = Import-Csv -Path RgsWorkflow.csv
       $ResponseGroupAgents = Import-Csv -Path Agents.csv
@@ -367,7 +369,7 @@ Function Merge-CsNumberObject
       {
         $global:NumberObjects += [NumberObject]@{ SipAddress = $Object.SipAddress; Identity = $Object.Identity; DisplayName = $Object.DisplayName; PstnNumber = "$null" ; NumberRange =  "$null"; IsWeird = $true ; WhyWeird = "$Object with no number but EV"; ObjectType = $ObjectType }
         Write-UcmLog -Message "$ObjectType $($Object.Sipaddress) is an on-prem user without a number, but an EV licence. Either remove the EV licence or assign a number" -Severity 3 -Component $function
-        $global:BadObjects ++
+        $global:EVwithNoNumber ++
         Continue ObjectFilterLoop #Breaks out of Filter Loop
       }
       else #On-prem object without a number or EV

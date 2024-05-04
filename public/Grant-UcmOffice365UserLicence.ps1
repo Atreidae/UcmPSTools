@@ -68,6 +68,8 @@ Function Grant-UcmOffice365UserLicence
 			Date:			23/03/2023
 
 			.VERSION HISTORY
+			1,5: Updated to use new Microsoft Graph Cmdlets
+
 			1.4: Added Country Validation
 			
 			1.3: Updated Comment based help to include PARAMETER tags
@@ -135,7 +137,7 @@ Function Grant-UcmOffice365UserLicence
 	#region FunctionWork
 
 	#Check to see if we are connected to MSOL
-	$Test = (Test-UcmMSOLConnection -Reconnect)
+	$Test = (Test-UcmMSOLConnection -Reconnect)  #todo update to Graph
 	If ($Test.Status -ne "OK")
 	{
 		#MSOL check failed, return an error.
@@ -229,10 +231,12 @@ Function Grant-UcmOffice365UserLicence
 
 			#Set the user location, this is required to set the relevant licences. Users can be created without setting a country mistakenly.
 			Write-UcmLog -Message "Setting Location" -Severity 2 -Component $function
-			[void] (Set-MsolUser -UserPrincipalName $UPN -UsageLocation $Country)
+			#[void] (Set-MsolUser -UserPrincipalName $UPN -UsageLocation $Country)
 
+			Write-UcmLog -Message "Granting Licence" -Severity 2 -Component $function
 			#Try assigning the licence to the user
-			[Void] (Set-MsolUserLicense -UserPrincipalName $UPN -AddLicenses $LicenceToAssign -ErrorAction stop)
+			#[Void] (Set-MsolUserLicense -UserPrincipalName $UPN -AddLicenses $LicenceToAssign -ErrorAction stop)
+			Set-MgUserLicense -UserId $UPN -AddLicenses @{SkuId = $LicenceToAssign} -RemoveLicenses @()
 			Write-UcmLog -Message "Licence Granted" -Severity 2 -Component $function
 
 			#Licence assigned OK. Check to see if we encountered a warning during the run and inject it into the status message
