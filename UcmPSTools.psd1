@@ -1,6 +1,7 @@
 @{
 	RootModule        = 'UcmPSTools.psm1'
 	ModuleVersion     = '<ModuleVersion>'
+	#<ModuleVersion> is replaced during the build with the current version
 	GUID              = '2c5dafca-888a-44ff-b04e-938e0912d69a'
 	Author            = 'James Arber'
 	CompanyName       = 'UCMadScientist'

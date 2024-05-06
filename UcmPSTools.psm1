@@ -22,7 +22,11 @@ foreach ($import in @($Public)) {
 	}
 }
 
+## Check module requirements
+Initialize-UcmRequirements
+
 ## Export all of the public functions making them available to the user
 foreach ($file in $Public) {
 	Export-ModuleMember -Function $file.BaseName
 }
+
