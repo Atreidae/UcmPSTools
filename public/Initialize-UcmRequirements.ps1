@@ -44,6 +44,7 @@ Function Initialize-UcmRequirements
 			http://www.UcMadScientist.com
 			https://github.com/Atreidae/UcmPsTools
 	#>
+    [Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSUseSingularNouns', '', Scope='Function')]
 	Param #No parameters
 	(
 
@@ -75,7 +76,7 @@ Function Initialize-UcmRequirements
 
     #Supported PowerShell Modules
     $Modules = @{}
-    $Modules["MicrosoftTeams"] = @{NotBefore =[version]"5.3.0"; NotAfter=[version]"7.0.0"; Blacklist="1.2.3"}
+    $Modules["MicrosoftTeams"] = @{NotBefore =[version]"5.3.0"; NotAfter=[version]"6.1.0"; Blacklist="1.2.3, 4.5.6"}
     $Modules["Microsoft.Graph"] = @{NotBefore =[version]"2.0.0"; NotAfter=[version]"2.18.0"; Blacklist="None" }
     $Modules["AzureAD"] = @{NotBefore =[version]"2.0.2.180"; NotAfter=[version]"2.0.2.182"; Blacklist="None" }
     $Modules["MsOnline"] = @{NotBefore =[version]"1.1.183.80"; NotAfter=[version]"1.1.183.81"; Blacklist="None" }
@@ -139,7 +140,7 @@ Function Initialize-UcmRequirements
     }
     Write-UcmLog -Message "Requirement checks completed" -Severity 2 -Component $function
     return
-    
+
     #region FunctionCleanup
     if ($return.Status -eq "Unknown")
     {
