@@ -3,9 +3,9 @@ on: [push]
 jobs: 
   lint-with-PSScriptAnalyzer:
     name: Install and run PSScriptAnalyzer
-    runs-on: ubuntu-latest
+    runs-on: windows-2019
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
       - name: Install and cache PowerShell modules
         id: psmodulecache
         uses: potatoqualitee/psmodulecache@v5.2

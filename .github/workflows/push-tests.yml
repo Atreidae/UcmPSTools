@@ -6,10 +6,10 @@ on:
 jobs:
   pester-test:
     name: Pre-Build Tests
-    runs-on: ubuntu-latest
+    runs-on: windows-2019
     steps:
       - name: Check out repository code
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
       - name: Test Public ps1 files
         shell: pwsh
         run: ./Test-ImportFunctions.ps1 | Should -Be $true
