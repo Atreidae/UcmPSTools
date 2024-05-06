@@ -81,11 +81,6 @@ Function Initialize-UcmRequirements
     $Modules["AzureAD"] = @{NotBefore =[version]"2.0.2.180"; NotAfter=[version]"2.0.2.182"; Blacklist="None" }
     $Modules["MsOnline"] = @{NotBefore =[version]"1.1.183.80"; NotAfter=[version]"1.1.183.81"; Blacklist="None" }
 
-
-
-    #azureAD
-    #Msonline
-
     #Put something in return so we can += it if needed
     $return.Message = ""
     #actually do the checking
@@ -102,6 +97,7 @@ Function Initialize-UcmRequirements
 
             $return.Status = "Warn"
             $return.Message += "Module $key Not found."
+            Continue
         }
 
         #Check if the modules are too old.
