@@ -32,10 +32,12 @@
       https://github.com/Atreidae/UcmPSTools
 
       .NOTES
-      Version:		1.2
-      Date:			19/06/2022
+      Version:		1.3
+      Date:			07/05/2024
 
       .VERSION HISTORY
+
+      1.3: Bug fixe for HTML formatting in <BODY> statement
 
       1.2: Bug fixes for date reporting
       Added per line item numbers
@@ -389,7 +391,7 @@ Function Export-UcmHTMLReport
   #Define the HTML Style
   $Style = @"
 <style>
-BODY{background-color::#b0c4de;font-family:Tahoma;font-size:12pt;}
+BODY{background-color:#b0c4de;font-family:Tahoma;font-size:12pt;}
 TABLE{border-width: 1px;border-style: solid;border-color: black;border-collapse: collapse;}
 TH{border-width: 1px;padding: 3px;border-style: solid;border-color: black;color:white;background-color:#000099}
 TD{border-width: 1px;padding: 3px;border-style: solid;border-color: black;text-align:center;}
