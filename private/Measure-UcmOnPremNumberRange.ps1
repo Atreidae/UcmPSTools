@@ -442,8 +442,8 @@ Function Measure-UcmNumberBlock
     [Parameter(Position = 1)] $NumberRange
   )
   #stuff the numberblock full of number objects
- 
-  $NumberRangeContents =                          ($NumberObjects | where-object -Property NumberRange -eq $NumberRange)
+
+  $NumberRangeContents =                    ($NumberObjects | where-object -Property NumberRange -eq $NumberRange)
 
   [string]$Users =                          ($NumberRangeContents | where-object -Property ObjectType -eq 'Users').count
   [string]$MeetingRooms =                   ($NumberRangeContents | where-object -Property ObjectType -eq 'MeetingRooms').count
@@ -456,21 +456,9 @@ Function Measure-UcmNumberBlock
   [string]$TotalNumbersUsed =               $NumberRangeContents.count
 
 
-  
+ 
   #[NumberObject]$RgsAgents = $NumberRangeContents | where-object -Property ObjectType -eq 'RgsAgents'
   #Now put it into numberblocks
   $global:NumberBlocks += [NumberBlock]@{Identity = $NumberRange; Users = $Users; MeetingRooms = $MeetingRooms; AnalogDevices = $AnalogDevices ; CommonAreaPhones = $CommonAreaPhones ; ExchangeUmContacts = $ExchangeUmContacts ; DialInConferencingAccessNumber = $DialInConferencingAccessNumber; TrustedAppEndpoints = $TrustedAppEndpoints ; RgsWorkflow = $RgsWorkflow; TotalNumbersUsed = $TotalNumbersUsed}
 
-  #Old way trying to cast the whole object for deeper diving, mybe we make a new function for auditing? this is just measuring after all
-  <#
-  [NumberObject]$Users =                          ($NumberRangeContents | where-object -Property ObjectType -eq 'Users')
-  [NumberObject]$MeetingRooms =                   ($NumberRangeContents | where-object -Property ObjectType -eq 'MeetingRooms')
-  [NumberObject]$AnalogDevices =                  ($NumberRangeContents | where-object -Property ObjectType -eq 'AnalogDevices')
-  [NumberObject]$CommonAreaPhones =               ($NumberRangeContents | where-object -Property ObjectType -eq 'CommonAreaPhones')
-  [NumberObject]$ExchangeUmContacts =             ($NumberRangeContents | where-object -Property ObjectType -eq 'ExchangeUmContacts')
-  [NumberObject]$DialInConferencingAccessNumber = ($NumberRangeContents | where-object -Property ObjectType -eq 'DialInConferencingAccessNumber')
-  [NumberObject]$TrustedAppEndpoints =            ($NumberRangeContents | where-object -Property ObjectType -eq 'TrustedAppEndpoints')
-  [NumberObject]$RgsWorkflow =                    ($NumberRangeContents | where-object -Property ObjectType -eq 'RgsWorkflow')
-  #[NumberObject]$RgsAgents = $NumberRangeContents | where-object -Property ObjectType -eq 'RgsAgents'
-  #>
 }
