@@ -89,22 +89,58 @@
 		$WorkFlow = (Expand-UcmRgsWorkFlow -RGSConfig $RGSConfig -WorkflowGUID $WorkFlowGUID)
 		$WorkFlows += $WorkFlow
 	}
-
-	#temp code, export all groups to a csv
-	$AgentGroups = @()
-	$namespaces = @{ ns = 'http://schemas.microsoft.com/powershell/2004/04' }
-	$AgentGroupsXml = Select-Xml -Content $rgsconfig.AgentGroups.outerxml -XPath "//ns:Obj/ns:Props/ns:Obj/ns:Props/ns:S[@N='NonNormalized']" -Namespace $namespaces
-
-	Foreach ($AgentGroupXML in $AgentGroupsXML)
-	{
-		$AgentGroupGUID = $AgentGroupXML.Node.'#text'
-		$AgentGroup = (Expand-UcmRgsAgentGroup -RGSConfig $RGSConfig -groupGUID $AgentGroupGUID -evusers $EvUsers)
-		$AgentGroups += $AgentGroup
-	}
-
-
+	$workflowcount = ($workflows | measure).Count
+	Write-UcmLog -Message "Found $workflowcount Workflows" -Severity 3 -Component $function
 
 	#endregion FunctionReturn
+	Write-UcmLog -Message 'Building Report Objects, this can take a while' -Severity 3 -Component $function
+	#Okay, we have a fully fleshed Object containing all the RGS data, now we need to report on it #todo pull the frontend server name from the config $rgsconfig.Configuration.objs.obj.props.obj.innerxml
+	Initialize-UcmReport -title "RGS Report" -subtitle "RGS Report for $($config)"
+
+
+
+	#run through each item, and report on it, expanding the groups and users as we go
+	Foreach ($Workflow in $workflows)
+	{
+		New-UcmReportItem -LineTitle "Workflow" -LineMessage $Workflow.Name
+		New-UcmReportStep -StepName "Description" -StepResult $Workflow.Description
+		New-UcmReportStep -StepName "LineURI" -StepResult $Workflow.LineURI
+		New-UcmReportStep -StepName "All Groups" -StepResult ($Workflow.AllGroups -join "`n")
+		New-UcmReportStep -StepName "All Number Ranges" -StepResult ($Workflow.AllNumberRanges -join "`n")
+		New-UcmReportStep -StepName "All Numbers" -StepResult ($Workflow.AllNumbers -join "`n")
+		New-UcmReportStep -StepName "Owner Pool" -StepResult $Workflow.OwnerPool
+		New-UcmReportStep -StepName "Default Action" -StepResult $Workflow.DefaultPlainText
+		New-UcmReportStep -StepName "Default Queue" -StepResult $Workflow.DefaultQueue
+		New-UcmReportStep -StepName "Default Groups" -StepResult ($Workflow.DefaultGroups -join "`n")
+		New-UcmReportStep -StepName "Default Users" -StepResult ($Workflow.DefaultUsers -join "`n")
+		New-UcmReportStep -StepName "Default Number Ranges" -StepResult ($Workflow.DefaultNumberRanges -join "`n")
+		New-UcmReportStep -StepName "Default Numbers" -StepResult ($Workflow.DefaultNumbers -join "`n")
+		New-UcmReportStep -StepName "Holiday Action" -StepResult $Workflow.HolidayPlainText
+		New-UcmReportStep -StepName "Holiday Queue" -StepResult $Workflow.HolidayQueue
+		New-UcmReportStep -StepName "Holiday Groups" -StepResult ($Workflow.HolidayGroups -join "`n")
+		New-UcmReportStep -StepName "Holiday Users" -StepResult ($Workflow.HolidayUsers -join "`n")
+		New-UcmReportStep -StepName "Holiday Number Ranges" -StepResult ($Workflow.HolidayNumberRanges -join "`n")
+		New-UcmReportStep -StepName "Holiday Numbers" -StepResult ($Workflow.HolidayNumbers -join "`n")
+		New-UcmReportStep -StepName "OoO Action" -StepResult $Workflow.OooPlainText
+		New-UcmReportStep -StepName "OoO Queue" -StepResult $Workflow.OooQueue
+		New-UcmReportStep -StepName "OoO Groups" -StepResult ($Workflow.OooGroups -join "`n")
+		New-UcmReportStep -StepName "OoO Users" -StepResult ($Workflow.OooUsers -join "`n")
+		New-UcmReportStep -StepName "OoO Number Ranges" -StepResult ($Workflow.OooNumberRanges -join "`n")
+		New-UcmReportStep -StepName "OoO Numbers" -StepResult ($Workflow.OooNumbers -join "`n")
+	}
+	$ReportObjectCount = ($Global:ProgressReport | Measure).Count
+	Write-UcmLog -Message "Report Object Count: $ReportObjectCount" -Severity 3 -Component $function
+	Write-UcmLog -Message 'Converting Objects to HTML/CSV' -Severity 3 -Component $function
+
+
+
+	#Close the report
+	Complete-UcmReport
+	$Global:ProgressReport
+
+	#Export the report
+	Export-UcmHTMLReport
+	Export-UcmCSVReport
 }
 
 
@@ -447,6 +483,7 @@ Function Expand-UcmRgsWorkFlow
 		IsInteractive = $false
 		AllGroups	    = @()
 		AllNumberRanges = @()
+		AllNumbers = @()
 		OwnerPool	= "Unknown"
 		LineURI  = "Unknown"
 		DefaultPlainText    = "Unknown"
@@ -572,6 +609,10 @@ Function Expand-UcmRgsWorkFlow
 
 	}
 
+	#Now we populate the "all" groups and numbers
+	$WorkFlowObj.AllGroups = $WorkFlowObj.DefaultGroups + $WorkFlowObj.HolidayGroups + $WorkFlowObj.OOOGroups
+	$WorkFlowObj.AllNumberRanges = $WorkFlowObj.DefaultNumberRanges + $WorkFlowObj.HolidayNumberRanges + $WorkFlowObj.OOONumberRanges
+	$WorkFlowObj.AllNumbers = $WorkFlowObj.DefaultNumbers + $WorkFlowObj.HolidayNumbers + $WorkFlowObj.OOONumbers
 
 	Return $WorkFlowObj
 }

@@ -310,11 +310,12 @@ Function Complete-UcmReport
 
   #Merge the current item and cleanup
   $Global:ProgressReport+= $Global:ThisReport
-  Remove-variable -Name ProgressReport -scope global
+  Remove-variable -Name ThisReport -scope Global
 
   $Global:ThisReport = @()
   $Global:ThisReport = New-Object -TypeName PSobject
   $Global:ThisReport | add-member -MemberType NoteProperty -Name "End of Report" -Value "End of report"
+  $Global:ProgressReport+= $Global:ThisReport
 
 }
 
