@@ -104,13 +104,14 @@ Function Grant-UcmOffice365UserLicence
 
 
 	#>
-	[Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSUseProcessBlockForPipelineCommand', '', Scope='Function')] #todo, https://github.com/Atreidae/UcmPSTools/issues/23
+	[Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSUseProcessBlockForPipelineCommand', '', Scope = 'Function')] #todo, https://github.com/Atreidae/UcmPSTools/issues/23
 
 	Param
 	(
-		[Parameter(ValueFromPipelineByPropertyName=$true, Mandatory, Position=1,HelpMessage='The UPN of the user you wish to enable the licence on, eg: button.mash@contoso.com')] [string]$UPN,
-		[Parameter(ValueFromPipelineByPropertyName=$true, Mandatory, Position=2,HelpMessage='The licence you wish to assign, eg: MCOEV')] [string]$LicenceType,
-		[Parameter(ValueFromPipelineByPropertyName=$true, Mandatory, Position=3,HelpMessage='The 2 letter country code for the users country, must be in capitals. eg: AU')] [ValidateSet("AF","AX","AL","DZ","AS","AD","AO","AI","AQ","AG","AR","AM","AW","AU","AT","AZ","BS","BH","BD","BB","BY","BE","BZ","BJ","BM","BT","BO","BQ","BA","BW","BV","BR","IO","BN","BG","BF","BI","CV","KH","CM","CA","KY","CF","TD","CL","CN","CX","CC","CO","KM","CG","CD","CK","CR","CI","HR","CU","CW","CY","CZ","DK","DJ","DM","DO","EC","EG","SV","GQ","ER","EE","SZ","ET","FK","FO","FJ","FI","FR","GF","PF","TF","GA","GM","GE","DE","GH","GI","GR","GL","GD","GP","GU","GT","GG","GN","GW","GY","HT","HM","VA","HN","HK","HU","IS","IN","ID","IR","IQ","IE","IM","IL","IT","JM","JP","JE","JO","KZ","KE","KI","KP","KR","KW","KG","LA","LV","LB","LS","LR","LY","LI","LT","LU","MO","MG","MW","MY","MV","ML","MT","MH","MQ","MR","MU","YT","MX","FM","MD","MC","MN","ME","MS","MA","MZ","MM","NA","NR","NP","NL","NC","NZ","NI","NE","NG","NU","NF","MK","MP","NO","OM","PK","PW","PS","PA","PG","PY","PE","PH","PN","PL","PT","PR","QA","RE","RO","RU","RW","BL","SH","KN","LC","MF","PM","VC","WS","SM","ST","SA","SN","RS","SC","SL","SG","SX","SK","SI","SB","SO","ZA","GS","SS","ES","LK","SD","SR","SJ","SE","CH","SY","TW","TJ","TZ","TH","TL","TG","TK","TO","TT","TN","TR","TM","TC","TV","UG","UA","AE","GB","US","UM","UY","UZ","VU","VE","VN","VG","VI","WF","EH","YE","ZM","ZW")][String]$Country
+		[Parameter(ValueFromPipelineByPropertyName = $true, Mandatory, Position = 1, HelpMessage = 'The UPN of the user you wish to enable the licence on, eg: button.mash@contoso.com')] [string]$UPN,
+		[Parameter(ValueFromPipelineByPropertyName = $true, Mandatory, Position = 2, HelpMessage = 'The licence you wish to assign, eg: MCOEV')] [string]$LicenceType,
+		[Parameter(ValueFromPipelineByPropertyName = $true, Mandatory, Position = 3, HelpMessage = 'The 2 letter country code for the users country, must be in capitals. eg: AU')] [ValidateSet('AF', 'AX', 'AL', 'DZ', 'AS', 'AD', 'AO', 'AI', 'AQ', 'AG', 'AR', 'AM', 'AW', 'AU', 'AT', 'AZ', 'BS', 'BH', 'BD', 'BB', 'BY', 'BE', 'BZ', 'BJ', 'BM', 'BT', 'BO', 'BQ', 'BA', 'BW', 'BV', 'BR', 'IO', 'BN', 'BG', 'BF', 'BI', 'CV', 'KH', 'CM', 'CA', 'KY', 'CF', 'TD', 'CL', 'CN', 'CX', 'CC', 'CO', 'KM', 'CG', 'CD', 'CK', 'CR', 'CI', 'HR', 'CU', 'CW', 'CY', 'CZ', 'DK', 'DJ', 'DM', 'DO', 'EC', 'EG', 'SV', 'GQ', 'ER', 'EE', 'SZ', 'ET', 'FK', 'FO', 'FJ', 'FI', 'FR', 'GF', 'PF', 'TF', 'GA', 'GM', 'GE', 'DE', 'GH', 'GI', 'GR', 'GL', 'GD', 'GP', 'GU', 'GT', 'GG', 'GN', 'GW', 'GY', 'HT', 'HM', 'VA', 'HN', 'HK', 'HU', 'IS', 'IN', 'ID', 'IR', 'IQ', 'IE', 'IM', 'IL', 'IT', 'JM', 'JP', 'JE', 'JO', 'KZ', 'KE', 'KI', 'KP', 'KR', 'KW', 'KG', 'LA', 'LV', 'LB', 'LS', 'LR', 'LY', 'LI', 'LT', 'LU', 'MO', 'MG', 'MW', 'MY', 'MV', 'ML', 'MT', 'MH', 'MQ', 'MR', 'MU', 'YT', 'MX', 'FM', 'MD', 'MC', 'MN', 'ME', 'MS', 'MA', 'MZ', 'MM', 'NA', 'NR', 'NP', 'NL', 'NC', 'NZ', 'NI', 'NE', 'NG', 'NU', 'NF', 'MK', 'MP', 'NO', 'OM', 'PK', 'PW', 'PS', 'PA', 'PG', 'PY', 'PE', 'PH', 'PN', 'PL', 'PT', 'PR', 'QA', 'RE', 'RO', 'RU', 'RW', 'BL', 'SH', 'KN', 'LC', 'MF', 'PM', 'VC', 'WS', 'SM', 'ST', 'SA', 'SN', 'RS', 'SC', 'SL', 'SG', 'SX', 'SK', 'SI', 'SB', 'SO', 'ZA', 'GS', 'SS', 'ES', 'LK', 'SD', 'SR', 'SJ', 'SE', 'CH', 'SY', 'TW', 'TJ', 'TZ', 'TH', 'TL', 'TG', 'TK', 'TO', 'TT', 'TN', 'TR', 'TM', 'TC', 'TV', 'UG', 'UA', 'AE', 'GB', 'US', 'UM', 'UY', 'UZ', 'VU', 'VE', 'VN', 'VG', 'VI', 'WF', 'EH', 'YE', 'ZM', 'ZW')][String]$Country,
+		[Parameter(ValueFromPipelineByPropertyName = $true, Mandatory, Position = 4, HelpMessage = 'Does not make any changes to the licence of the user, handy for reporting')] [Bool]$ReportOnly
 	)
 
 
@@ -118,16 +119,16 @@ Function Grant-UcmOffice365UserLicence
 	$Function = 'Grant-UcmOffice365UserLicence'
 	[hashtable]$Return = @{}
 	$return.function = $Function
-	$return.Status = "Unknown"
-	$return.Message = "Function did not return a status message"
+	$return.Status = 'Unknown'
+	$return.Message = 'Function did not return a status message'
 
 	# Log why we were called
 	Write-UcmLog -Message "$($MyInvocation.InvocationName) called with $($MyInvocation.Line)" -Severity 1 -Component $function
-	Write-UcmLog -Message "Parameters" -Severity 1 -Component $function -LogOnly
+	Write-UcmLog -Message 'Parameters' -Severity 1 -Component $function -LogOnly
 	Write-UcmLog -Message "$($PsBoundParameters.Keys)" -Severity 1 -Component $function -LogOnly
-	Write-UcmLog -Message "Parameters Values" -Severity 1 -Component $function -LogOnly
+	Write-UcmLog -Message 'Parameters Values' -Severity 1 -Component $function -LogOnly
 	Write-UcmLog -Message "$($PsBoundParameters.Values)" -Severity 1 -Component $function -LogOnly
-	Write-UcmLog -Message "Optional Arguments" -Severity 1 -Component $function -LogOnly
+	Write-UcmLog -Message 'Optional Arguments' -Severity 1 -Component $function -LogOnly
 	Write-UcmLog -Message "$Args" -Severity 1 -Component $function -LogOnly
 
 
@@ -138,13 +139,30 @@ Function Grant-UcmOffice365UserLicence
 
 	#Check to see if we are connected to MSOL
 	$Test = (Test-UcmMSOLConnection -Reconnect)  #todo update to Graph
-	If ($Test.Status -ne "OK")
+	If ($Test.Status -ne 'OK')
 	{
 		#MSOL check failed, return an error.
 		Write-UcmLog -Message "Something went wrong granting $UPN's licence" -Severity 3 -Component $function
-		Write-UcmLog -Message "Test-UcmMSOLConnection could not locate an MSOL connection" -Severity 2 -Component $function
-		$Return.Status = "Error"
-		$Return.Message = "No MSOL Connection"
+		Write-UcmLog -Message 'Test-UcmMSOLConnection could not locate an MSOL connection' -Severity 2 -Component $function
+		$Return.Status = 'Error'
+		$Return.Message = 'No MSOL Connection'
+		Return $Return
+	}
+
+	#Early check to see if the user even exists
+	Try
+	{
+		Write-UcmLog -Message "Checking for existing User $UPN ..." -Severity 2 -Component $function
+		$O365User = (Get-MsolUser -UserPrincipalName $UPN -ErrorAction Stop)
+	}
+
+	Catch
+	{
+		#Return an error
+		Write-UcmLog -Message "Something went wrong granting $UPN's licence" -Severity 3 -Component $function
+		Write-UcmLog -Message "Could not locate user $UPN" -Severity 2 -Component $function
+		$Return.Status = 'Error'
+		$Return.Message = 'User Not Found'
 		Return $Return
 	}
 
@@ -156,7 +174,7 @@ Function Grant-UcmOffice365UserLicence
 		#For example PHONESYSTEM_VIRTUALUSER would be "contoso:PHONESYSTEM_VIRTUALUSER"
 		#So we need to learn the prefix, we do this by looking for the licence and storing its name
 		$O365AcctSku = $null
-		$O365AcctSku = Get-MsolAccountSku | Where-Object {$_.SkuPartNumber -like $LicenceType}
+		$O365AcctSku = Get-MsolAccountSku | Where-Object { $_.SkuPartNumber -like $LicenceType }
 
 		#Using the stored details, build the full licence name
 		$LicenceToAssign = "$($O365AcctSku.AccountName):$LicenceType"
@@ -165,18 +183,18 @@ Function Grant-UcmOffice365UserLicence
 	Catch
 	{
 		#We couldnt get the licence details, it could be a permissions issue or the connection might be broken. Return an error.
-		Write-UcmLog -Message "Error Running Get-MsolAccountSku" -Severity 3 -Component $function
+		Write-UcmLog -Message 'Error Running Get-MsolAccountSku' -Severity 3 -Component $function
 		Write-UcmLog -Message $error[0]  -Severity 3 -Component $function
-		$Return.Status = "Error"
-		$Return.Message = "Unable to run Get-MsolAccountSku to obtain tenant prefix"
+		$Return.Status = 'Error'
+		$Return.Message = 'Unable to run Get-MsolAccountSku to obtain tenant prefix'
 		Return $Return
 	}
 
 	If ($null -eq $O365AcctSku)
 	{
 		#The licence requested doesnt exist on the tenant, return an error
-		Write-UcmLog -Message "Unable to locate requested licence on the current tenant" -Severity 3 -Component $function
-		$Return.Status = "Error"
+		Write-UcmLog -Message 'Unable to locate requested licence on the current tenant' -Severity 3 -Component $function
+		$Return.Status = 'Error'
 		$Return.Message = "Unable to locate $LicenceType licence"
 		Return $Return
 	}
@@ -187,85 +205,94 @@ Function Grant-UcmOffice365UserLicence
 	If (($LicenceUsedPercent -ge 95) -or ($AvailableLicenceCount -le 5))
 	{
 		Write-UcmLog -Message "Only $AvailableLicenceCount $LicenceType Licences Left" -Severity 3 -Component $function
-		Write-UcmLog -Message "Available licence count low..." -Severity 3 -Component $function
+		Write-UcmLog -Message 'Available licence count low...' -Severity 3 -Component $function
 
 		#We encountered something we need to report on, set the warning flag and store a warning message.
 		$WarningFlag = $True
-		$WarningMessage = "Low Licence Count"
+		$WarningMessage = 'Low Licence Count'
 	}
 
 	#There are licences free, check to see if the specified user exists.
 	Try
 	{
-		Write-UcmLog -Message "Checking for existing User $UPN ..." -Severity 2 -Component $function
-		$O365User = (Get-MsolUser -UserPrincipalName $UPN -ErrorAction Stop)
-		Write-UcmLog -Message "User exists. checking their assigned licences..." -Severity 2 -Component $function
+		Write-UcmLog -Message 'Checking user assigned licences...' -Severity 2 -Component $function
 
 		#Found the user, check to see if they already have the licence.
 		If ($O365User.Licenses.accountSkuID -contains $LicenceToAssign)
 		{
 			#Looks like the user already has that licence
-			Write-UcmLog -Message "User already has that licence, Skipping" -Severity 3 -Component $function
+			Write-UcmLog -Message 'User already has that licence, Skipping' -Severity 3 -Component $function
 
 			#Check to see if we encountered a warning during the run and inject it into the status message
 			If ($warningFlag)
 			{
 				#Yes, we did, return the warning
-				$Return.Status = "Warning"
+				$Return.Status = 'Warning'
 				$Return.Message = "Skipped: Already Licenced, Warning Message $WarningMessage"
 				Return $Return
 			}
 			Else
 			{
 				#No warning, just return OK
-				$Return.Status = "OK"
-				$Return.Message = "Skipped: Already Licenced"
+				$Return.Status = 'OK'
+				$Return.Message = 'Skipped: Already Licenced'
 				Return $Return
 			}
 		}
-
-		#User exists, and doesnt already have the licence, try assigning the licence to them
-		Try
+		If ($ReportOnly)
 		{
-			Write-UcmLog -Message "User Exists, Grant Licence" -Severity 2 -Component $function
-
-			#Set the user location, this is required to set the relevant licences. Users can be created without setting a country mistakenly.
-			Write-UcmLog -Message "Setting Location" -Severity 2 -Component $function
-			#[void] (Set-MsolUser -UserPrincipalName $UPN -UsageLocation $Country)
-
-			Write-UcmLog -Message "Granting Licence" -Severity 2 -Component $function
-			#Try assigning the licence to the user
-			#[Void] (Set-MsolUserLicense -UserPrincipalName $UPN -AddLicenses $LicenceToAssign -ErrorAction stop)
-			Set-MgUserLicense -UserId $UPN -AddLicenses @{SkuId = $LicenceToAssign} -RemoveLicenses @()
-			Write-UcmLog -Message "Licence Granted" -Severity 2 -Component $function
-
-			#Licence assigned OK. Check to see if we encountered a warning during the run and inject it into the status message
-			If ($warningFlag)
-			{
-				#Yes, we did, return the warning
-				$Return.Status = "Warning"
-				$Return.Message = "Licence Granted, Warning Message $WarningMessage"
-				Return $Return
-			}
-			Else
-			{
-				#No warning, just return OK
-				$Return.Status = "OK"
-				$Return.Message = "Licence Granted"
-				Return $Return
-			}
-		}
-		#Something Failed either setting the licence or the country
-		Catch
-		{
-			#Return an error
-			Write-UcmLog -Message "Something went wrong licencing user $UPN" -Severity 3 -Component $function
-			Write-UcmLog -Message $Error[0] -Severity 3 -Component $function
-			$Return.Status = "Error"
-			$Return.Message = $Error[0]
+			#We are in report only mode, return a message and exit
+			Write-UcmLog -Message 'Report Only Mode, No Changes Made' -Severity 2 -Component $function
+			$Return.Status = 'Warning'
+			$Return.Message = "User Missing $LicenceType but we were called in Report Only Mode, No Changes Made"
 			Return $Return
 		}
+		else
+		{
+			#User exists, and doesnt already have the licence, try assigning the licence to them
+			Try
+			{
+				Write-UcmLog -Message 'User Exists, Grant Licence' -Severity 2 -Component $function
+
+				#Set the user location, this is required to set the relevant licences. Users can be created without setting a country mistakenly.
+				Write-UcmLog -Message 'Setting Location' -Severity 2 -Component $function
+				#[void] (Set-MsolUser -UserPrincipalName $UPN -UsageLocation $Country)
+
+				Write-UcmLog -Message 'Granting Licence' -Severity 2 -Component $function
+				#Try assigning the licence to the user
+				#[Void] (Set-MsolUserLicense -UserPrincipalName $UPN -AddLicenses $LicenceToAssign -ErrorAction stop)
+				Set-MgUserLicense -UserId $UPN -AddLicenses @{SkuId = $LicenceToAssign } -RemoveLicenses @()
+				Write-UcmLog -Message 'Licence Granted' -Severity 2 -Component $function
+
+				#Licence assigned OK. Check to see if we encountered a warning during the run and inject it into the status message
+				If ($warningFlag)
+				{
+					#Yes, we did, return the warning
+					$Return.Status = 'Warning'
+					$Return.Message = "Licence Granted, Warning Message $WarningMessage"
+					Return $Return
+				}
+				Else
+				{
+					#No warning, just return OK
+					$Return.Status = 'OK'
+					$Return.Message = 'Licence Granted'
+					Return $Return
+				}
+			}
+			#Something Failed either setting the licence or the country
+			Catch
+			{
+				#Return an error
+				Write-UcmLog -Message "Something went wrong licencing user $UPN" -Severity 3 -Component $function
+				Write-UcmLog -Message $Error[0] -Severity 3 -Component $function
+				$Return.Status = 'Error'
+				$Return.Message = $Error[0]
+				Return $Return
+			}
+		}
 	} #End User Check try block #Todo, split this up into seperate blocks to minimise nesting.
+
 
 	#User doesnt exist, throw error message
 	Catch
@@ -273,8 +300,8 @@ Function Grant-UcmOffice365UserLicence
 		#Return an error
 		Write-UcmLog -Message "Something went wrong granting $UPN's licence" -Severity 3 -Component $function
 		Write-UcmLog -Message "Could not locate user $UPN" -Severity 2 -Component $function
-		$Return.Status = "Error"
-		$Return.Message = "User Not Found"
+		$Return.Status = 'Error'
+		$Return.Message = 'User Not Found'
 		Return $Return
 	}
 	#endregion FunctionWork
@@ -284,8 +311,8 @@ Function Grant-UcmOffice365UserLicence
 
 	#Default Return Variable for my HTML Reporting Fucntion
 	Write-UcmLog -Message "Reached end of $function without a Return Statement" -Severity 3 -Component $function
-	$return.Status = "Unknown"
-	$return.Message = "Write-UcmLog did not encounter return statement"
+	$return.Status = 'Unknown'
+	$return.Message = 'Write-UcmLog did not encounter return statement'
 	Return $Return
 	#endregion Write-UcmLogReturn
 }

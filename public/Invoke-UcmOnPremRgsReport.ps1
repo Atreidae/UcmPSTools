@@ -87,10 +87,27 @@
 	{
 		$WorkFlowGUID = $WorkflowXml.Node.'#text'
 		$WorkFlow = (Expand-UcmRgsWorkFlow -RGSConfig $RGSConfig -WorkflowGUID $WorkFlowGUID)
+		if ($WorkFlow.Name -eq 'Unknown')
+		{
+			#Todo, presently the XML can match queue GUIDs instead of workflow GUIDs. Not sure why this happens yet.
+			Write-UcmLog -Message "Error expanding Workflow $WorkFlowGUID" -Severity 2 -Component $function
+			Write-UcmLog -Message "Checking to see if $WorkFlowGUID is actually a Queue " -Severity 2 -Component $function
+			$Queue = (Expand-UcmRgsQueue -RGSConfig $RGSConfig -QueueGUID $WorkFlowGUID)
+			if ($Queue.Name -ne 'Unknown')
+			{
+				Write-UcmLog -Message "Queue $WorkFlowGUID found, skipping" -Severity 2 -Component $function
+				Continue
+			}
+			else
+			{
+				Write-UcmLog -Message "Error expanding Workflow $WorkFlowGUID" -Severity 2 -Component $function
+				$WorkFlow.Name = "Error expanding Workflow $WorkFlowGUID"
+			}
+		}
 		$WorkFlows += $WorkFlow
 	}
 	$workflowcount = ($workflows | measure).Count
-	Write-UcmLog -Message "Found $workflowcount Workflows" -Severity 3 -Component $function
+	Write-UcmLog -Message "Found $workflowcount Workflows" -Severity 2 -Component $function
 
 	#endregion FunctionReturn
 	Write-UcmLog -Message 'Building Report Objects, this can take a while' -Severity 3 -Component $function
@@ -105,38 +122,35 @@
 		New-UcmReportItem -LineTitle "Workflow" -LineMessage $Workflow.Name
 		New-UcmReportStep -StepName "Description" -StepResult $Workflow.Description
 		New-UcmReportStep -StepName "LineURI" -StepResult $Workflow.LineURI
-		New-UcmReportStep -StepName "All Groups" -StepResult ($Workflow.AllGroups -join "`n")
+		New-UcmReportStep -StepName "All Groups" -StepResult ($Workflow.AllGroups.name -join "`n")
 		New-UcmReportStep -StepName "All Number Ranges" -StepResult ($Workflow.AllNumberRanges -join "`n")
 		New-UcmReportStep -StepName "All Numbers" -StepResult ($Workflow.AllNumbers -join "`n")
 		New-UcmReportStep -StepName "Owner Pool" -StepResult $Workflow.OwnerPool
 		New-UcmReportStep -StepName "Default Action" -StepResult $Workflow.DefaultPlainText
-		New-UcmReportStep -StepName "Default Queue" -StepResult $Workflow.DefaultQueue
-		New-UcmReportStep -StepName "Default Groups" -StepResult ($Workflow.DefaultGroups -join "`n")
-		New-UcmReportStep -StepName "Default Users" -StepResult ($Workflow.DefaultUsers -join "`n")
+		New-UcmReportStep -StepName "Default Queue" -StepResult $Workflow.DefaultQueue.Name
+		New-UcmReportStep -StepName "Default Groups" -StepResult ($Workflow.DefaultGroups.name -join "`n")
+		New-UcmReportStep -StepName "Default Users" -StepResult ($Workflow.DefaultGroups.users.sipaddress -join "`n")
 		New-UcmReportStep -StepName "Default Number Ranges" -StepResult ($Workflow.DefaultNumberRanges -join "`n")
 		New-UcmReportStep -StepName "Default Numbers" -StepResult ($Workflow.DefaultNumbers -join "`n")
 		New-UcmReportStep -StepName "Holiday Action" -StepResult $Workflow.HolidayPlainText
-		New-UcmReportStep -StepName "Holiday Queue" -StepResult $Workflow.HolidayQueue
-		New-UcmReportStep -StepName "Holiday Groups" -StepResult ($Workflow.HolidayGroups -join "`n")
-		New-UcmReportStep -StepName "Holiday Users" -StepResult ($Workflow.HolidayUsers -join "`n")
-		New-UcmReportStep -StepName "Holiday Number Ranges" -StepResult ($Workflow.HolidayNumberRanges -join "`n")
-		New-UcmReportStep -StepName "Holiday Numbers" -StepResult ($Workflow.HolidayNumbers -join "`n")
+		#New-UcmReportStep -StepName "Holiday Queue" -StepResult $Workflow.HolidayQueue
+		#New-UcmReportStep -StepName "Holiday Groups" -StepResult ($Workflow.HolidayGroups -join "`n")
+		#New-UcmReportStep -StepName "Holiday Users" -StepResult ($Workflow.HolidayUsers -join "`n")
+		#New-UcmReportStep -StepName "Holiday Number Ranges" -StepResult ($Workflow.HolidayNumberRanges -join "`n")
+		#New-UcmReportStep -StepName "Holiday Numbers" -StepResult ($Workflow.HolidayNumbers -join "`n")
 		New-UcmReportStep -StepName "OoO Action" -StepResult $Workflow.OooPlainText
-		New-UcmReportStep -StepName "OoO Queue" -StepResult $Workflow.OooQueue
-		New-UcmReportStep -StepName "OoO Groups" -StepResult ($Workflow.OooGroups -join "`n")
-		New-UcmReportStep -StepName "OoO Users" -StepResult ($Workflow.OooUsers -join "`n")
-		New-UcmReportStep -StepName "OoO Number Ranges" -StepResult ($Workflow.OooNumberRanges -join "`n")
-		New-UcmReportStep -StepName "OoO Numbers" -StepResult ($Workflow.OooNumbers -join "`n")
+		#New-UcmReportStep -StepName "OoO Queue" -StepResult $Workflow.OooQueue
+		#New-UcmReportStep -StepName "OoO Groups" -StepResult ($Workflow.OooGroups -join "`n")
+		#New-UcmReportStep -StepName "OoO Users" -StepResult ($Workflow.OooUsers -join "`n")
+		#New-UcmReportStep -StepName "OoO Number Ranges" -StepResult ($Workflow.OooNumberRanges -join "`n")
+		#New-UcmReportStep -StepName "OoO Numbers" -StepResult ($Workflow.OooNumbers -join "`n")
 	}
 	$ReportObjectCount = ($Global:ProgressReport | Measure).Count
-	Write-UcmLog -Message "Report Object Count: $ReportObjectCount" -Severity 3 -Component $function
-	Write-UcmLog -Message 'Converting Objects to HTML/CSV' -Severity 3 -Component $function
-
-
+	Write-UcmLog -Message "Report Object Count: $ReportObjectCount" -Severity 2 -Component $function
+	Write-UcmLog -Message 'Converting Objects to HTML/CSV' -Severity 2 -Component $function
 
 	#Close the report
 	Complete-UcmReport
-	$Global:ProgressReport
 
 	#Export the report
 	Export-UcmHTMLReport
@@ -514,6 +528,7 @@ Function Expand-UcmRgsWorkFlow
 	$namespace = @{ ns = 'http://schemas.microsoft.com/powershell/2004/04' }
 	$WorkflowXML = (Select-Xml -Content $rgsconfig.Workflows.outerxml -XPath "//ns:Obj[ns:Props/ns:Obj/ns:Props/ns:G[@N='InstanceId'] = '$WorkflowGUID']" -Namespace $namespace)
 
+
 	#Check we actually have the group and start filling the object
 	if ($null -eq $WorkflowXML.node)
 	{
@@ -521,6 +536,24 @@ Function Expand-UcmRgsWorkFlow
 		$return.Status = 'Error'
 		$return.Message = "Workflow $WorkflowGUID not found"
 		Return $return
+	}
+	Foreach ($Prop in $WorkflowXML.node.props.s)
+	{
+		Switch ($Prop.Nil)
+		{
+			'Name'
+			{
+				$WorkFlowObj.Name = "Name not set"
+			}
+			'Description'
+			{
+				$WorkFlowObj.Description = "Description not set"
+			}
+			'LineUri'
+			{
+				$WorkFlowObj.LineUri = "LineURI not set"
+			}
+		}
 	}
 
 	Foreach ($Prop in $WorkflowXML.node.props.s)
@@ -612,6 +645,7 @@ Function Expand-UcmRgsWorkFlow
 	#Now we populate the "all" groups and numbers
 	$WorkFlowObj.AllGroups = $WorkFlowObj.DefaultGroups + $WorkFlowObj.HolidayGroups + $WorkFlowObj.OOOGroups
 	$WorkFlowObj.AllNumberRanges = $WorkFlowObj.DefaultNumberRanges + $WorkFlowObj.HolidayNumberRanges + $WorkFlowObj.OOONumberRanges
+	$WorkFlowObj.AllNumberRanges = ($WorkFlowObj.AllNumberRanges | Select-Object -Unique)
 	$WorkFlowObj.AllNumbers = $WorkFlowObj.DefaultNumbers + $WorkFlowObj.HolidayNumbers + $WorkFlowObj.OOONumbers
 
 	Return $WorkFlowObj
@@ -980,6 +1014,23 @@ Function Expand-UcmRgsQueue
 		{
 			#find the user and store it in a temp variable
 			$Result = ($evusers | Where-Object SipAddress -EQ $AgentUser)
+
+			#Check to see if the user actually returned, if not warn the user and continue
+			if ($null -eq $Result)
+			{
+				Write-UcmLog -Message "User $AgentUser not found in the EV Users list" -Severity 2 -Component $function
+				$UserObj = [PSCustomObject]@{
+					Name        = 'User not found'
+					SipAddress  = $AgentUser
+					Number      = 'None'
+					NumberRange = 'None'
+				}
+				$GroupObj += $UserObj
+				continue
+			}
+
+
+
 			#Get the number from the LineURI
 			if ($null -eq $Result.LineUri)
 			{

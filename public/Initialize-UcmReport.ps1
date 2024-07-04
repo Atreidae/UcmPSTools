@@ -173,11 +173,13 @@ Function New-UCMReportItem
   #Init a new line item
   $Global:ThisReport = @()
   $Global:ThisReport =  New-Object -TypeName PSobject
-  $Global:ThisReport | add-member -MemberType NoteProperty -Name "$LineTitle" -Value $LineMessage
 
   #Increment the line counter and add to the new line
   $Global:ProgressReportItemCount ++
   New-UCMReportStep -Stepname "ItemNumber" -StepResult "$Global:ProgressReportItemCount"
+  $Global:ThisReport | add-member -MemberType NoteProperty -Name "$LineTitle" -Value $LineMessage
+
+
 }
 
 Function New-UcmReportStep
