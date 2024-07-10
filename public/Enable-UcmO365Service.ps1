@@ -87,7 +87,8 @@ Function Enable-UcmO365Service
 	Param
 	(
 		[Parameter(ValueFromPipelineByPropertyName=$true, Mandatory, Position=1,HelpMessage='The UPN of the user you wish to enable the Service Plan on, eg: button.mash@contoso.com')] [string]$UPN,
-		[Parameter(ValueFromPipelineByPropertyName=$true, Mandatory, Position=2,HelpMessage="The name of the Office365 Service Plan you wish enable, eg: 'MCOSTANDARD' for Skype Online")] [string]$ServiceName
+		[Parameter(ValueFromPipelineByPropertyName=$true, Mandatory, Position=2,HelpMessage="The name of the Office365 Service Plan you wish enable, eg: 'MCOSTANDARD' for Skype Online")] [string]$ServiceName,
+		[Parameter(ValueFromPipelineByPropertyName = $true, Mandatory, Position = 3, HelpMessage = 'Does not make any changes to the service plan of the user, handy for reporting')] [Bool]$ReportOnly
 	)
 
 
@@ -161,7 +162,15 @@ Function Enable-UcmO365Service
 				Write-UcmLog -Message "Service Plan is currently Disabled" -Severity 1 -Component $function
 				If ($Service.ServicePlan.ServiceName -eq $ServiceName)
 				{
-					Write-UcmLog -Message "$Servicename Was disabled, Enabling" -Severity 2 -Component $function
+					If ($ReportOnly)
+					{
+						#We are in report only mode, return a message and exit
+						Write-UcmLog -Message 'Report Only Mode, No Changes Made' -Severity 2 -Component $function
+						$Return.Status = 'Warning'
+						$Return.Message = "User Missing $ServiceName but we were called in Report Only Mode, No Changes Made"
+						Return $Return
+					}
+								Write-UcmLog -Message "$ServiceName Was disabled, Enabling" -Severity 2 -Component $function
 					$AppEnabled = $true
 				}
 				#Not the requested service, add it to the array
