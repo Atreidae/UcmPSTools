@@ -403,7 +403,7 @@ TD{border-width: 1px;padding: 3px;border-style: solid;border-color: black;text-a
 
   Try #Export the report
   {
-    $Global:ProgressReport | ConvertTo-Html -head $Style -body "<h1> $($Global:ProgressReportTitle) </h1> <h2> $Global:ProgressReportSubtitle </h2> The following report was started at $Global:ProgressReportStartTime and finishes at $Global:ProgressReportEndTime <br><br>" | ForEach-Object {
+    $Global:ProgressReport | ConvertTo-Html -head $Style -body "<h1> $($Global:ProgressReportTitle) </h1> <h2> $Global:ProgressReportSubtitle </h2> The following report was started at $Global:ProgressReportStartTime and finished at $Global:ProgressReportEndTime <br><br>" | ForEach-Object {
       #Add formatting for the different states
       if($_ -like "*<td>OK*")
       {$_ -replace "<td>OK", "<td bgcolor=#33FF66>OK"}
