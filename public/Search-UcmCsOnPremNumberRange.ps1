@@ -100,7 +100,8 @@
 		(
 			[Parameter(Mandatory, Position=1)] [string]$Start,
 			[Parameter(Mandatory, Position=2)] [string]$End,
-			[Parameter(Position=3)] [Switch]$summary
+			[Parameter(Position=3)] [Switch]$summary,
+			[Parameter(Position=4)] [Switch]$usersonly
 		)
 
 	#region FunctionSetup, Set Default Variables for HTML Reporting and Write Log
@@ -109,6 +110,16 @@
 	$return.Function = $function
 	$return.Status = "Unknown"
 	$return.Message = "Function did not return a status message"
+	$Return.Users = @()
+	$Return.PrivateLines = @()
+	$Return.AnalogDevices = @()
+	$Return.CommonAreaPhones = @()
+	$Return.ExchangeUM = @()
+	$Return.DialInConf = @()
+    $Return.TrustedApps = @()
+	$Return.ResponseGroups = @()
+	$Return.All = @()
+#>
 
 	# Log why we were called
 	Write-UcmLog -Message "$($MyInvocation.InvocationName) called with $($MyInvocation.Line)" -Severity 1 -Component $function
@@ -156,9 +167,11 @@
 		$output | add-member -MemberType NoteProperty -Name 'SipUri' -Value $_.SipAddress
 		$output | add-member -MemberType NoteProperty -Name 'Type' -Value 'User'
 		$output | add-member -MemberType NoteProperty -Name 'RegistrarPool' -Value "$($_.RegistrarPool)"
-		$Return.Users = $output
+		$Return.Users += $output
+        $Return.all += $output
 	}
-
+	if (!$usersonly)
+	{
 	Write-UcmLog -Message "Checking User Private Lines" -Severity 1 -Component $function
 	Get-CsUser -Filter {PrivateLine -like $match} | ForEach-Object {
 		$output           =  New-Object -TypeName PSobject
@@ -167,7 +180,8 @@
 		$output | add-member -MemberType NoteProperty -Name 'SipUri' -Value $_.SipAddress
 		$output | add-member -MemberType NoteProperty -Name 'Type' -Value 'PrivateLineUser'
 		$output | add-member -MemberType NoteProperty -Name 'RegistrarPool' -Value "$($_.RegistrarPool)"
-		$Return.PrivateLine = $output
+		$Return.PrivateLines = $output
+        $Return.all += $output
 	}
 
 	Write-UcmLog -Message "Checking Analog Devices" -Severity 1 -Component $function
@@ -178,7 +192,8 @@
 		$output | add-member -MemberType NoteProperty -Name 'SipUri' -Value $_.SipAddress
 		$output | add-member -MemberType NoteProperty -Name 'Type' -Value 'AnalogDevice'
 		$output | add-member -MemberType NoteProperty -Name 'RegistrarPool' -Value "$($_.RegistrarPool)"
-		$OutputCollection += $output
+		$Return.AnalogDevices += $output
+        $Return.all += $output
 	}
 
 	Write-Verbose -Message 'Checking Common Area Phones'
@@ -189,7 +204,8 @@
 		$output | add-member -MemberType NoteProperty -Name 'SipUri' -Value $_.SipAddress
 		$output | add-member -MemberType NoteProperty -Name 'Type' -Value 'CommonAreaPhone'
 		$output | add-member -MemberType NoteProperty -Name 'RegistrarPool' -Value "$($_.RegistrarPool)"
-		$OutputCollection += $output
+		$Return.CommonAreaPhones += $output
+        $Return.all += $output
 	}
 
 	Write-UcmLog -Message "Checking Analog Devices" -Severity 1 -Component $function
@@ -201,7 +217,8 @@
 		$output | add-member -MemberType NoteProperty -Name 'SipUri' -Value $_.SipAddress
 		$output | add-member -MemberType NoteProperty -Name 'Type' -Value 'ExUMContact'
 		$output | add-member -MemberType NoteProperty -Name 'RegistrarPool' -Value "$($_.RegistrarPool)"
-		$OutputCollection += $output
+		$Return.ExchangeUM += $output
+        $Return.all += $output
 	}
 
 	Write-UcmLog -Message "Checking Dialin Conference Numbers" -Severity 1 -Component $function
@@ -212,7 +229,8 @@
 		$output | add-member -MemberType NoteProperty -Name 'SipUri' -Value $_.PrimaryUri
 		$output | add-member -MemberType NoteProperty -Name 'Type' -Value 'DialInConf'
 		$output | add-member -MemberType NoteProperty -Name 'RegistrarPool' -Value "$($_.Pool)"
-		$OutputCollection += $output
+		$Return.DialInConf += $output
+        $Return.all += $output
 	}
 
 	Write-UcmLog -Message "Checking Trusted Application Endpoints" -Severity 1 -Component $function
@@ -223,7 +241,8 @@
 		$output | add-member -MemberType NoteProperty -Name 'SipUri' -Value $_.SipAddress
 		$output | add-member -MemberType NoteProperty -Name 'Type' -Value 'TrustedAppEndPoint'
 		$output | add-member -MemberType NoteProperty -Name 'RegistrarPool' -Value "$($_.RegistrarPool)"
-		$OutputCollection += $output
+		$Return.TrustedApps += $output
+        $Return.all += $output
 	}
 
 	# No filter on Get-CSRGSworkflow
@@ -235,26 +254,31 @@
 		$output | add-member -MemberType NoteProperty -Name 'SipUri' -Value $_.PrimaryUri
 		$output | add-member -MemberType NoteProperty -Name 'Type' -Value 'ResponseGroup'
 		$output | add-member -MemberType NoteProperty -Name 'RegistrarPool' -Value "$($_.OwnerPool)"
-		$OutputCollection += $output
+		$Return.ResponseGroups += $output
+        $Return.all += $output
 	}
+}
+	#$Return.all #Put the output to the pipeline #TODO https://github.com/Atreidae/UcmPSTools/issues/28
 
-	$OutputCollection #Put the output to the pipeline #TODO https://github.com/Atreidae/UcmPSTools/issues/28
-
-	#Report on Findings
-	if ($OutputCollection.count -eq 0)
+#Return Findings
+	
+	if ($Return.all.count -eq 0)
 	{
-		Write-UcmLog -Message "Number $UriCheck does not appear to be used in the Skype4B deployment" -Severity 2 -Component $function
+		if ($Summary){ Write-UcmLog -Message "Number range $start does not appear to be used in the Skype4B deployment" -Severity 2 -Component $function}
 		$Return.Status = "OK"
 		$Return.Message  = "Number Not Used"
-		Return
+		Return $return
 	}
 	Else
 	{
-		Write-UcmLog -Message "Number $UriCheck is already in use!" -Severity 3 -Component $function
-		$Return.Status = "Error"
-		$Return.Message  = "Number in use: $OutputCollection"
-		Return
+		if ($Summary){  Write-UcmLog -Message "Number range $start contains $($return.all.count) objects!" -Severity 3 -Component $function}
+		$Return.Status = "OK"
+		$Return.Message  = "Range in use"
+        #Write-output $return.all
+		Return $return
+    
 	}
+
 
 	#region FunctionReturn
 
