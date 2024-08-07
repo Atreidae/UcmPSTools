@@ -57,6 +57,7 @@
 
   Param
   (
+    [Parameter(ValueFromPipelineByPropertyName=$true, Position=1)] [String]$FilePrefix ="UCM", #Puts a Prefix on the filename, I use it for batch names
     [Parameter(ValueFromPipelineByPropertyName=$true, Position=1)] [String]$Title="HTML Report",
     [Parameter(ValueFromPipelineByPropertyName=$true, Position=2)] [String]$SubTitle="The results were as follows",
     [Parameter(ValueFromPipelineByPropertyName=$true, Position=3)] [string]$StartDate=(Get-Date -format dd.MM.yy.hh.mm),
@@ -89,8 +90,8 @@
   $Global:ThisReport = @()
 
   #Declare our filenames
-  $Global:HTMLReportFilename=".\$Title - $StartDate.html"
-  $Global:CSVReportFilename=".\$Title - $StartDate.csv"
+  $Global:HTMLReportFilename=".\$FilePrefix $Title - $StartDate.html"
+  $Global:CSVReportFilename=".\$FilePrefix $Title - $StartDate.csv"
 
   #Import the attributes into the report object
   $Global:ProgressReport | add-member -MemberType NoteProperty -Name "Title"-Value "$title" -Force
