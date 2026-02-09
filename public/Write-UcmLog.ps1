@@ -1,5 +1,6 @@
 ﻿#PerformScriptSigning
-Function Write-UcmLog {
+function Write-UcmLog
+{
 	<#
 			.SYNOPSIS
 			Function to output messages to the console based on their severity and create log files
@@ -52,10 +53,10 @@ Function Write-UcmLog {
 
 			1.0: Initial Public Release
 	#>
-	[Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSAvoidUsingWriteHost', '', Scope='Function')] #we are litterally showing something on screen as well as logging.
+	[Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSAvoidUsingWriteHost', '', Scope = 'Function')] #we are litterally showing something on screen as well as logging.
 
 	[CmdletBinding()]
-	PARAM
+	param
 	(
 		[String]$Message,
 		[String]$Path = $Script:LogFileLocation,
@@ -67,10 +68,15 @@ Function Write-UcmLog {
 	$Date2 = Get-Date -Format 'MM-dd-yyyy'
 	$MaxLogFileSizeMB = 10
 
-	#Check to see if the file exists
-	If(Test-Path -Path $Path)
+	#Early exit for verbose severity if verbose preference is off
+	if ($Severity -eq 1 -and $VerbosePreference -eq 'SilentlyContinue')
 	{
-		if(((Get-ChildItem -Path $Path).length/1MB) -gt $MaxLogFileSizeMB) # Check the size of the log file and archive if over the limit.
+		return
+	}
+	#Check to see if the file exists
+	if (Test-Path -Path $Path)
+	{
+		if (((Get-ChildItem -Path $Path).length / 1MB) -gt $MaxLogFileSizeMB) # Check the size of the log file and archive if over the limit.
 		{
 			$ArchLogfile = $Path.replace('.log', "_$(Get-Date -Format dd-MM-yyy_hh-mm-ss).lo_")
 			Rename-Item -Path $Path -NewName $ArchLogfile
@@ -78,30 +84,30 @@ Function Write-UcmLog {
 	}
 
 	#Write to the log file
-	"$env:ComputerName date=$([char]34)$Date2$([char]34) time=$([char]34)$Date$([char]34) component=$([char]34)$component$([char]34) type=$([char]34)$severity$([char]34) Message=$([char]34)$Message$([char]34)"| Out-File -FilePath $Path -Append -NoClobber -Encoding default
+	"$env:ComputerName date=$([char]34)$Date2$([char]34) time=$([char]34)$Date$([char]34) component=$([char]34)$component$([char]34) type=$([char]34)$severity$([char]34) Message=$([char]34)$Message$([char]34)" | Out-File -FilePath $Path -Append -NoClobber -Encoding default
 
 	#If LogOnly is not set, output the log entry to the screen
-	If (!$LogOnly)
+	if (!$LogOnly)
 	{
 		#If the log entry is just Verbose (1), output it to write-verbose
 		if ($severity -eq 1)
 		{
-			"$Message"| Write-verbose
+			"$Message" | Write-Verbose
 		}
 		#If the log entry is just informational (2), output it to write-host
 		if ($severity -eq 2)
 		{
-			"INFO: $Message"| Write-Host -ForegroundColor Green
+			"INFO: $Message" | Write-Host -ForegroundColor Green
 		}
 		#If the log entry has a severity of 3 assume its a warning and write it to write-warning
 		if ($severity -eq 3)
 		{
-			"$Date $Message"| Write-Warning
+			"$Date $Message" | Write-Warning
 		}
 		#If the log entry has a severity of 4 or higher, assume its an error and display an error message (Note, critical errors are caught by throw statements so may not appear here)
 		if ($severity -ge 4)
 		{
-			"$Date $Message"| Write-Error
+			"$Date $Message" | Write-Error
 		}
 	}
 }
